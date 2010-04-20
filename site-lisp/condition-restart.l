@@ -143,6 +143,17 @@
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
 
+
+(defmacro with-simple-restart ((name fmt-control &rest fmt-arguments)
+                               &body forms)
+  "Evaluate FORMS with a retart NAME which simply returns nil and t."
+  `(restart-case
+       (progn ,@forms)
+     (,name ()
+      :report (lambda (stream)
+                (format stream ,fmt-control ,@fmt-arguments))
+      (values nil t))))
+
 ;;;
 ;;; * Functions Use Active Restarts
 ;;;;
@@ -184,6 +195,11 @@
                                (error 'restart-not-found
                                       :designator identifier)))
          arguments))
+
+
+;;;
+;;; 
+;;;
 
 #|
 CLHS ‚ÅŠÖŒW‚ ‚è‚»‚¤‚È‚à‚Ì
