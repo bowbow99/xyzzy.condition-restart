@@ -29,7 +29,13 @@
 ;;; * Restart Object
 ;;;
 
-(defstruct restart
+(defun print-restart (restart stream #:what?)
+  (format stream "#<restart: ~A>"
+          (or (restart-name restart)
+              "(anonymous)")))
+
+(defstruct (restart
+            (:print-function print-restart))
   name
   function
   interactive-function
