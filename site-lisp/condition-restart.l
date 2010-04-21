@@ -229,7 +229,8 @@
               (let ((form (read s nil '#1=#:eof)))
                 (when (eq form '#1#)
                   (return))
-                (setq result (multiple-value-list (eval form))))))
+                (setq result (multiple-value-list
+                              (eval form))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
            (goto-char (buffer-stream-point s))
@@ -241,7 +242,7 @@
     (eval-region-print stream
       (if (null stream)
           (message "~S" (car result))
-        (format t "~{~S~%~}" result)))
+        (format t "~{~&=> ~S~%~}" result)))
     (values-list result)))
 
 
