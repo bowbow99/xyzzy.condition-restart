@@ -218,6 +218,26 @@
 ;;; * eval-region with restart support
 ;;;
 
+
+
+(defun %print-condition (condition &optional (stream *standard-output*))
+  (format stream "~&~A~%   [Condition Type: ~S]~%"
+          condition
+          (%condition-name condition)))
+
+(require "cmu_loop")
+(require "anaph")
+(use-package "anaph")
+
+(defun %print-restart-options (restarts &optional (stream *standard-output*))
+  (format stream "~&Retart Options:~%")
+  (loop for R in restarts
+        for i from 0
+    do (format stream "~&~4D [~A]  " i (or (restart-name R) "(Anonymous)"))
+    do (aif (restart-report-function R)
+           (progn (funcall it stream) (fresh-line stream))
+         (format stream "~A~&" (or (restart-name r) "")))))
+
 (in-package "editor")
 
 (use-package "anaph")
@@ -246,20 +266,9 @@
         (with-output-to-temp-buffer ("*RESTART*" nil)
           (set-buffer (buffer-stream-buffer *standard-output*))
           ;; TODO: extern printing of condition, restarts
-          (format t "~A~%   [Condition Type: ~S]~2%"
-                  condition
-                  (condition-restart::%condition-name condition))
-          (loop for r in restarts
-                for i from 0
-            do (format t "~&~4D: [~A] "
-                       i
-                       (or (condition-restart::restart-name r) "(Anonymous)"))
-            do (aif (condition-restart::restart-report-function r)
-                   (progn
-                     (funcall it *standard-output*)
-                     (fresh-line))
-                 (format t "~A~%"
-                         (condition-restart::restart-name r))))
+          (condition-restart::%print-condition condition)
+          (format t "~&~%")
+          (condition-restart::%print-restart-options restarts)
           ;; TODO: obtain and print CALL STACK
           (let ((i (handler-case
                        (read-integer "Restart: ")
