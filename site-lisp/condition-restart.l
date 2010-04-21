@@ -196,6 +196,17 @@
                                       :designator identifier)))
          arguments))
 
+;;;
+;;; * Condition Signaling Functions
+;;;
+
+(defun cerror (fmt-control datum &rest args)
+  (restart-case
+      (apply #'error datum args)
+    (continue ()
+      :report (lambda (stream)
+                (format stream fmt-control args)))))
+
 
 ;;;
 ;;; 
