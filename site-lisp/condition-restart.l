@@ -19,6 +19,8 @@
           compute-restarts
           find-restart
           invoke-restart
+          ;; Signallers
+          cerror
           ))
 
 
