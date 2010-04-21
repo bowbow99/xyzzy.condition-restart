@@ -11,12 +11,14 @@
 ;;; exporting from lisp package
 (in-package "lisp")
 
-(export '(restart-case
+(export '(;; Macros establishes restarts
+          restart-case
           restart-bind
+          with-simple-restart
+          ;; Functions deals with restarts
           compute-restarts
           find-restart
           invoke-restart
-          with-simple-restart
           ))
 
 
@@ -207,27 +209,4 @@
       :report (lambda (stream)
                 (format stream fmt-control args)))))
 
-
-;;;
-;;; 
-;;;
-
-#|
-CLHS ‚ÅŠÖŒW‚ ‚è‚»‚¤‚È‚à‚Ì
--------------------------
-- restart-case
-- restart-bind
-- with-simple-restart
-- invoke-restart
-- find-restart
-- invoke-restart-interactively
-- Glossary#"restart function"
-- abort, continue, muffle-warning, store-value, use-value
-
-- there's a system class named RESTART
-- restart function has name, possiblly be anonymous (or nil)
-- when restart-case nested (and name shadowed?), most inner one
-  get invoked
-
-|#
 ;;;; condition-restart.l ends here
