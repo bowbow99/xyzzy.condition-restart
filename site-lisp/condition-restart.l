@@ -19,6 +19,7 @@
           compute-restarts
           find-restart
           invoke-restart
+          invoke-restart-interactively
           ;; Signallers
           cerror
           ))
@@ -203,6 +204,13 @@
                                       :designator identifier)))
          arguments))
 
+(defun invoke-restart-interactively (restart)
+  (apply #'invoke-restart
+         restart
+         (aif (restart-interactive-function restart)
+             (funcall it)
+           nil)))
+
 ;;;
 ;;; * Condition Signaling Functions
 ;;;
@@ -265,7 +273,6 @@
       (with-other-window
         (with-output-to-temp-buffer ("*RESTART*" nil)
           (set-buffer (buffer-stream-buffer *standard-output*))
-          ;; TODO: extern printing of condition, restarts
           (condition-restart::%print-condition condition)
           (format t "~&~%")
           (condition-restart::%print-restart-options restarts)
@@ -274,8 +281,7 @@
                        (read-integer "Restart: ")
                      (quit (q) nil))))
             (awhen (and i (nth i restarts))
-              ;; TODO: use restart-interactive-function
-              (invoke-restart it))))))))
+              (invoke-restart-interactively it))))))))
 
 (defun eval-region (from to &optional stream)
   (interactive "r")
