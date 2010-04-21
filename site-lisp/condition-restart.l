@@ -29,6 +29,9 @@
 (require "utilities")
 (use-package "utilities")
 
+(require "anaph")
+
+
 ;;;
 ;;; * Restart Object
 ;;;
@@ -217,6 +220,51 @@
 
 (in-package "editor")
 
+(use-package "anaph")
+
+(export '(with-other-window
+          ))
+
+
+(defmacro with-other-window (&body forms)
+  `(save-window-excursion
+    (if (= 1 (count-windows))
+        (split-window (let ((col (window-columns)))
+                        (round (if (< 140 col) col (window-height)) -2))
+                      t)
+      (other-window))
+    ,@forms))
+
+#+xyzzy (setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
+
+(require "cmu_loop")
+
+(defun select-restart-interactively (condition)
+  (let ((restarts (compute-restarts)))
+    (when restarts
+      (with-other-window
+        (with-output-to-temp-buffer ("*RESTART*" nil)
+          (set-buffer (buffer-stream-buffer *standard-output*))
+          (format t "~A~%   [Condition Type: ~S]~2%"
+                  condition
+                  (condition-restart::%condition-name condition))
+          (loop for r in restarts
+                for i from 0
+            do (format t "~&~4D: [~A] "
+                       i
+                       (or (condition-restart::restart-name r) "(Anonymous)"))
+            do (aif (condition-restart::restart-report-function r)
+                   (progn
+                     (funcall it *standard-output*)
+                     (fresh-line))
+                 (format t "~A~%"
+                         (condition-restart::restart-name r))))
+          (let ((i (handler-case
+                       (read-integer "Restart: ")
+                     (quit (q) nil))))
+            (awhen (and i (nth i restarts))
+              (invoke-restart it))))))))
+
 (defun eval-region (from to &optional stream)
   (interactive "r")
   (let ((result nil))
@@ -230,19 +278,20 @@
                 (when (eq form '#1#)
                   (return))
                 (setq result (multiple-value-list
-                              (eval form))))))
+                              (handler-bind ((condition 'select-restart-interactively))
+                                (eval form)))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
            (goto-char (buffer-stream-point s))
            (when stream
-             (eval-region-print steram
-               (format t "~A~%" c)))
+             (eval-region-print stream
+                                (format t "~A~%" c)))
            (let ((si:*trace-on-error* nil))
              (error c))))))
     (eval-region-print stream
-      (if (null stream)
-          (message "~S" (car result))
-        (format t "~{~&=> ~S~%~}" result)))
+                       (if (null stream)
+                           (message "~S" (car result))
+                         (format t "~{~&=> ~S~%~}" result)))
     (values-list result)))
 
 
