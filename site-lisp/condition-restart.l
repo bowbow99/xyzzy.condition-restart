@@ -211,4 +211,38 @@
       :report (lambda (stream)
                 (format stream fmt-control args)))))
 
+;;;
+;;; * eval-region with restart support
+;;;
+
+(in-package "editor")
+
+(defun eval-region (from to &optional stream)
+  (interactive "r")
+  (let ((result nil))
+    (when (> from to)
+      (rotatef from to))
+    (let ((s (make-buffer-stream (selected-buffer) from to)))
+      (handler-case
+          (let ((*package* *package*))
+            (while (< (buffer-stream-point s) to)
+              (let ((form (read s nil '#1=#:eof)))
+                (when (eq form '#1#)
+                  (return))
+                (setq result (multiple-value-list (eval form))))))
+        ((or error reader-error quit) (c)
+         (when (<= (buffer-stream-point s) to)
+           (goto-char (buffer-stream-point s))
+           (when stream
+             (eval-region-print steram
+               (format t "~A~%" c)))
+           (let ((si:*trace-on-error* nil))
+             (error c))))))
+    (eval-region-print stream
+      (if (null stream)
+          (message "~S" (car result))
+        (format t "~{~S~%~}" result)))
+    (values-list result)))
+
+
 ;;;; condition-restart.l ends here
