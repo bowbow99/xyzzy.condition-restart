@@ -22,6 +22,13 @@
           invoke-restart-interactively
           ;; Signallers
           cerror
+          assert
+          ;; standard restart interface
+          abort
+          continue
+          muffle-warning
+          use-value
+          store-value
           ))
 
 (in-package "condition-restart")
@@ -214,6 +221,30 @@
          (aif (restart-interactive-function restart)
              (funcall it)
            nil)))
+
+
+;;;
+;;; * Interface Functions for Standard Restart
+;;;
+
+(defun abort (&optional condition)
+  (invoke-restart 'abort condition))
+
+(defun continue (&optional condition)
+  (let ((cont (find-restart 'continue condition)))
+    (when cont
+      (invoke-restart cont))))
+
+(defun muffle-warning (&optional warning)
+  (invoke-restart 'muffle-warning))
+
+(defun use-value (value &optional condition)
+  (let ((r (find-restart 'use-value condition)))
+    (when r (invoke-restart r value))))
+
+(defun store-value (new-value &optional condition)
+  (let ((r (find-restart 'store-value condition)))
+    (when r (invoke-restart r new-value))))
 
 ;;;
 ;;; * Condition Signaling Functions
