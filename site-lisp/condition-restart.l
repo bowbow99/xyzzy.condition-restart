@@ -3,7 +3,6 @@
 ;;;; condition-restart.l
 ;;;;
 
-
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (defpackage #:condition-restart
     (:use #:lisp)))
@@ -33,6 +32,9 @@
 
 (in-package "condition-restart")
 
+;;;;
+;;;; * Utilities
+
 (require "utilities")
 (use-package "utilities")
 
@@ -44,9 +46,9 @@
   (si:*structure-definition-name
    (si:*structure-definition condition)))
 
-;;;
-;;; * Restart Object
-;;;
+
+;;;;
+;;;; * Restart Object
 
 (defun print-restart (restart stream #:what?)
   (format stream "#<restart: ~A>"
@@ -63,9 +65,11 @@
 
 (defvar *active-restarts* nil)
 
-;;;
-;;; * Macro restart-bind
-;;;
+
+;;;; * Restart Establishing Macros
+
+;;; - Macro restart-bind
+
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
@@ -80,9 +84,7 @@
 #+xyzzy
 (setf (get 'restart-bind 'ed:lisp-indent-hook) 1)
 
-;;;
-;;; * Macro restart-case
-;;;
+;;; - Macro restart-case
 
 (defun transform-keyword-option-report (form)
   (list :report-function
@@ -162,7 +164,6 @@
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
 
-
 (defmacro with-simple-restart ((name fmt-control &rest fmt-arguments)
                                &body forms)
   "Evaluate FORMS with a retart NAME which simply returns nil and t."
@@ -173,9 +174,8 @@
                 (format stream ,fmt-control ,@fmt-arguments))
       (values nil t))))
 
-;;;
-;;; * Functions Use Active Restarts
 ;;;;
+;;;; * Functions Use Active Restarts
 
 (defun restart-test (restart condition)
   (or (null condition)
@@ -222,10 +222,7 @@
              (funcall it)
            nil)))
 
-
-;;;
-;;; * Interface Functions for Standard Restart
-;;;
+;;; - Interface Functions for Standard Restart
 
 (defun abort (&optional condition)
   (invoke-restart 'abort condition))
@@ -246,9 +243,9 @@
   (let ((r (find-restart 'store-value condition)))
     (when r (invoke-restart r new-value))))
 
-;;;
-;;; * Condition Signaling Functions
-;;;
+
+;;;;
+;;;; * Signaling Condition with Restarts
 
 (defun cerror (fmt-control datum &rest args)
   (restart-case
@@ -258,9 +255,10 @@
                 (format stream fmt-control args)))))
 
 
-;;;
-;;; * eval-region with restart support
-;;;
+
+;;;;
+;;;; * eval-region with restart support
+;;;;
 
 (defun %print-condition (condition &optional (stream *standard-output*))
   (format stream "~&~A~%   [Condition Type: ~S]~%"
