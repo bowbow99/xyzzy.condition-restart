@@ -24,14 +24,18 @@
           cerror
           ))
 
-
 (in-package "condition-restart")
 
 (require "utilities")
 (use-package "utilities")
 
 (require "anaph")
+(use-package "anaph")
 
+
+(defun %condition-name (condition)
+  (si:*structure-definition-name
+   (si:*structure-definition condition)))
 
 ;;;
 ;;; * Restart Object
@@ -222,11 +226,10 @@
       :report (lambda (stream)
                 (format stream fmt-control args)))))
 
+
 ;;;
 ;;; * eval-region with restart support
 ;;;
-
-
 
 (defun %print-condition (condition &optional (stream *standard-output*))
   (format stream "~&~A~%   [Condition Type: ~S]~%"
