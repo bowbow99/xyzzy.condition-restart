@@ -21,7 +21,6 @@
           invoke-restart-interactively
           ;; Signallers
           cerror
-          warn
           assert
           ;; standard restart interface
           abort
