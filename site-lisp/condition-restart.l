@@ -314,7 +314,11 @@
           ;; TODO: obtain and print CALL STACK
           (let ((i (handler-case
                        (read-integer "Restart: ")
-                     (quit (q) nil))))
+                     (quit (q)
+                       (handler-case
+                           (invoke-restart 'abort)
+                         (condition-restart::restart-not-found ()
+                           nil))))))
             (awhen (and i (nth i restarts))
               (invoke-restart-interactively it))))))))
 
