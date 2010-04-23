@@ -254,8 +254,6 @@
       :report (lambda (stream)
                 (format stream fmt-control args)))))
 
-
-
 ;;;;
 ;;;; * eval-region with restart support
 ;;;;
@@ -276,7 +274,7 @@
     do (format stream "~&~4D [~A]  " i (or (restart-name R) "(Anonymous)"))
     do (aif (restart-report-function R)
            (progn (funcall it stream) (fresh-line stream))
-         (format stream "~A~&" (or (restart-name r) "")))))
+         (format stream "~A~&" (or (restart-name R) "")))))
 
 (in-package "editor")
 
