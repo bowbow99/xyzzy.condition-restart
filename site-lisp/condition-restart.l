@@ -21,6 +21,7 @@
           invoke-restart-interactively
           ;; Signallers
           cerror
+          warn
           assert
           ;; standard restart interface
           abort
@@ -247,6 +248,11 @@
 ;;;;
 ;;;; * Signaling Condition with Restarts
 
+(defun warn (datum &rest args)
+  (restart-case
+      (lisp::*error datum args 'simple-warning)
+    (muffle-warning () nil)))
+
 (defun cerror (fmt-control datum &rest args)
   (restart-case
       (apply #'error datum args)
@@ -326,7 +332,7 @@
                 (when (eq form '#1#)
                   (return))
                 (setq result (multiple-value-list
-                              (handler-bind ((condition 'select-restart-interactively))
+                              (handler-bind ((serious-condition 'select-restart-interactively))
                                 (eval form)))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
