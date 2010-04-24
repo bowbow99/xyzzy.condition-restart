@@ -327,11 +327,7 @@
                   (return))
                 (setq result (multiple-value-list
                               (handler-bind ((serious-condition 'select-restart-interactively))
-                                (restart-case
-                                    (eval form)
-                                  (abort ()
-                                   :report "Abort evaluation."
-                                   (values)))))))))
+                                (eval form)))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
            (goto-char (buffer-stream-point s))
