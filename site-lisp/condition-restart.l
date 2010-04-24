@@ -38,10 +38,6 @@
 (require "utilities")
 (use-package "utilities")
 
-(require "anaph")
-(use-package "anaph")
-
-
 (defun %condition-type (condition)
   (si:*structure-definition-name
    (si:*structure-definition condition)))
@@ -218,9 +214,9 @@
 (defun invoke-restart-interactively (restart)
   (apply #'invoke-restart
          restart
-         (aif (restart-interactive-function restart)
-             (funcall it)
-           nil)))
+         (let ((it (restart-interactive-function restart)))
+           (when it (funcall it)))))
+
 
 ;;; - Interface Functions for Standard Restart
 
@@ -269,21 +265,18 @@
           (%condition-type condition)))
 
 (require "cmu_loop")
-(require "anaph")
-(use-package "anaph")
 
 (defun %print-restart-options (restarts &optional (stream *standard-output*))
   (format stream "~&Retart Options:~%")
   (loop for R in restarts
         for i from 0
     do (format stream "~&~4D [~A]  " i (or (restart-name R) "(Anonymous)"))
-    do (aif (restart-report-function R)
-           (progn (funcall it stream) (fresh-line stream))
-         (format stream "~A~&" (or (restart-name R) "")))))
+    do (let ((it (restart-report-function R)))
+         (if it
+             (progn (funcall it stream) (fresh-line stream))
+           (format stream "~A~&" (or (restart-name R) ""))))))
 
 (in-package "editor")
-
-(use-package "anaph")
 
 (export '(with-other-window
           ))
@@ -319,7 +312,7 @@
                            (invoke-restart 'abort)
                          (condition-restart::restart-not-found ()
                            nil))))))
-            (awhen (and i (nth i restarts))
+            (let ((it (and i (nth i restarts))))
               (invoke-restart-interactively it))))))))
 
 (defun eval-region (from to &optional stream)
