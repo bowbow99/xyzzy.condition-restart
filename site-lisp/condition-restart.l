@@ -35,9 +35,6 @@
 ;;;;
 ;;;; * Utilities
 
-(require "utilities")
-(use-package "utilities")
-
 (defun %condition-type (condition)
   (si:*structure-definition-name
    (si:*structure-definition condition)))
@@ -86,9 +83,7 @@
   (list :report-function
         (case (type-of form)
           (simple-string
-           (with-gensyms*
-             `(lambda (,$stream)
-                (format ,$stream ,form))))
+           `(lambda (#1=#:stream) (format #1# ,form)))
           (symbol
            (if form
                `',form
@@ -132,30 +127,29 @@
 
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
-  (with-gensyms*
-    (let ((tags/clauses (mapcar (lambda (clause)
-                                  (cons (gensym) clause))
-                          clauses)))
-      `(block ,$restart-case
-         (let ((,$args nil))
-           (tagbody
-             (restart-bind
-                 (,@(mapcar (lambda (tag/clause)
-                              (%with-tag/clause (tag/clause)
-                                `(,name
-                                  (lambda (&rest ,$temp)
-                                    (setq ,$args ,$temp)
-                                    (go ,tag))
-                                  ,@(mapcan #'transform-keyword-option
-                                      options))))
-                      tags/clauses))
-               (return-from ,$restart-case ,form))
-             ,@(mapcan (lambda (tag/clause)
-                         (%with-tag/clause (tag/clause)
-                           `(,tag (return-from ,$restart-case
-                                    (apply #'(lambda ,args ,@body)
-                                           ,$args)))))
-                 tags/clauses)))))))
+  (let ((tags/clauses (mapcar (lambda (clause)
+                                (cons (gensym) clause))
+                        clauses)))
+    `(block #1=#:restart-case
+       (let ((#2=#:args nil))
+         (tagbody
+           (restart-bind
+               (,@(mapcar (lambda (tag/clause)
+                            (%with-tag/clause (tag/clause)
+                              `(,name
+                                (lambda (&rest #3=#:temp)
+                                  (setq #2# #3#)
+                                  (go ,tag))
+                                ,@(mapcan #'transform-keyword-option
+                                    options))))
+                    tags/clauses))
+             (return-from #1# ,form))
+           ,@(mapcan (lambda (tag/clause)
+                       (%with-tag/clause (tag/clause)
+                         `(,tag (return-from #1#
+                                  (apply #'(lambda ,args ,@body)
+                                         #2#)))))
+               tags/clauses))))))
 
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
