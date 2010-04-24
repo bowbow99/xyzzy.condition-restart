@@ -61,6 +61,13 @@
 
 ;;;; * Restart Establishing Macros
 
+(defconstant +global-abort+
+  (make-restart
+   :name 'abort
+   :function (lambda () (signal 'silent-quit))
+   :report-function (lambda (stream)
+                      (format stream "Stop evaluation, return to toplevel."))))
+
 ;;; - Macro restart-bind
 
 (defmacro restart-bind ((&rest restarts) &body body)
@@ -71,7 +78,8 @@
                                                    :function #',(cadr restart)
                                                    ,@(cddr restart)))
                             restarts))
-                  *active-restarts*)))
+                  (or *active-restarts*
+                      (list +global-abort+)))))
      ,@body))
 
 #+xyzzy
