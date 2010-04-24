@@ -58,15 +58,19 @@
 
 (defvar *active-restarts* nil)
 
-
-;;;; * Restart Establishing Macros
-
-(defconstant +global-abort+
+;; NOTE:
+;; Since xyzzy's typep doesn't return true for structure instance
+;; of *old* structure definition after structure has re-defined,
+;; it is neccessary to re-instantiate it.
+(defparameter +global-abort+
   (make-restart
    :name 'abort
    :function (lambda () (signal 'silent-quit))
    :report-function (lambda (stream)
                       (format stream "Stop evaluation, return to toplevel."))))
+
+
+;;;; * Restart Establishing Macros
 
 ;;; - Macro restart-bind
 
