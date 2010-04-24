@@ -264,23 +264,21 @@
           condition
           (%condition-type condition)))
 
-(require "cmu_loop")
 
 (defun %print-restart-options (restarts &optional (stream *standard-output*))
   (format stream "~&Retart Options:~%")
-  (loop for R in restarts
-        for i from 0
-    do (format stream "~&~4D [~A]  " i (or (restart-name R) "(Anonymous)"))
-    do (let ((it (restart-report-function R)))
-         (if it
-             (progn (funcall it stream) (fresh-line stream))
-           (format stream "~A~&" (or (restart-name R) ""))))))
+  (let ((i -1))
+    (dolist (restart restarts)
+      (format stream "~&~4D [~A] "
+              (incf i)
+              (or (restart-name restart) "(Anonymous)"))
+      (let ((report-fn (restart-report-function restart)))
+        (if report-fn
+            (progn (funcall report-fn stream) (fresh-line stream))
+          (format stream "~A~&" (or (restart-name restart) "")))))))
+
 
 (in-package "editor")
-
-(export '(with-other-window
-          ))
-
 
 (defmacro with-other-window (&body forms)
   `(save-window-excursion
@@ -292,8 +290,6 @@
     ,@forms))
 
 #+xyzzy (setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
-
-(require "cmu_loop")
 
 (defun select-restart-interactively (condition)
   (let ((restarts (compute-restarts)))
