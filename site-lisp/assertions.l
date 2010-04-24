@@ -16,12 +16,15 @@
           ))
 
 
-(defmacro assert (test-form &optional places datum &rest args)
+(defmacro assert (test-form &optional places
+                            (datum t datum-supplied-p) &rest args)
   `(tagbody
      #1=#:assertion-top
      (restart-case
          (unless ,test-form
-           (error ,datum ,@args))
+           (error ,@(if datum-supplied-p
+                        (list* datum args)
+                      `("The assertion ~S failed." ',test-form))))
        (continue
         (&rest new-values)
         :report (lambda (stream)
