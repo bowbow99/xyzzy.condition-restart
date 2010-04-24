@@ -42,7 +42,7 @@
 (use-package "anaph")
 
 
-(defun %condition-name (condition)
+(defun %condition-type (condition)
   (si:*structure-definition-name
    (si:*structure-definition condition)))
 
@@ -78,7 +78,7 @@
                                                    :function #',(cadr restart)
                                                    ,@(cddr restart)))
                             restarts))
-                *active-restarts*)))
+                  *active-restarts*)))
      ,@body))
 
 #+xyzzy
@@ -266,7 +266,7 @@
 (defun %print-condition (condition &optional (stream *standard-output*))
   (format stream "~&~A~%   [Condition Type: ~S]~%"
           condition
-          (%condition-name condition)))
+          (%condition-type condition)))
 
 (require "cmu_loop")
 (require "anaph")
