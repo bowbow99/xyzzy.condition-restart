@@ -61,7 +61,8 @@
 ;; NOTE:
 ;; Since xyzzy's typep doesn't return true for structure instance
 ;; of *old* structure definition after structure has re-defined,
-;; it is neccessary to re-instantiate it.
+;; it is neccessary to re-instantiate it when this file has been
+;; reloaded.
 (defparameter +global-abort+
   (make-restart
    :name 'abort
