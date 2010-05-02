@@ -221,11 +221,12 @@
                                       :designator identifier)))
          arguments))
 
-(defun invoke-restart-interactively (restart)
-  (apply #'invoke-restart
-         restart
-         (let ((it (restart-interactive-function restart)))
-           (when it (funcall it)))))
+(defun invoke-restart-interactively (identifier)
+  (let ((restart (find-restart identifier)))
+    (apply #'invoke-restart
+           restart
+           (let ((it (restart-interactive-function restart)))
+             (when it (funcall it))))))
 
 
 ;;; - Interface Functions for Standard Restart
