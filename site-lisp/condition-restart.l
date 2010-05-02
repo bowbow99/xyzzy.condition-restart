@@ -209,10 +209,11 @@
        identifier))))
 
 (define-condition restart-not-found (error)
-  (designator)
+  (designator condition)
   (:report (lambda (condition stream)
-             (format stream "Could not find active restart: ~S"
-                     (restart-not-found-designator condition)))))
+             (format stream "Could not find active restart ~S for condition ~S"
+                     (restart-not-found-designator condition)
+                     (restart-not-found-condition condition)))))
 
 (defun invoke-restart (identifier &rest arguments)
   "Call the function associated with RESTART with ARGUMENTS."
@@ -233,9 +234,9 @@
 
 (defun abort (&optional condition)
   (let ((abort (find-restart 'abort condition)))
-    (if abort
-        (invoke-restart abort)
-      (error 'restart-not-found :designator 'abort))))
+    (unless abort
+      (error 'restart-not-found :designator 'abort :condition condition))
+    (invoke-restart abort)))
 
 (defun continue (&optional condition)
   (let ((cont (find-restart 'continue condition)))
