@@ -7,6 +7,9 @@
   (defpackage #:condition-restart
     (:use #:lisp)))
 
+(when (find-package :elisp)
+  (shadow :abort :elisp))
+
 ;;; exporting from lisp package
 (in-package "lisp")
 
