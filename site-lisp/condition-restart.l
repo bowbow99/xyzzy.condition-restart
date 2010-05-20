@@ -240,10 +240,9 @@
   (invoke-restart (find-restart 'abort condition)))
 
 (defun continue (&optional condition)
-  (let ((cont (find-restart 'continue condition)))
-    (unless cont
-      (error 'restart-not-found :designator 'continue :condition condition))
-    (invoke-restart cont)))
+  (let ((restart (find-restart 'continue condition)))
+    (when restart
+      (invoke-restart restart))))
 
 (defun muffle-warning (&optional warning)
   (invoke-restart 'muffle-warning))
