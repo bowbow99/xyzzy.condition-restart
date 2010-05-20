@@ -75,10 +75,10 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 指定された再起動を現在の環境から探して返します。
 見つからなかったら nil を返します。
 
-  IDENTIFIER 再起動の名前（シンボル）か再起動オブジェクトを指定します。
-  CONDITION  コンディションを指定すると、そのコンディションに対して有効
-             な再起動の中から探します。
-             restart-bind の :test-function 参照。
+  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
+  CONDITION  : コンディションを指定すると、そのコンディションに対して有効
+               な再起動の中から探します。
+               restart-bind の :test-function 参照。
 
    </description>
    <seealso>restart-bind</seealso>
@@ -97,11 +97,11 @@ invoke-restart-interactively によって起動された再起動は、restart-c
    <description>
 IDENTIFIER で指定される再起動を起動します。
 
-  IDENTIFIER 起動する再起動の名前（シンボル）か再起動オブジェクトを指定
-             します。
-             指定される再起動が確立されていない場合は restart-not-found
-             エラーが通知されます。
-  ARGUMENTS  再起動に渡す引数があれば。
+  IDENTIFIER : 起動する再起動の名前（シンボル）か再起動オブジェクトを指定
+               します。
+               指定される再起動が確立されていない場合は restart-not-found
+               エラーが通知されます。
+  ARGUMENTS  : 再起動に渡す引数があれば。
 
 再起動は制御をどこかに飛ばすかも知れません。飛ばさなかった（普通に値を
 返した）場合、invoke-restart は再起動が返した値をそのまま返します。
@@ -121,9 +121,8 @@ IDENTIFIER で指定される再起動を起動します。
    <description>
 現在の環境で確立されている再起動のリストを返します。
 
-  CONDITION コンディションを指定すると、そのコンディションに対して有効な
-            再起動のみのリストを返します。
-
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効な
+              再起動のみのリストを返します。
    </description>
    <seealso>restart-case</seealso>
    <seealso>restart-bind</seealso>
@@ -144,7 +143,6 @@ IDENTIFIER で指定される再起動を起動します。
 NAME という名の再起動を確立した環境で FORMS を評価します。
 この再起動が起動されると、with-simple-restart 式は多値で nil と t を返して
 終了します。
-
    </description>
    <link>[CLHS: with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
    <file>condition-restart.l</file>
@@ -161,40 +159,39 @@ RESTART-CLAUSE で指定された再起動を確立した環境で FORM を評�
 restart-case で確立された再起動が起動されると、起動された再起動の実行結果
 が restart-case 式の結果として返されます。
 
-RESTART-CLAUSE の書式は以下の通りです。
+  (restart-case
+      FORM
+    (NAME LAMBDA-LIST
+      {:interactive INTERACTIVE-EXPR}
+      {:report REPORT-EXPR}
+      {:test TEST-EXPR}
+      BODY...)
+    ...)
 
-  (NAME LAMBDA-LIST
-    {:interactive INTERACTIVE-EXPR}
-    {:report REPORT-EXPR}
-    {:test TEST-EXPR}
-    BODY...)
+  NAME             : 再起動の名前をシンボルで指定します。
+  LAMBDA-LIST      : 再起動の仮引数を指定します。lambda とか使うことの
+                     できる &amp;optional やら &amp;rest やらを使えます。
+  BODY             : 再起動が起動されたときに実行されます。
+                     LAMBDA-LIST で指定した仮引数が与えられた引数に束縛され
+                     た環境で実行され、BODY の結果が restart-case 式の結果
+                     となります。
 
-  NAME              再起動の名前をシンボルで指定します。
-  LAMBDA-LIST       再起動の仮引数を指定します。lambda とか使うことの
-                    できる &amp;optional やら &amp;rest やらを使えます。
-  BODY              再起動が起動されたときに実行されます。
-                    LAMBDA-LIST で指定した仮引数が与えられた引数に束縛され
-                    た環境で実行され、BODY の結果が restart-case 式の結果
-                    となります。
-
-  INTERACTIVE-EXPR  対話的に起動されたときに実行される関数を、関数名
-                    （シンボルかlambda 式）で指定します。#' はつけない
-                    でください。
-                    対話的に起動されるとこの関数は引数なしで実行されます。
-                    この関数は再起動へ渡す引数のリストを返さなければなり
-                    ません。
-  REPORT-EXPR       再起動の概要を説明する文字列か、概要を出力する関数の
-                    名前を指定します。
-              関数    関数名（シンボルか lambda 式）を指定します。#' はつけ
-                      ないでください。関数は出力先のストリームを受け取り、
-                      再起動の概要を出力しなければなりません。
-              文字列  再起動の概要をそのまま文字列で指定します。
-  TEST-EXPR         あるコンディションに対してその再起動が有効か否かを判断
-                    する関数の名前を指定します。#' はつけないでください。
-                    省略されるとその再起動は全てのコンディションに対して
-                    有効になります。
-
-
+  INTERACTIVE-EXPR : 対話的に起動されたときに実行される関数を、関数名
+                     （シンボルかlambda 式）で指定します。#' はつけない
+                     でください。
+                     対話的に起動されるとこの関数は引数なしで実行されます。
+                     この関数は再起動へ渡す引数のリストを返さなければなり
+                     ません。
+  REPORT-EXPR      : 再起動の概要を説明する文字列か、概要を出力する関数の
+                     名前を指定します。
+              関数   : 関数名（シンボルか lambda 式）を指定します。#' はつけ
+                       ないでください。関数は出力先のストリームを受け取り、
+                       再起動の概要を出力しなければなりません。
+              文字列 : 再起動の概要をそのまま文字列で指定します。
+  TEST-EXPR        : あるコンディションに対してその再起動が有効か否かを判断
+                     する関数の名前を指定します。#' はつけないでください。
+                     省略されるとその再起動は全てのコンディションに対して
+                     有効になります。
    </description>
    <seealso>store-value</seealso>
    <seealso>use-value</seealso>
@@ -218,23 +215,23 @@ RESTART-CLAUSE の書式は以下の通りです。
    <description>
 再起動を確立した環境で BODY を評価します。
 
-(restart-bind ((NAME RESTART-FUNCTION
-                {:interactive-function INTERACTIVE-FUNCTION}
-                {:report-function REPORT-FUNCTION}
-                {:test-function TEST-FUNCTION})
-               ...)
-  BODY...)
+  (restart-bind ((NAME RESTART-FUNCTION
+                   {:interactive-function INTERACTIVE-FUNCTION}
+                   {:report-function REPORT-FUNCTION}
+                   {:test-function TEST-FUNCTION})
+                  ...)
+    BODY...)
 
-  NAME                 - 再起動の名前（シンボル）です。
-  RESTART-FUNCTION     - 再起動が起動されたときに実行される関数を指定します。
-  INTERACTIVE-FUNCTION - 再起動が invoke-restart-interactively によって
+  NAME                 : 再起動の名前（シンボル）です。
+  RESTART-FUNCTION     : 再起動が起動されたときに実行される関数を指定します。
+  INTERACTIVE-FUNCTION : 再起動が invoke-restart-interactively によって
                          対話的に起動されたときに実行される関数を指定します。
                          この関数は引数なしで実行され、RESTART-FUNCTION に渡す
                          引数のリストを返さなければなりません。
-  REPORT-FUNCTION      - 再起動の概要を出力する関数を指定します。
+  REPORT-FUNCTION      : 再起動の概要を出力する関数を指定します。
                          REPORT-FUNCTION は引数に出力先のストリームを受け取り、
                          その再起動の概要を出力しなければなりません。
-  TEST-FUNCTION        - 通知されたコンディションに対してその再起動が有効か
+  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効か
                          どうかを判断する関数を指定します。
                          この関数は引数にコンディションを受け取り、与えられた
                          コンディションについてその再起動が有効だったら true
