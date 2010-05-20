@@ -217,6 +217,7 @@
              (format stream "Could not find active restart ~S~@[ for condition ~S~]"
                      (restart-not-found-designator condition)
                      (restart-not-found-condition condition)))))
+#+xyzzy (setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
 
 (defun invoke-restart (identifier &rest arguments)
   "Call the function associated with RESTART with ARGUMENTS."
