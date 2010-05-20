@@ -16,6 +16,35 @@
 <book>
 
 <chapter>
+   <title>cerror</title>
+   <type>Function</type>
+   <arguments>cerror FMT-CONTROL DATUM &amp;rest ARGS</arguments>
+   <package>lisp</package>
+   <description>
+回復可能なエラーを投げます。
+
+関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたコンディションを投げ
+ますが、そのときに再起動 continue を確立しておきます。通知されたコンディショ
+ンを handler-bind などで捉えて continue 再起動を起動すると、cerror 式は nil
+を返してその後の処理を続行させることができます。
+
+  FMT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数として
+                ARUMENTS が与えられます。
+  DATUM       : 投げるエラーを指定します。詳しくは error 関数を参照してくだ
+                さい。
+  ARGUMENTS   : 同上。
+
+ARGUMENTS は再起動の概要とエラー指定の両方に使われます。エラー指定に必要だけ
+ど概要の出力には不要なものは "~*" で無視することができます。
+   </description>
+   <seealso>signal</seealso>
+   <seealso>error</seealso>
+   <link>[CLHS cerror] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_cerror.htm#cerror</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
    <title>invoke-restart-interactively</title>
    <type>Function</type>
    <arguments>invoke-restart-interactively IDENTIFIER</arguments>
