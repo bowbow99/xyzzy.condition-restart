@@ -16,6 +16,25 @@
 <book>
 
 <chapter>
+   <title>abort</title>
+   <type>Function</type>
+   <arguments>abort &amp;optional CONDITION</arguments>
+   <package>lisp</package>
+   <description>
+abort 再起動を起動します。もし abort 再起動が確立されていなかったら
+restart-not-found エラーを投げます。
+
+  CONDITION : コンディションを指定すると、そのコンディションに対応した
+              abort 再起動を探します。
+   </description>
+   <seealso>restart-case</seealso>
+   <seealso>invoke-restart</seealso>
+   <link>[CLHS abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
    <title>cerror</title>
    <type>Function</type>
    <arguments>cerror FMT-CONTROL DATUM &amp;rest ARGS</arguments>
