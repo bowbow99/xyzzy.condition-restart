@@ -208,10 +208,10 @@
                 (member identifier *active-restarts*))
        identifier))))
 
-(define-condition restart-not-found (error)
+(define-condition restart-not-found (control-error)
   (designator condition)
   (:report (lambda (condition stream)
-             (format stream "Could not find active restart ~S for condition ~S"
+             (format stream "Could not find active restart ~S~@[ for condition ~S~]"
                      (restart-not-found-designator condition)
                      (restart-not-found-condition condition)))))
 
