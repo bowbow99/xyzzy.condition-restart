@@ -52,9 +52,8 @@ ARGUMENTS は再起動の概要とエラー指定の両方に使われます。�
    <description>
 再起動を対話的に起動します。
 invoke-restart-interactively によって起動された再起動は、restart-case の
-:interactive オプション、あるいは restart-bind の :interactive-function
-オプションで指定された関数を実行することで、対話的に再起動の引数を取得
-します。
+:interactive オプションや restart-bind の :interactive-function オプション
+で指定された関数を実行することで、再起動の引数を対話的に取得します。
 
   IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
 
