@@ -199,13 +199,16 @@
   "Return a particular restart from current dynamic environment."
   (case (type-of identifier)
     (symbol
-     (find-if (lambda (restart)
-                (and (eql identifier (restart-name restart))
-                     (restart-test restart condition)))
-       *active-restarts*))
+      (or (find-if (lambda (restart)
+                     (and (eql identifier (restart-name restart))
+                          (restart-test restart condition)))
+            *active-restarts*)
+          (when (eql 'abort identifier)
+            +global-abort+)))
     (structure
      (when (and (typep identifier 'restart)
-                (member identifier *active-restarts*))
+                (or (member identifier *active-restarts*)
+                    (eql +global-abort+ identifier)))
        identifier))))
 
 (define-condition restart-not-found (control-error)
