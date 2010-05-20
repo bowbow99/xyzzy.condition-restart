@@ -238,7 +238,7 @@ restart-case で確立された再起動が起動されると、起動された�
                    {:interactive-function INTERACTIVE-FUNCTION}
                    {:report-function REPORT-FUNCTION}
                    {:test-function TEST-FUNCTION})
-                  ...)
+                   ...)
     BODY...)
 
   NAME                 : 再起動の名前（シンボル）です。
