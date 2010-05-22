@@ -16,6 +16,37 @@
 <book>
 
 <chapter>
+   <title>再起動ってなに</title>
+   <type>Tips</type>
+   <description>
+エラー（やコンディション）を投げる側がそのエラーにどう対応するかという
+選択肢を用意しておくような仕組みです。
+
+handler-bind(*1) で指定するハンドラ関数など(*2)でエラーを捕まえた側で
+再起動を選んで起動することで、エラーを無視して続行させたり、別の値を使
+うようにしたりできます。
+
+TODO: {{ここに使用例を}}
+
+*1 handler-case では再起動を選ぶことができません。handler-bind を使う
+   必要があります。
+   再起動はエラーが投げられたときのダイナミック環境内に用意されますが、
+   handler-case のハンドラ（エラー処理部分）はエラーが投げられたときの
+   ダイナミック環境から抜けてから実行されるためです。
+   詳しくは lisp/handler.l や handler-case の展開系を見てみてください。
+
+*2 {{select-restart-interactively について}}
+
+   </description>
+   <seealso>restart-case</seealso>
+   <seealso>restart-bind</seealso>
+   <seealso>invoke-restart</seealso>
+   <seealso>find-restart</seealso>
+   <seealso>handler-bind</seealso>
+   <seealso>
+</chapter>
+
+<chapter>
    <title>continue</title>
    <type>Function</type>
    <arguments>continue &amp;optional CONDITION</arguments>
@@ -26,6 +57,10 @@ continue 再起動を起動します。
 
   CONDITION : コンディションを指定すると、そのコンディションに対応した
               continue 再起動を探して起動します。
+
+continue 再起動について:
+  
+
    </description>
    <seealso>restart-case</seealso>
    <seealso>abort</seealso>
