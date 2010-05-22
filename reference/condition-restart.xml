@@ -16,6 +16,28 @@
 <book>
 
 <chapter>
+   <title>continue</title>
+   <type>Function</type>
+   <arguments>continue &amp;optional CONDITION</arguments>
+   <package>lisp</package>
+   <description>
+continue 再起動を起動します。
+もし有効な continue 再起動が見つからなかった場合は nil を返して終了します。
+
+  CONDITION : コンディションを指定すると、そのコンディションに対応した
+              continue 再起動を探して起動します。
+   </description>
+   <seealso>restart-case</seealso>
+   <seealso>abort</seealso>
+   <seealso>muffle-warning</seealso>
+   <seealso>store-value</seealso>
+   <seealso>use-value</seealso>
+   <seealso>invoke-restart</seealso>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
    <title>abort</title>
    <type>Function</type>
    <arguments>abort &amp;optional CONDITION</arguments>
