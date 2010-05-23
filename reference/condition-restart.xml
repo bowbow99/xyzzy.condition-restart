@@ -12,7 +12,31 @@
 <!ELEMENT section (#PCDATA)>
 <!ELEMENT file (#PCDATA)>
 ]>
+<!--
+* restart-case
+* restart-bind
+* with-simple-restart
+- with-condition-restarts
 
+* compute-restarts
+* find-restart
+* invoke-restart
+* invoke-restart-interactively
+
+* cerror
+* warn
+
+* continue
+* abort
+* muffle-warning
+- use-value
+- store-value
+
+- assert
+- check-type
+
+- ed:select-restart-interactively
+-->
 <book>
 
 <chapter>
@@ -43,7 +67,8 @@ TODO: {{ここに使用例を}}
    <seealso>invoke-restart</seealso>
    <seealso>find-restart</seealso>
    <seealso>handler-bind</seealso>
-   <seealso>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
 </chapter>
 
 <chapter>
@@ -59,8 +84,8 @@ continue 再起動を起動します。
               continue 再起動を探して起動します。
 
 continue 再起動について:
-  
-
+  単純に処理を続行するような再起動です。
+  ※ 警告 (warning) を無視するときは muffle-warning を使います。
    </description>
    <seealso>restart-case</seealso>
    <seealso>abort</seealso>
@@ -68,6 +93,8 @@ continue 再起動について:
    <seealso>store-value</seealso>
    <seealso>use-value</seealso>
    <seealso>invoke-restart</seealso>
+   <link>[CLHS Function continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#continue</link>
+   <link>[CLHS Restart continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_contin.htm</link>
    <section>エラー</section>
    <file>condition-restart.l</file>
 </chapter>
@@ -78,15 +105,67 @@ continue 再起動について:
    <arguments>abort &amp;optional CONDITION</arguments>
    <package>lisp</package>
    <description>
-abort 再起動を起動します。もし abort 再起動が確立されていなかったら
-restart-not-found エラーを投げます。
+abort 再起動を起動して、処理を中止しようとします。
+もし有効な abort 再起動が見つからなかった場合は、silent-quit を投げて
+処理を中止するかも{{詳細未定}}
 
   CONDITION : コンディションを指定すると、そのコンディションに対応した
-              abort 再起動を探します。
+              abort 再起動を探して起動します。
+
+abort 再起動について:
+  処理を中止するような再起動です。
+  {{詳細未定: abort 再起動が確立されてない場合}}
    </description>
    <seealso>restart-case</seealso>
    <seealso>invoke-restart</seealso>
    <link>[CLHS abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
+   <title>muffle-warning</title>
+   <type>Function</type>
+   <arguments>muffle-warning &amp;optional WARNING</arguments>
+   <package>lisp</package>
+   <description>
+muffle-warning 再起動を起動して、警告を無視します。
+
+  WARNING: 警告を指定すると、その警告に対応した muffle-warning を探して
+           起動します。
+
+muffle-warning 再起動について:
+  警告を無視する再起動です。warn 関数を参照してください。
+   </description>
+   <seealso></seealso>
+   <link>[CLHS Function muffle-warning]</link>
+   <link>[CLHS Restart muffle-warning]</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
+   <title>warn</title>
+   <type>Function</type>
+   <arguments>warn DATUM &amp;rest ARGS</arguments>
+   <package>lisp</package>
+   <description>
+※これは condition-restart.l で上書きされた warn の説明です。
+警告を投げます。
+
+warn 関数は、警告を投げるときに muffle-warning 再起動を確立しておきます。
+この muffle-warning 再起動を起動すると warn 式から nil を返して、その後の
+処理を続行させることができます。
+
+  DATUM, ARGS : 投げる警告を指定します。error 関数を参照してください。
+                DATUM にフォーマット文字列を指定した場合は、simple-warning
+                を投げます。
+
+   </description>
+   <seealso>error</seealso>
+   <seealso>signal</seealso>
+   <seealso>muffle-warning</seealso>
+   <link>[CLHS Function warn]</link>
    <section>エラー</section>
    <file>condition-restart.l</file>
 </chapter>
@@ -99,19 +178,19 @@ restart-not-found エラーを投げます。
    <description>
 回復可能なエラーを投げます。
 
-関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたコンディションを投げ
-ますが、そのときに再起動 continue を確立しておきます。通知されたコンディショ
-ンを handler-bind などで捉えて continue 再起動を起動すると、cerror 式は nil
-を返してその後の処理を続行させることができます。
+関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたエラーを投げますが、
+そのときに再起動 continue を確立しておきます。
+この continue 再起動を起動すると cerror 式から nil を返して、その後の処理
+を続行させることができます。
 
   FMT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数として
                 ARUMENTS が与えられます。
-  DATUM       : 投げるエラーを指定します。詳しくは error 関数を参照してくだ
-                さい。
-  ARGUMENTS   : 同上。
+  DATUM, ARGS : 投げるエラーを指定します。詳しくは error 関数を参照してく
+                ださい。
 
-ARGUMENTS は再起動の概要とエラー指定の両方に使われます。エラー指定に必要だけ
-ど概要の出力には不要なものは "~*" で無視することができます。
+ARGS は再起動の概要とエラー指定の両方に使われます。エラー指定に必要だけど
+概要の出力には不要なものは "~*" で無視することができます。
+
    </description>
    <seealso>signal</seealso>
    <seealso>error</seealso>
@@ -216,7 +295,7 @@ IDENTIFIER で指定される再起動を起動します。
    <arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
    <package>lisp</package>
    <description>
-NAME という名の再起動を確立した環境で FORMS を評価します。
+NAME という名前の再起動を確立した環境で FORMS を評価します。
 この再起動が起動されると、with-simple-restart 式は多値で nil と t を返して
 終了します。
    </description>
@@ -232,8 +311,8 @@ NAME という名の再起動を確立した環境で FORMS を評価します�
    <description>
 RESTART-CLAUSE で指定された再起動を確立した環境で FORM を評価します。
 
-restart-case で確立された再起動が起動されると、起動された再起動の実行結果
-が restart-case 式の結果として返されます。
+restart-case で確立された再起動が起動されると、再起動の本体を実行し、
+その結果を restart-case 式の結果として返します。
 
   (restart-case
       FORM
