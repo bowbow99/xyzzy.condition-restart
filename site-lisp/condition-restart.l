@@ -366,9 +366,10 @@
   `(save-excursion
     (save-window-excursion
      (if (= 1 (count-windows))
-         (split-window (let ((col (window-columns)))
-                         (round (if (< 140 col) col (window-height)) -2))
-                       t)
+         (let ((col (window-columns)))
+           (if (> col 140)
+               (split-window (round col -2) t)
+             (split-window (round (window-height) -2))))
        (other-window))
      ,@forms)))
 
