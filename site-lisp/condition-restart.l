@@ -17,6 +17,7 @@
           restart-case
           restart-bind
           with-simple-restart
+          with-condition-restarts
           ;; Functions deals with restarts
           compute-restarts
           find-restart
@@ -33,6 +34,7 @@
           store-value
           ))
 
+
 (in-package "condition-restart")
 
 ;;;;
@@ -42,6 +44,13 @@
   (si:*structure-definition-name
    (si:*structure-definition condition)))
 
+(defmacro with-ca/dr ((cons &optional (car-name 'car) (cdr-name 'cdr)) &body body)
+  `(let ((#1=#:obj ,cons))
+     (let ((,car-name (car #1#))
+           (,cdr-name (cdr #1#)))
+       ,@body)))
+#+xyzzy
+(setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
 ;;;;
 ;;;; * Restart Object
@@ -59,8 +68,6 @@
   report-function
   test-function)
 
-(defvar *active-restarts* nil)
-
 ;; NOTE:
 ;; Since xyzzy's typep doesn't return true for structure instance
 ;; of *old* structure definition after structure has re-defined,
@@ -73,6 +80,7 @@
    :report-function (lambda (stream)
                       (format stream "Stop evaluation, return to toplevel."))))
 
+(defvar *active-restarts* (list (cons +global-abort+ nil)))
 
 ;;;; * Restart Establishing Macros
 
@@ -82,16 +90,34 @@
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
           (append (list ,@(mapcar (lambda (restart)
-                                    `(make-restart :name ',(car restart)
-                                                   :function #',(cadr restart)
-                                                   ,@(cddr restart)))
+                                    `(list (make-restart :name ',(car restart)
+                                                         :function #',(cadr restart)
+                                                         ,@(cddr restart))))
                             restarts))
-                  (or *active-restarts*
-                      (list +global-abort+)))))
+                  *active-restarts*)))
      ,@body))
 
 #+xyzzy
 (setf (get 'restart-bind 'ed:lisp-indent-hook) 1)
+
+;;; - Macro with-condition-restarts
+
+(defmacro with-condition-restarts (condition restarts &body body)
+  "Evaluate BODY with associating RESTARTS with CONDITION."
+  `(let ((*active-restarts*
+          (let ((#1=#:condition ,condition)
+                (#2=#:restarts ,restarts))
+            (mapcar (lambda (restart/conditions)
+                      (with-ca/dr (restart/conditions restart conditions)
+                        (if (and (find restart #2#)
+                                 (not (find #1# conditions)))
+                            (cons restart (cons #1# conditions))
+                          restart/conditions)))
+              *active-restarts*))))
+     ,@body))
+
+#+xyzzy
+(setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
 
 ;;; - Macro restart-case
 
@@ -190,25 +216,28 @@
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
-  (remove-if-not (lambda (restart)
-                   (restart-test restart condition))
-    *active-restarts*))
-
+  (mapcar #'car
+    (remove-if-not (lambda (RC)
+                     (with-ca/dr (RC restart conditions)
+                       (and (restart-test restart condition)
+                            (or (null condition) (null conditions)
+                                (member condition conditions)))))
+      *active-restarts*)))
 
 (defun find-restart (identifier &optional condition)
   "Return a particular restart from current dynamic environment."
   (case (type-of identifier)
     (symbol
-      (or (find-if (lambda (restart)
-                     (and (eql identifier (restart-name restart))
-                          (restart-test restart condition)))
-            *active-restarts*)
-          (when (eql 'abort identifier)
-            +global-abort+)))
+     (car (find-if (lambda (R/C)
+                     (with-ca/dr (R/C restart conditions)
+                       (and (eql identifier (restart-name restart))
+                            (restart-test restart condition)
+                            (or (null condition) (null conditions)
+                                (member condition conditions)))))
+            *active-restarts*)))
     (structure
      (when (and (typep identifier 'restart)
-                (or (member identifier *active-restarts*)
-                    (eql +global-abort+ identifier)))
+                (member identifier *active-restarts* :key #'car))
        identifier))))
 
 (define-condition restart-not-found (control-error)
