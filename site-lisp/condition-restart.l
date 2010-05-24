@@ -359,36 +359,37 @@
 (in-package "editor")
 
 (defmacro with-other-window (&body forms)
-  `(save-window-excursion
-    (if (= 1 (count-windows))
-        (split-window (let ((col (window-columns)))
-                        (round (if (< 140 col) col (window-height)) -2))
-                      t)
-      (other-window))
-    ,@forms))
+  `(save-excursion
+    (save-window-excursion
+     (if (= 1 (count-windows))
+         (split-window (let ((col (window-columns)))
+                         (round (if (< 140 col) col (window-height)) -2))
+                       t)
+       (other-window))
+     ,@forms)))
 
 #+xyzzy
 (setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
 
 (defun select-restart-interactively (condition)
-  (let ((restarts (compute-restarts)))
+  (let ((restarts (compute-restarts condition))
+        obuff i)
     (when restarts
       (with-other-window
-        (with-output-to-temp-buffer ("*RESTART*" nil)
+        (setq obuff (selected-buffer))
+        (with-output-to-temp-buffer ("*Select Restart*" nil)
           (set-buffer (buffer-stream-buffer *standard-output*))
           (condition-restart::%print-condition condition)
           (format t "~&~%")
           (condition-restart::%print-restart-options restarts)
           ;; TODO: obtain and print CALL STACK
-          (let ((i (handler-case
-                       (read-integer "Restart: ")
-                     (quit (q)
-                       (handler-case
-                           (invoke-restart 'abort)
-                         (condition-restart::restart-not-found ()
-                           nil))))))
-            (let ((it (and i (nth i restarts))))
-              (invoke-restart-interactively it))))))))
+          (handler-case
+              (setq i (read-integer "Restart: "))
+            (quit (q) nil))))
+      (if (and (numberp i)
+               (condition-restart::restart-p (nth i restarts)))
+          (invoke-restart-interactively (nth i restarts))
+        (abort)))))
 
 (defun eval-region (from to &optional stream)
   (interactive "r")
@@ -410,13 +411,13 @@
            (goto-char (buffer-stream-point s))
            (when stream
              (eval-region-print stream
-                                (format t "~A~%" c)))
+               (format t "~A~%" c)))
            (let ((si:*trace-on-error* nil))
              (error c))))))
     (eval-region-print stream
-                       (if (null stream)
-                           (message "~S" (car result))
-                         (format t "~{~&=> ~S~%~}" result)))
+      (if (null stream)
+          (message "~S" (car result))
+        (format t "~{~&=> ~S~%~}" result)))
     (values-list result)))
 
 
