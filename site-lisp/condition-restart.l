@@ -80,7 +80,7 @@
    :report-function (lambda (stream)
                       (format stream "Stop evaluation, return to toplevel."))))
 
-(defvar *active-restarts* (list (cons +global-abort+ nil)))
+(defparameter *active-restarts* (list (cons +global-abort+ nil)))
 
 ;;;; * Restart Establishing Macros
 
@@ -167,6 +167,19 @@
      ,@body))
 #+xyzzy (setf (get '%with-tag/clause 'ed:lisp-indent-hook) 'defun)
 
+(defun %make-condition (datum args default)
+  (case (type-of datum)
+    ((simple-string string)
+     (make-condition default :format-string datum :format-arguments args))
+    (symbol
+     (apply #'make-condition datum args))
+    (t
+     (if (and (typep datum 'condition) (null args))
+         datum
+       (error 'type-error
+              :datum datum
+              :expected-type '(or condition symbol string))))))
+
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
   (let ((tags/clauses (mapcar (lambda (clause)
@@ -178,14 +191,30 @@
            (restart-bind
                (,@(mapcar (lambda (tag/clause)
                             (%with-tag/clause (tag/clause)
-                              `(,name
-                                (lambda (&rest #3=#:temp)
-                                  (setq #2# #3#)
-                                  (go ,tag))
-                                ,@(mapcan #'transform-keyword-option
-                                    options))))
+                              `(,name (lambda (&rest #3=#:temp)
+                                        (setq #2# #3#)
+                                        (go ,tag))
+                                ,@(mapcan #'transform-keyword-option options))))
                     tags/clauses))
-             (return-from #1# ,form))
+             (return-from #1#
+               ,(let ((form (macroexpand form)))
+                  (if (member (car form) '(signal warn error cerror))
+                      (let ((operator (car form))
+                            (datum (cadr form))
+                            (args (cddr form)))
+                        `(let ((#4=#:condition
+                                (%make-condition ,datum (list ,@args)
+                                                 ',(case operator
+                                                     ((error cerror) 'simple-error)
+                                                     (signal 'simple-condition)
+                                                     (warn 'simple-warning)))))
+                           (with-condition-restarts #4#
+                               (list ,@(mapcar (lambda (tag/clause)
+                                                 (%with-tag/clause (tag/clause)
+                                                   `(find-restart ',name)))
+                                         tags/clauses))
+                             (,operator #4#))))
+                    form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
                          `(,tag (return-from #1#
