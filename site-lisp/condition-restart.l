@@ -49,6 +49,7 @@
      (let ((,car-name (car #1#))
            (,cdr-name (cdr #1#)))
        ,@body)))
+
 #+xyzzy
 (setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
@@ -165,7 +166,9 @@
              body (cddr body)))
      (setf options (nreverse options))
      ,@body))
-#+xyzzy (setf (get '%with-tag/clause 'ed:lisp-indent-hook) 'defun)
+
+#+xyzzy
+(setf (get '%with-tag/clause 'ed:lisp-indent-hook) 'defun)
 
 (defun %make-condition (datum args default)
   (case (type-of datum)
@@ -275,7 +278,8 @@
              (format stream "Could not find active restart ~S~@[ for condition ~S~]"
                      (restart-not-found-designator condition)
                      (restart-not-found-condition condition)))))
-#+xyzzy (setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
+#+xyzzy
+(setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
 
 (defun invoke-restart (identifier &rest arguments)
   "Call the function associated with RESTART with ARGUMENTS."
@@ -363,7 +367,8 @@
       (other-window))
     ,@forms))
 
-#+xyzzy (setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
+#+xyzzy
+(setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
 
 (defun select-restart-interactively (condition)
   (let ((restarts (compute-restarts)))
