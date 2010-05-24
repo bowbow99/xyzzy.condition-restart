@@ -289,7 +289,9 @@
          arguments))
 
 (defun invoke-restart-interactively (identifier)
-  (let ((restart (find-restart identifier)))
+  (let ((restart (or (find-restart identifier)
+                     (error 'restart-not-found
+                            :designator identifier))))
     (apply #'invoke-restart
            restart
            (let ((it (restart-interactive-function restart)))
