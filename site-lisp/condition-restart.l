@@ -324,9 +324,11 @@
 ;;;; * Signaling Condition with Restarts
 
 (defun warn (datum &rest args)
-  (restart-case
-      (lisp::*error datum args 'simple-warning)
-    (muffle-warning () nil)))
+  (let ((warning (%make-condition datum args 'simple-warning)))
+    (restart-case
+        (with-condition-restarts warning (find-restart 'muffle-warning)
+          (lisp::*error warning))
+      (muffle-warning () nil))))
 
 (defun cerror (fmt-control datum &rest args)
   (restart-case
