@@ -304,6 +304,41 @@ NAME という名前の再起動を確立した環境で FORMS を評価しま�
 </chapter>
 
 <chapter>
+   <title>with-condition-restarts</title>
+   <type>Macro</type>
+   <arguments>with-condition-restarts CONDITION RESTARTS FORM*</arguments>
+   <package>lisp</package>
+   <description>
+再起動とコンディションを関連付けます。
+
+  CONDITION : 関連付けるコンディションを指定します。
+              コンディションの型ではなくコンディションオブジェクトを指定
+              します。
+  RESTARTS  : 関連付ける再起動のリストを指定します。
+
+find-restart や compute-restarts の引数にコンディションを与えて呼び出すと
+そのコンディションに関連付けられた再起動（とどのコンディションにも関連付け
+られていない再起動）のみを探すことができます。
+
+例えば、いくつか再起動を用意してコンディション FOO が投げられたとします。
+それを捕まえたハンドラが、更にいくつかの再起動を追加で用意して別のコンディ
+ション BAR を投げたとします。
+さらに上位のハンドラがコンディション BAR を捕まえた時点では、上記の全ての
+再起動が有効なままですが、コンディション FOO に関連付けられた再起動は無視
+してコンディション BAR に関連付けられた再起動の中から選んで起動することが
+できたりします。
+
+
+   </description>
+   <seealso>restart-case</seealso>
+   <seealso>find-restart</seealso>
+   <seealso>compute-restarts</seealso>
+   <link>[CLHS Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
    <title>restart-case</title>
    <type>Macro</type>
    <arguments>restart-case FORM RESTART-CLAUSE*</arguments>
@@ -348,15 +383,10 @@ restart-case で確立された再起動が起動されると、再起動の本�
                      省略されるとその再起動は全てのコンディションに対して
                      有効になります。
    </description>
-   <seealso>store-value</seealso>
-   <seealso>use-value</seealso>
-   <seealso>muffle-warning</seealso>
-   <seealso>continue</seealso>
-   <seealso>abort</seealso>
-   <seealso>invoke-restart-interactively</seealso>
    <seealso>invoke-restart</seealso>
    <seealso>with-simple-restart</seealso>
    <seealso>restart-bind</seealso>
+   <seealso>with-condition-restarts</seealso>
    <link>[CLHS: restart-case] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_ca.htm</link>
    <section>エラー</section>
    <file>condition-restart.l</file>
