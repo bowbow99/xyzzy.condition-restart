@@ -29,8 +29,8 @@
 * continue
 * abort
 * muffle-warning
-- use-value
-- store-value
+* use-value
+* store-value
 
 - assert
 - check-type
@@ -41,6 +41,25 @@
 
 <chapter>
    <title>select-restart-interactively</title>
+   <type>Function</type>
+   <arguments>select-restart-interactively CONDITION</arguments>
+   <package>editor</package>
+   <description>
+対話的に再起動を選んで起動します。
+再起動が用意された環境で select-restart-interactively にコンディションを
+与えて実行すると、ウィンドウを分割して与えられたコンディションと有効な
+再起動を表示し、ミニバッファから再起動を選ぶことができます。
+
+使用例:
+  ;;; ミニバッファで入力した式を評価して、エラーが投げられたら対話的に
+  ;;; 再起動を選ぶ
+  (handler-bind ((error #'ed::select-restart-interactively))
+    (eval (read-sexp "FORM: ")))
+   </description>
+   <seealso></seealso>
+   <link></link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
 </chapter>
 
 <chapter>
