@@ -16,7 +16,7 @@
 * restart-case
 * restart-bind
 * with-simple-restart
-- with-condition-restarts
+* with-condition-restarts
 
 * compute-restarts
 * find-restart
@@ -40,33 +40,71 @@
 <book>
 
 <chapter>
+   <title>select-restart-interactively</title>
+</chapter>
+
+<chapter>
+   <title>assert</title>
+</chapter>
+
+<chapter>
+   <title>check-type</title>
+</chapter>
+
+<chapter>
    <title>再起動ってなに</title>
    <type>Tips</type>
    <description>
 エラー（やコンディション）を投げる側がそのエラーにどう対応するかという
 選択肢を用意しておくような仕組みです。
-
-handler-bind(*1) で指定するハンドラ関数など(*2)でエラーを捕まえた側で
-再起動を選んで起動することで、エラーを無視して続行させたり、別の値を使
-うようにしたりできます。
-
-TODO: {{ここに使用例を}}
-
-*1 handler-case では再起動を選ぶことができません。handler-bind を使う
-   必要があります。
-   再起動はエラーが投げられたときのダイナミック環境内に用意されますが、
-   handler-case のハンドラ（エラー処理部分）はエラーが投げられたときの
-   ダイナミック環境から抜けてから実行されるためです。
-   詳しくは lisp/handler.l や handler-case の展開系を見てみてください。
-
-*2 {{select-restart-interactively について}}
-
    </description>
    <seealso>restart-case</seealso>
    <seealso>restart-bind</seealso>
    <seealso>invoke-restart</seealso>
    <seealso>find-restart</seealso>
    <seealso>handler-bind</seealso>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
+   <title>use-value</title>
+   <type>Function</type>
+   <arguments>use-value VALUE &amp;optional CONDITION</arguments>
+   <package>lisp</package>
+   <description>
+use-value 再起動を起動して、そのときだけ代わりに VALUE を使うようにします。
+もし有効な use-value 再起動が見つからなかった場合は nil を返します。
+
+use-value 再起動について:
+  変数の値がおかしかったりしたときに、そのときだけ代わりの値を使うような
+  再起動です。
+   </description>
+   <seealso>store-value</seealso>
+   <link>[CLHS Function use-value]</link>
+   <link>[CLHS Restart use-value]</link>
+   <section>エラー</section>
+   <file>condition-restart.l</file>
+</chapter>
+
+<chapter>
+   <title>store-value</title>
+   <type>Function</type>
+   <arguments>store-value NEW-VALUE &amp;optional CONDITION</arguments>
+   <package>lisp</package>
+   <description>
+store-value 再起動を起動して、変数の値を NEW-VALUE に変更します。
+もし有効な store-value 再起動が見つからなかった場合は nil を返します。
+
+store-value 再起動について:
+  変数や汎変数の値を変更して処理を続行するような再起動です
+  store-value 再起動を用意するときは、再起動の概要にどの変数の値を変更
+  するのか書いておきましょう。
+   </description>
+   <seealso>use-value</seealso>
+   <seealso>check-type</seealso>
+   <link>[CLHS Function store-value]</link>
+   <link>[CLHS Restart store-value]</link>
    <section>エラー</section>
    <file>condition-restart.l</file>
 </chapter>
@@ -107,7 +145,7 @@ continue 再起動について:
    <description>
 abort 再起動を起動して、処理を中止しようとします。
 もし有効な abort 再起動が見つからなかった場合は、silent-quit を投げて
-処理を中止するかも{{詳細未定}}
+処理を中止するかも{{詳細未定}}。
 
   CONDITION : コンディションを指定すると、そのコンディションに対応した
               abort 再起動を探して起動します。
@@ -151,16 +189,18 @@ muffle-warning 再起動について:
    <package>lisp</package>
    <description>
 ※これは condition-restart.l で上書きされた warn の説明です。
-警告を投げます。
+警告（warning コンディション）を投げます。
 
 warn 関数は、警告を投げるときに muffle-warning 再起動を確立しておきます。
-この muffle-warning 再起動を起動すると warn 式から nil を返して、その後の
-処理を続行させることができます。
+この muffle-warning 再起動を起動すると警告を無視することができます。
 
   DATUM, ARGS : 投げる警告を指定します。error 関数を参照してください。
                 DATUM にフォーマット文字列を指定した場合は、simple-warning
                 を投げます。
 
+投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy は
+警告音を鳴らしたりします（共通設定->いろいろ で設定できます）が、処理を
+中止したりはせず、warn 式からは nil が返ります。
    </description>
    <seealso>error</seealso>
    <seealso>signal</seealso>
@@ -311,10 +351,13 @@ NAME という名前の再起動を確立した環境で FORMS を評価しま�
    <description>
 再起動とコンディションを関連付けます。
 
+{{関連付けるってなによ}}
+
   CONDITION : 関連付けるコンディションを指定します。
               コンディションの型ではなくコンディションオブジェクトを指定
               します。
   RESTARTS  : 関連付ける再起動のリストを指定します。
+
 
 find-restart や compute-restarts の引数にコンディションを与えて呼び出すと
 そのコンディションに関連付けられた再起動（とどのコンディションにも関連付け
@@ -344,9 +387,9 @@ find-restart や compute-restarts の引数にコンディションを与えて�
    <arguments>restart-case FORM RESTART-CLAUSE*</arguments>
    <package>lisp</package>
    <description>
-RESTART-CLAUSE で指定された再起動を確立した環境で FORM を評価します。
+RESTART-CLAUSE で指定された再起動を用意して FORM を評価します。
 
-restart-case で確立された再起動が起動されると、再起動の本体を実行し、
+restart-case で用意された再起動が起動されると、再起動の本体を実行し、
 その結果を restart-case 式の結果として返します。
 
   (restart-case
@@ -382,6 +425,11 @@ restart-case で確立された再起動が起動されると、再起動の本�
                      する関数の名前を指定します。#' はつけないでください。
                      省略されるとその再起動は全てのコンディションに対して
                      有効になります。
+
+FORM が signal, error, cerror, warn のいずれかで始まる式（か、それに展開され
+マクロ呼び出し）だったら、その restart-case で用意される再起動は勝手に投げ
+られるコンディションに関連付けられます。
+
    </description>
    <seealso>invoke-restart</seealso>
    <seealso>with-simple-restart</seealso>
