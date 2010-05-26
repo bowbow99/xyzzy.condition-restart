@@ -79,8 +79,6 @@ PLACE* の値をミニバッファで入力した値で置き換え、assert の
   PLACE       : continue 再起動を起動したときに置き換える場所（setf できる
                 汎変数）を指定します。
                 TEST-FORM が false を返してエラーを投げるときに評価されます。
-                PLACE* は省略可能ですが、省略すると continue することはでき
-                ません。
   DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
                 省略した場合は simple-error が投げられます。
 
