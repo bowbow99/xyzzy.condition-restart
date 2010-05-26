@@ -8,12 +8,18 @@
 (in-package :lisp)
 
 (export '(assert
-          ;check-type
-          ;ccase
-          ;ctypecase
-          ;ecase
-          ;etypecase
+          +check-type-error-symbols+
           ))
+
+;;; NOTE: Since xyzzy defining check-type-error condition type in system
+;;; package, they aren't visible in most packages, and you need to add
+;;; package prefix ("si::") to slot accesser and such.
+;;; To get rid of this, you can import relevant symbols by put following
+;;; in your code.
+;;;     (import +check-type-error-symbols+)
+(defconstant +check-type-error-symbols+
+  '(si::check-type-error si::check-type-error-datum si::check-type-error-expected-type
+    si::check-type-error-place si::check-type-error-string))
 
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
