@@ -84,13 +84,34 @@ PLACE* の値をミニバッファで入力した値で置き換え、assert の
 
    </description>
    <seealso>check-type</seealso>
-   <link>[CLHS Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
+   <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
    <section>エラー</section>
    <file>assertions.l</file>
 </chapter>
 
 <chapter>
    <title>check-type</title>
+   <type>Macro</type>
+   <arguments>check-type PLACE TYPESPEC [STRING]</arguments>
+   <package>lisp</package>
+   <description>
+PLACE の値が TYPESPEC の型であることを確実にします。
+
+もし PLACE の値が TYPESPEC の型ではなかった場合、store-value 再起動を
+用意した上で si::check-type-error を投げます。この store-value　再起動
+を起動すると、PLACE の値を置き換えて check-type をやり直します。
+PLACE の値が TYPESPEC の型であれば check-type 式は nil を返します。
+
+  PLACE    : 調べる場所。setf できる式を指定します。
+  TYPESPEC : typep に渡す型指定をクォートせずに指定します。
+  STRING   : TYPESPEC を説明する文字列です。
+   </description>
+   <seealso>assert</seealso>
+   <seealso>typep</seealso>
+   <seealso>deftype</seealso>
+   <link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm#check-type</link>
+   <section>データ型</section>
+   <file>assertions.l</file>
 </chapter>
 
 <chapter>
