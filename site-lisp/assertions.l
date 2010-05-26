@@ -18,7 +18,7 @@
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
   `(tagbody
-     #1=#:assertion-top
+     #1=#:assertion-root
      (unless ,test-form
        (restart-case
            (error ,@(if datum-supplied-p
@@ -42,21 +42,20 @@
 
 (defmacro check-type (place typespec &optional string)
   `(tagbody
-     #1=#:check-type-top
+     #1=#:check-type-root
      (let ((#2=#:datum ,place))
        (restart-case
            (unless (typep #2# ',typespec)
              (error 'si::check-type-error
                     :place ',place :datum #2# :expected-type ',typespec))
          (store-value (new-value)
-          :report
-          (lambda (stream)
-            (format stream "Supply a new value for ~S" ',place))
-          :interactive (lambda ()
-                         (list
-                          (eval (ed:read-sexp
-                                 (format nil "New Value for ~S: " ',place)))))
-          (setf ,place new-value)
-          (go #1#))))))
+           :report (lambda (stream)
+                     (format stream "Supply a new value for ~S" ',place))
+           :interactive (lambda ()
+                          (list
+                           (eval (ed:read-sexp
+                                  (format nil "New Value for ~S: " ',place)))))
+           (setf ,place new-value)
+           (go #1#))))))
 
 ;;;; assertions.l ends here
