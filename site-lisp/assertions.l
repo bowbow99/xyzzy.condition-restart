@@ -16,29 +16,29 @@
           ))
 
 (defmacro assert (test-form &optional places
-                            (datum t datum-supplied-p) &rest args)
+                  (datum t datum-supplied-p) &rest args)
   `(tagbody
      #1=#:assertion-top
-     (restart-case
-         (unless ,test-form
+     (unless ,test-form
+       (restart-case
            (error ,@(if datum-supplied-p
                         (list* datum args)
-                      `("The assertion ~S failed." ',test-form))))
-       (continue (&rest new-values)
-        :report (lambda (stream)
-                  (format stream "Retry assertion with new values for ~S"
-                          ',places))
-        :interactive (lambda ()
-                       (mapcar (lambda (place)
-                                 (eval (ed:read-sexp
-                                        (format nil "New Value for ~S: "
-                                                place))))
-                         ',places))
-        (setf ,@(let ((i -1))
-                  (mapcan (lambda (place)
-                            `(,place (nth ,(incf i) new-values)))
-                    places)))
-        (go #1#)))))
+                      `("The assertion ~S failed." ',test-form)))
+         (continue (&rest new-values)
+           :report (lambda (stream)
+                     (format stream "Retry assertion with new values for ~S"
+                             ',places))
+           :interactive (lambda ()
+                          (mapcar (lambda (place)
+                                    (eval (ed:read-sexp
+                                           (format nil "New Value for ~S: "
+                                                   place))))
+                            ',places))
+           (setf ,@(let ((i -1))
+                     (mapcan (lambda (place)
+                               `(,place (nth ,(incf i) new-values)))
+                       places)))
+           (go #1#))))))
 
 (defmacro check-type (place typespec &optional string)
   `(tagbody
@@ -49,7 +49,9 @@
              (error 'si::check-type-error
                     :place ',place :datum #2# :expected-type ',typespec))
          (store-value (new-value)
-          :report "Specify a value to use instead."
+          :report
+          (lambda (stream)
+            (format stream "Supply a new value for ~S" ',place))
           :interactive (lambda ()
                          (list
                           (eval (ed:read-sexp
