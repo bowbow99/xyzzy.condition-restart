@@ -44,18 +44,18 @@
   `(tagbody
      #1=#:check-type-root
      (let ((#2=#:datum ,place))
-       (restart-case
-           (unless (typep #2# ',typespec)
+       (unless (typep #2# ',typespec)
+         (restart-case
              (error 'si::check-type-error
-                    :place ',place :datum #2# :expected-type ',typespec))
-         (store-value (new-value)
-           :report (lambda (stream)
-                     (format stream "Supply a new value for ~S" ',place))
-           :interactive (lambda ()
-                          (list
-                           (eval (ed:read-sexp
-                                  (format nil "New Value for ~S: " ',place)))))
-           (setf ,place new-value)
-           (go #1#))))))
+                    :place ',place :datum #2# :expected-type ',typespec)
+           (store-value (new-value)
+             :report (lambda (stream)
+                       (format stream "Supply a new value for ~S" ',place))
+             :interactive (lambda ()
+                            (list
+                             (eval (ed:read-sexp
+                                    (format nil "New Value for ~S: " ',place)))))
+             (setf ,place new-value)
+             (go #1#)))))))
 
 ;;;; assertions.l ends here
