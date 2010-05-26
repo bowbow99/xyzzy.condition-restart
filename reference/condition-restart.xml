@@ -64,6 +64,31 @@
 
 <chapter>
    <title>assert</title>
+   <type>Macro</type>
+   <arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
+   <package>lisp</package>
+   <description>
+TEST-FORM が true に評価されることを確実にします。
+TEST-FORM が false に評価されると、continue 再起動を用意したうえで DATUM
+と ARGS で指定されたエラーを投げます。この continue 再起動を起動すると、
+PLACE* の値をミニバッファで入力した値で置き換え、assert の最初（TEST-FORM
+の評価）からやり直します。
+
+  TEST-FORM   : true を返すはずの任意の式を指定します。
+                1回以上評価されます。
+  PLACE       : continue 再起動を起動したときに置き換える場所（setf できる
+                汎変数）を指定します。
+                TEST-FORM が false を返してエラーを投げるときに評価されます。
+                PLACE* は省略可能ですが、省略すると continue することはでき
+                ません。
+  DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
+                省略した場合は simple-error が投げられます。
+
+   </description>
+   <seealso>check-type</seealso>
+   <link>[CLHS Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
+   <section>エラー</section>
+   <file>assertions.l</file>
 </chapter>
 
 <chapter>
