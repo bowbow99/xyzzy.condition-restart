@@ -1,7 +1,25 @@
-;;;; -*- mode: lisp; package: lisp -*-
-;;;;
-;;;; assertions.l
-;;;;
+;;; -*- mode: lisp; package: lisp -*-
+;;;
+;;; assertions.l
+;;;
+;;; Author: bowbow99 <bowbow99@gmail.com>
+;;;
+
+;; 概要:
+;; 再起動を使った Common Lisp の assert と check-type です。
+
+;; 使い方:
+;; require すればおｋです。
+;;     (require :assertions)
+
+;; 注意事項:
+;; - 標準のマクロ check-type を上書きしています。
+;;   再起動を使うようにした以外は標準のものと同じ挙動にしたつもりですが
+;;   おかしくなっているかも知れません。
+;;   - おかしかったら教えてもらえると助かります。
+;;   - ほんのり遅くなってます。
+
+;;; Code:
 
 (require "condition-restart")
 
@@ -23,6 +41,7 @@
 
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
+  "Ensure TEST-FORM evaluates to non-nil."
   `(tagbody
      #1=#:assertion-root
      (unless ,test-form
@@ -47,6 +66,7 @@
            (go #1#))))))
 
 (defmacro check-type (place typespec &optional string)
+  "Ensure value of PLACE is type of TYPESPEC."
   `(tagbody
      #1=#:check-type-root
      (let ((#2=#:datum ,place))
@@ -64,4 +84,4 @@
              (setf ,place new-value)
              (go #1#)))))))
 
-;;;; assertions.l ends here
+;;; assertions.l ends here

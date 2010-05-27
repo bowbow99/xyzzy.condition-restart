@@ -1,7 +1,23 @@
-;;;; -*- mode: lisp; package: condition-restart -*-
-;;;;
-;;;; condition-restart.l
-;;;;
+;;; -*- mode: lisp; package: condition-restart -*-
+;;;
+;;; condition-restart.l
+;;;
+;;; Author: bowbow99 <bowbow99@gmail.com>
+;;; Version: 0.00.**
+
+;; 概要:
+;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
+
+;; 使い方:
+;; require すればおｋです。
+;;     (require :condition-restart.l)
+
+;; 注意事項:
+;; - 標準の関数 warn を上書きしています。
+;;   再起動を用意するようにした以外は標準のものと同じ挙動にしたつもり
+;;   ですが、おかしくなっているかも知れません。
+
+
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (defpackage #:condition-restart
