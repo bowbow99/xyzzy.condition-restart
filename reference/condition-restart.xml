@@ -13,29 +13,33 @@
 <!ELEMENT file (#PCDATA)>
 ]>
 <!--
-* restart-case
-* restart-bind
-* with-simple-restart
-* with-condition-restarts
+reference/condition-restart.xml
 
-* compute-restarts
-* find-restart
-* invoke-restart
-* invoke-restart-interactively
+xyzzy 用拡張ライブラリ condition-restart で定義している関数やマクロのリファ
+レンスです。
 
-* cerror
-* warn
+参考:
+- へなちょこリファレンス http://xyzzy.s53.xrea.com/wiki/index.php?%A5%EA%A5%D5%A5%A1%A5%EC%A5%F3%A5%B9
 
-* continue
-* abort
-* muffle-warning
-* use-value
-* store-value
+この XML の使い方
+=================
+以下のものが必要です。全てネットインストーラから入手できます。
+- info-modoki-mode
+- reference.xml
+- xy-reference
 
-- assert
-- check-type
+xy-reference で reference.xml とこの XML ファイルから、info-modoki-mode
+で読み込める reference.txt を作っておけば、info-modoki-mode で標準の関数
+と同様に condition-restart で定義している関数などのリファレンスを参照で
+きるようになります。
 
-- ed:select-restart-interactively
+    ;; *scratch* などで以下を実行する
+    (progn
+      (require :xy-reference)
+      (xy-reference:2txt))
+
+    ;; info-modoki-mode が既に reference.txt を開いているので閉じる
+    (delete-buffer *imm-buffer*)
 -->
 <book>
 
