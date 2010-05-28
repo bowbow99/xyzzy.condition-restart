@@ -432,14 +432,13 @@
            (goto-char (buffer-stream-point s))
            (when stream
              (eval-region-print stream
-               (format t "~A~%" c)))
+                                (format t "~A~%" c)))
            (let ((si:*trace-on-error* nil))
              (error c))))))
     (eval-region-print stream
       (if (null stream)
           (message "~S" (car result))
-        (format t "~{~&=> ~S~%~}" result)))
+        (format t "~{~S~%~}" result)))
     (values-list result)))
-
 
 ;;;; condition-restart.l ends here
