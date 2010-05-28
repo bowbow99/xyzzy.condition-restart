@@ -8,9 +8,23 @@
 ;; 概要:
 ;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
 
-;; 使い方:
+;; 概要
+;; ====
+;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
+
+;; 使い方 for エンドユーザ
+;; =======================
 ;; require すればおｋです。
 ;;     (require :condition-restart)
+
+;; 使い方 for 開発者
+;; =================
+;; 再起動使うためのマクロやら関数やらについては、リファレンスを参照
+;; してください。
+;; - ${XYZZY}/reference/condition-restart.xml
+;;
+;; エラーがトップレベルまで飛んでいったときに、再起動を選択・起動で
+;; きるようにするには、ed:select-restart-interactively を使います。
 
 ;; 注意事項:
 ;; - 標準の関数 warn を上書きしています。
@@ -376,7 +390,9 @@
           (format stream "~A~&" (or (restart-name restart) "")))))))
 
 
-(in-package "editor")
+(in-package :editor)
+
+(export '(select-restart-interactively))
 
 (defmacro with-other-window (&body forms)
   `(save-excursion
@@ -412,6 +428,21 @@
           (invoke-restart-interactively (nth i restarts))
         (abort)))))
 
+#|
+;;; ed:select-restart-interactively の使い方
+;;;
+;;; handler-bind で任意のコンディションについてハンドラ関数として
+;;; ed:select-restart-interactively を登録した状態で任意の式を評価
+;;; すると、その式がエラー吐いた時に再起動を選択・起動するための
+;;; ウィンドウが開きます。
+;;;
+
+;; *scratch* で試してみる
+(handler-bind ((condition 'ed:ed:select-restart-interactively))
+  (cerror "知らねーゆ" "エラーだゆ"))
+
+;; eval-region 経由で評価するコマンド（eval-print-last-sexp など）は
+;; 再起動を選択・起動する
 (defun eval-region (from to &optional stream)
   (interactive "r")
   (let ((result nil))
@@ -425,7 +456,7 @@
                 (when (eq form '#1#)
                   (return))
                 (setq result (multiple-value-list
-                              (handler-bind ((serious-condition 'select-restart-interactively))
+                              (handler-bind ((condition 'select-restart-interactively))
                                 (eval form)))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
@@ -440,5 +471,5 @@
           (message "~S" (car result))
         (format t "~{~S~%~}" result)))
     (values-list result)))
-
+|#
 ;;;; condition-restart.l ends here
