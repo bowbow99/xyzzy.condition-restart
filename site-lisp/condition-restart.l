@@ -10,24 +10,24 @@
 
 ;; 使い方:
 ;; require すればおｋです。
-;;     (require :condition-restart.l)
+;;     (require :condition-restart)
 
 ;; 注意事項:
 ;; - 標準の関数 warn を上書きしています。
 ;;   再起動を用意するようにした以外は標準のものと同じ挙動にしたつもり
 ;;   ですが、おかしくなっているかも知れません。
 
-
+;;; Code:
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (defpackage #:condition-restart
-    (:use #:lisp)))
+  (defpackage :condition-restart
+    (:use :lisp)))
 
 (when (find-package :elisp)
   (shadow :abort :elisp))
 
 ;;; exporting from lisp package
-(in-package "lisp")
+(in-package :lisp)
 
 (export '(;; Macros establishes restarts
           restart-case
@@ -51,7 +51,7 @@
           ))
 
 
-(in-package "condition-restart")
+(in-package :condition-restart)
 
 ;;;;
 ;;;; * Utilities
@@ -432,7 +432,7 @@
            (goto-char (buffer-stream-point s))
            (when stream
              (eval-region-print stream
-                                (format t "~A~%" c)))
+               (format t "~A~%" c)))
            (let ((si:*trace-on-error* nil))
              (error c))))))
     (eval-region-print stream
