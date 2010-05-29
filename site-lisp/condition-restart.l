@@ -289,12 +289,9 @@
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
   (remove-if-not (lambda (restart)
-                   (restart-test restart condition))
-    (if (null condition)
-        *active-restarts*
-      (remove-if-not (lambda (restart)
-                       (restart-associated-p restart condition))
-        *active-restarts*))))
+                   (and (restart-test restart condition)
+                        (restart-associated-p restart condition)))
+    *active-restarts*))
 
 (defun find-restart (identifier &optional condition)
   "Return a particular restart from current dynamic environment."
