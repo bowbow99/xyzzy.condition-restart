@@ -73,6 +73,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
    <package>lisp</package>
    <description>
 TEST-FORM が true に評価されることを確実にします。
+
 TEST-FORM が false に評価されると、continue 再起動を用意したうえで DATUM
 と ARGS で指定されたエラーを投げます。この continue 再起動を起動すると、
 PLACE* の値をミニバッファで入力した値で置き換え、assert の最初（TEST-FORM
@@ -182,7 +183,7 @@ store-value 再起動について:
    <arguments>continue &amp;optional CONDITION</arguments>
    <package>lisp</package>
    <description>
-continue 再起動を起動します。
+continue 再起動を起動して、そのまま処理を続行します。
 もし有効な continue 再起動が見つからなかった場合は nil を返して終了します。
 
   CONDITION : コンディションを指定すると、そのコンディションに対応した
@@ -219,7 +220,6 @@ abort 再起動を起動して、処理を中止しようとします。
 
 abort 再起動について:
   処理を中止するような再起動です。
-  {{詳細未定: abort 再起動が確立されてない場合}}
    </description>
    <seealso>restart-case</seealso>
    <seealso>invoke-restart</seealso>
@@ -291,7 +291,7 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を確立�
 を続行させることができます。
 
   FMT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数として
-                ARUMENTS が与えられます。
+                ARGS が与えられます。
   DATUM, ARGS : 投げるエラーを指定します。詳しくは error 関数を参照してく
                 ださい。
 
@@ -361,11 +361,13 @@ IDENTIFIER で指定される再起動を起動します。
 
   IDENTIFIER : 起動する再起動の名前（シンボル）か再起動オブジェクトを指定
                します。
-               指定される再起動が確立されていない場合は restart-not-found
-               エラーが通知されます。
   ARGUMENTS  : 再起動に渡す引数があれば。
 
-再起動は制御をどこかに飛ばすかも知れません。飛ばさなかった（普通に値を
+指定された再起動が用意されていなかった場合は restart-not-found エラーを
+投げます。
+
+通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動すると
+制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値を
 返した）場合、invoke-restart は再起動が返した値をそのまま返します。
    </description>
    <seealso>find-restart</seealso>
@@ -437,7 +439,6 @@ find-restart や compute-restarts の引数にコンディションを与えて�
 再起動が有効なままですが、コンディション FOO に関連付けられた再起動は無視
 してコンディション BAR に関連付けられた再起動の中から選んで起動することが
 できたりします。
-
 
    </description>
    <seealso>restart-case</seealso>
@@ -513,31 +514,33 @@ FORM が signal, error, cerror, warn のいずれかで始まる式（か、そ�
    <arguments>restart-bind (&amp;rest RESTARTS) &amp;body BODY</arguments>
    <package>lisp</package>
    <description>
-再起動を確立した環境で BODY を評価します。
+再起動を用意して BODY を評価します。
 
   (restart-bind ((NAME RESTART-FUNCTION
                    {:interactive-function INTERACTIVE-FUNCTION}
                    {:report-function REPORT-FUNCTION}
                    {:test-function TEST-FUNCTION})
-                   ...)
+                 ...)
     BODY...)
 
   NAME                 : 再起動の名前（シンボル）です。
-  RESTART-FUNCTION     : 再起動が起動されたときに実行される関数を指定します。
-  INTERACTIVE-FUNCTION : 再起動が invoke-restart-interactively によって
-                         対話的に起動されたときに実行される関数を指定します。
+  RESTART-FUNCTION     : 再起動の処理本体です。関数を指定します。
+
+  INTERACTIVE-FUNCTION : invoke-restart-interactively によって対話的に起動され
+                         たときに、RESTART-FUNCTION に与える引数を取得する関数
+                         です。
                          この関数は引数なしで実行され、RESTART-FUNCTION に渡す
                          引数のリストを返さなければなりません。
-  REPORT-FUNCTION      : 再起動の概要を出力する関数を指定します。
-                         REPORT-FUNCTION は引数に出力先のストリームを受け取り、
-                         その再起動の概要を出力しなければなりません。
-  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効か
-                         どうかを判断する関数を指定します。
+  REPORT-FUNCTION      : 再起動の概要を出力する関数です。
+                         引数に出力先のストリームを受け取り、 その再起動の概要
+                         を出力します。
+  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効かどう
+                         かを判断する関数です。
                          この関数は引数にコンディションを受け取り、与えられた
                          コンディションについてその再起動が有効だったら true
                          を返しましょう。
 
-restart-bind は再起動を確立するだけで、それ以上のことをしたい場合は自分
+restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分
 でやらなければなりません（tagbody と go で制御を移すとか）。
 大抵の場合は restart-case の方が便利だと思います。
    </description>
