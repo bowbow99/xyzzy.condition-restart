@@ -95,7 +95,7 @@
   function
   interactive-function
   report-function
-  test-function)
+  (test-function (lambda (&optional condition) t)))
 
 ;; NOTE:
 ;; Since xyzzy's typep doesn't return true for structure instance
@@ -109,7 +109,18 @@
    :report-function (lambda (stream)
                       (format stream "Stop evaluation, return to toplevel."))))
 
-(defparameter *active-restarts* (list (cons +global-abort+ nil)))
+(defparameter *active-restarts* (list +global-abort+))
+
+(defparameter *condition/restart-association* nil)
+
+(defun restart-active-p (restart)
+  (find restart *active-restarts*))
+
+(defun restart-associated-p (restart condition)
+  (let ((associated-restarts
+         (cdr (assoc condition *condition/restart-association*))))
+    (or (null associated-restarts)
+        (find restart associated-restarts :test #'eql))))
 
 ;;;; * Restart Establishing Macros
 
@@ -119,9 +130,9 @@
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
           (append (list ,@(mapcar (lambda (restart)
-                                    `(list (make-restart :name ',(car restart)
-                                                         :function #',(cadr restart)
-                                                         ,@(cddr restart))))
+                                    `(make-restart :name ',(car restart)
+                                                   :function #',(cadr restart)
+                                                   ,@(cddr restart)))
                             restarts))
                   *active-restarts*)))
      ,@body))
@@ -133,16 +144,16 @@
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
-  `(let ((*active-restarts*
+  `(let ((*condition/restart-association*
           (let ((#1=#:condition ,condition)
                 (#2=#:restarts ,restarts))
-            (mapcar (lambda (restart/conditions)
-                      (with-ca/dr (restart/conditions restart conditions)
-                        (if (and (find restart #2#)
-                                 (not (find #1# conditions)))
-                            (cons restart (cons #1# conditions))
-                          restart/conditions)))
-              *active-restarts*))))
+            (if (find #1# *condition/restart-association* :key #'car)
+                (mapcar (lambda (association)
+                          (if (eq (car association) #1#)
+                              (append (list #1#) #2# (cdr association))
+                            association))
+                  *condition/restart-association*)
+              (cons (cons #1# #2#) *condition/restart-association*)))))
      ,@body))
 
 #+xyzzy
@@ -229,7 +240,8 @@
                     tags/clauses))
              (return-from #1#
                ,(let ((form (macroexpand form)))
-                  (if (member (car form) '(signal warn error cerror))
+                  (if (and (consp form)
+                           (member (car form) '(signal warn error cerror)))
                       (let ((operator (car form))
                             (datum (cadr form))
                             (args (cddr form)))
@@ -276,28 +288,25 @@
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
-  (mapcar #'car
-    (remove-if-not (lambda (RC)
-                     (with-ca/dr (RC restart conditions)
-                       (and (restart-test restart condition)
-                            (or (null condition) (null conditions)
-                                (member condition conditions)))))
-      *active-restarts*)))
+  (remove-if-not (lambda (restart)
+                   (restart-test restart condition))
+    (if (null condition)
+        *active-restarts*
+      (remove-if-not (lambda (restart)
+                       (restart-associated-p restart condition))
+        *active-restarts*))))
 
 (defun find-restart (identifier &optional condition)
   "Return a particular restart from current dynamic environment."
   (case (type-of identifier)
     (symbol
-     (car (find-if (lambda (R/C)
-                     (with-ca/dr (R/C restart conditions)
-                       (and (eql identifier (restart-name restart))
-                            (restart-test restart condition)
-                            (or (null condition) (null conditions)
-                                (member condition conditions)))))
-            *active-restarts*)))
+     (find-if (lambda (restart)
+                (and (eql (restart-name restart) identifier)
+                     (restart-test restart condition)))
+       *active-restarts*))
     (structure
      (when (and (typep identifier 'restart)
-                (member identifier *active-restarts* :key #'car))
+                (member identifier *active-restarts*))
        identifier))))
 
 (define-condition restart-not-found (control-error)
