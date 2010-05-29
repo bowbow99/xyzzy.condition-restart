@@ -53,7 +53,6 @@
           invoke-restart-interactively
           ;; Signallers
           cerror
-          assert
           ;; standard restart interface
           abort
           continue
