@@ -80,6 +80,10 @@
 #+xyzzy
 (setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
+(defun %add-key/value (key datum alist)
+  (cons (cons key (union datum (cdr (assoc key alist))))
+        (remove key alist :key #'car)))
+
 ;;;;
 ;;;; * Restart Object
 
@@ -145,15 +149,10 @@
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
-  (let (($condition (gensym)))
-    `(let ((*condition/restart-association*
-            (let ((,$condition ,condition))
-              (cons (cons ,$condition
-                          (union ,restarts
-                                 (cdr (assoc ,$condition *condition/restart-association*))))
-                    (remove ,$condition *condition/restart-association*
-                            :key #'car)))))
-       ,@body)))
+  `(let ((*condition/restart-association*
+          (%add-key/value ,condition ,restarts
+                          *condition/restart-association*)))
+     ,@body))
 
 #+xyzzy
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
