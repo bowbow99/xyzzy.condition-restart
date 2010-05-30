@@ -419,7 +419,7 @@
     (when restarts
       (with-other-window
         (setq obuff (selected-buffer))
-        (with-output-to-temp-buffer ("*Select Restart*" nil)
+        (with-output-to-temp-buffer (" *Select Restart*" nil)
           (set-buffer (buffer-stream-buffer *standard-output*))
           (condition-restart::%print-condition condition)
           (format t "~&~%")
