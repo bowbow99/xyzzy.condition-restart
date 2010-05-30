@@ -122,10 +122,12 @@
   (find restart *active-restarts*))
 
 (defun restart-associated-p (restart condition)
-  (let ((associated-restarts
-         (cdr (assoc condition *condition/restart-association*))))
-    (or (null associated-restarts)
-        (find restart associated-restarts :test #'eql))))
+  "Return true if RESTART is associated with CONDITION, or RESTART isn't
+ associated with no condition."
+  (or (find restart (cdr (assoc condition *condition/restart-association*)))
+      (notany (lambda (assoc)
+                (member restart (cdr assoc)))
+        *condition/restart-association*)))
 
 ;;;; * Restart Establishing Macros
 
