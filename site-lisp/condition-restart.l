@@ -108,9 +108,11 @@
    :report-function (lambda (stream)
                       (format stream "Stop evaluation, return to toplevel."))))
 
-(defparameter *active-restarts* (list +global-abort+))
+(defparameter *active-restarts* (list +global-abort+)
+  "List of active restart.")
 
-(defparameter *condition/restart-association* nil)
+(defparameter *condition/restart-association* nil
+  "List of condition and associated restarts.")
 
 (defun restart-active-p (restart)
   (find restart *active-restarts*))
@@ -143,19 +145,14 @@
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
-  (let (($condition (gensym))
-        ($restarts (gensym)))
+  (let (($condition (gensym)))
     `(let ((*condition/restart-association*
-            (let ((,$condition ,condition)
-                  (,$restarts ,restarts))
-              (if (find ,$condition *condition/restart-association* :key #'car)
-                  (mapcar (lambda (assoc)
-                            (if (eq (car assoc) ,$condition)
-                                (append (list ,$condition) ,$restarts (cdr assoc))
-                              assoc))
-                    *condition/restart-association*)
-                (cons (cons ,$condition ,$restarts)
-                      *condition/restart-association*)))))
+            (let ((,$condition ,condition))
+              (cons (cons ,$condition
+                          (union ,restarts
+                                 (cdr (assoc ,$condition *condition/restart-association*))))
+                    (remove ,$condition *condition/restart-association*
+                            :key #'car)))))
        ,@body)))
 
 #+xyzzy
