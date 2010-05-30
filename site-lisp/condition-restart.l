@@ -143,17 +143,20 @@
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
-  `(let ((*condition/restart-association*
-          (let ((#1=#:condition ,condition)
-                (#2=#:restarts ,restarts))
-            (if (find #1# *condition/restart-association* :key #'car)
-                (mapcar (lambda (association)
-                          (if (eq (car association) #1#)
-                              (append (list #1#) #2# (cdr association))
-                            association))
-                  *condition/restart-association*)
-              (cons (cons #1# #2#) *condition/restart-association*)))))
-     ,@body))
+  (let (($condition (gensym))
+        ($restarts (gensym)))
+    `(let ((*condition/restart-association*
+            (let ((,$condition ,condition)
+                  (,$restarts ,restarts))
+              (if (find ,$condition *condition/restart-association* :key #'car)
+                  (mapcar (lambda (assoc)
+                            (if (eq (car assoc) ,$condition)
+                                (append (list ,$condition) ,$restarts (cdr assoc))
+                              assoc))
+                    *condition/restart-association*)
+                (cons (cons ,$condition ,$restarts)
+                      *condition/restart-association*)))))
+       ,@body)))
 
 #+xyzzy
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
