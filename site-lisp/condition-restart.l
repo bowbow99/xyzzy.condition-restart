@@ -297,7 +297,8 @@
     (symbol
      (find-if (lambda (restart)
                 (and (eql (restart-name restart) identifier)
-                     (restart-test restart condition)))
+                     (restart-test restart condition)
+                     (restart-associated-p restart condition)))
        *active-restarts*))
     (structure
      (when (and (typep identifier 'restart)
