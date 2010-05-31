@@ -103,7 +103,7 @@ PLACE* の値をミニバッファで入力した値で置き換え、assert の
 PLACE の値が TYPESPEC の型であることを確実にします。
 
 もし PLACE の値が TYPESPEC の型ではなかった場合、store-value 再起動を
-用意した上で si::check-type-error を投げます。この store-value　再起動
+用意した上で si::check-type-error を投げます。この store-value 再起動
 を起動すると、PLACE の値を置き換えて check-type をやり直します。
 PLACE の値が TYPESPEC の型であれば check-type 式は nil を返します。
 
@@ -341,13 +341,21 @@ invoke-restart-interactively によって起動された再起動は、restart-c
    <arguments>find-restart IDENTIFIER &amp;optional CONDITION</arguments>
    <package>lisp</package>
    <description>
-指定された再起動を現在の環境から探して返します。
-見つからなかったら nil を返します。
+指定された再起動を探して返します。見つからなかったら nil を返します。
 
   IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
   CONDITION  : コンディションを指定すると、そのコンディションに対して有効
                な再起動の中から探します。
                restart-bind の :test-function 参照。
+
+再起動の有効/無効について:
+  find-restart や compute-restart は restart-bind によって用意された再起動
+  の中から探してきますが、コンディションが指定された場合は以下の条件を満た
+  す再起動のみが有効になります。
+  - TEST-FUNCTION があるなら、TEST-FUNCTION をコンディションを引数に呼び出
+    して true が返る。
+  - 指定されたコンディションに関連付けられているか、どのコンディションに
+    も関連付けられていない。
 
    </description>
    <seealso>restart-bind</seealso>
@@ -370,12 +378,12 @@ IDENTIFIER で指定される再起動を起動します。
                します。
   ARGUMENTS  : 再起動に渡す引数があれば。
 
-指定された再起動が用意されていなかった場合は restart-not-found エラーを
-投げます。
+指定された再起動が見つからなかった場合は restart-not-found エラーを投げ
+ます。
 
-通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動すると
-制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値を
-返した）場合、invoke-restart は再起動が返した値をそのまま返します。
+通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動する
+と制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値
+を返した）場合、invoke-restart は再起動が返した値をそのまま返します。
    </description>
    <seealso>find-restart</seealso>
    <seealso>restart-case</seealso>
@@ -392,8 +400,8 @@ IDENTIFIER で指定される再起動を起動します。
    <description>
 現在の環境で確立されている再起動のリストを返します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対して有効な
-              再起動のみのリストを返します。
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な再起動のみのリストを返します。
    </description>
    <seealso>restart-case</seealso>
    <seealso>restart-bind</seealso>
@@ -412,8 +420,8 @@ IDENTIFIER で指定される再起動を起動します。
    <package>lisp</package>
    <description>
 NAME という名前の再起動を確立した環境で FORMS を評価します。
-この再起動が起動されると、with-simple-restart 式は多値で nil と t を返して
-終了します。
+この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
+て終了します。
    </description>
    <link>[CLHS: with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
    <file>condition-restart.l</file>
