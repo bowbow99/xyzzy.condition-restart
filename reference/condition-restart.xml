@@ -512,22 +512,22 @@ FORM が signal, error, cerror, warn のいずれかで始まる式（か、そ�
 マクロ呼び出し）だったら、その restart-case で用意される再起動は勝手に投げ
 られるコンディションに関連付けられます。
 
-   </description>
-   <seealso>invoke-restart</seealso>
-   <seealso>with-simple-restart</seealso>
-   <seealso>restart-bind</seealso>
-   <seealso>with-condition-restarts</seealso>
-   <link>[CLHS: Function restart-case] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_ca.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>invoke-restart</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>restart-bind</seealso>
+<seealso>with-condition-restarts</seealso>
+<link>[CLHS: Function restart-case] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_ca.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>restart-bind</title>
-   <type>Macro</type>
-   <arguments>restart-bind (&amp;rest RESTARTS) &amp;body BODY</arguments>
-   <package>lisp</package>
-   <description>
+<title>restart-bind</title>
+<type>Macro</type>
+<arguments>restart-bind (&amp;rest RESTARTS) &amp;body BODY</arguments>
+<package>lisp</package>
+<description>
 再起動を用意して BODY を評価します。
 
   (restart-bind ((NAME RESTART-FUNCTION
@@ -557,13 +557,13 @@ FORM が signal, error, cerror, warn のいずれかで始まる式（か、そ�
 restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分でや
 らなければなりません（tagbody と go で制御を移すとか）。
 大抵の場合は restart-case の方が便利だと思います。
-   </description>
-   <seealso>with-simple-restart</seealso>
-   <seealso>restart-case</seealso>
-   <seealso>invoke-restart</seealso>
-   <link>[CLHS: Macro restart-bind] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_bi.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>with-simple-restart</seealso>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Macro restart-bind] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_bi.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 </book>
