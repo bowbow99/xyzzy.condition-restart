@@ -355,9 +355,8 @@ invoke-restart-interactively によって起動された再起動は、restart-c
   す再起動のみが有効になります。
   - TEST-FUNCTION があるなら、TEST-FUNCTION をコンディションを引数に呼び出
     して true が返る。
-  - 指定されたコンディションに関連付けられているか、どのコンディションに
-    も関連付けられていない。
-
+  - 指定されたコンディションに関連付けられているか、どのコンディションにも
+    関連付けられていない。
    </description>
    <seealso>restart-bind</seealso>
    <seealso>restart-case</seealso>
@@ -486,19 +485,18 @@ restart-case で用意された再起動が起動されると、再起動の本�
     ...)
 
   NAME             : 再起動の名前をシンボルで指定します。
-  LAMBDA-LIST      : 再起動の仮引数を指定します。lambda とか使うことの
+  LAMBDA-LIST      : 再起動の仮引数を指定します。lambda とかで使うことの
                      できる &amp;optional やら &amp;rest やらを使えます。
-  BODY             : 再起動が起動されたときに実行されます。
-                     LAMBDA-LIST で指定した仮引数が与えられた引数に束縛され
-                     た環境で実行され、BODY の結果が restart-case 式の結果
-                     となります。
+  BODY             : 再起動の処理本体です。
+                     LAMBDA-LIST で指定した仮引数が与えられた引数に束縛さ
+                     れた環境で実行され、BODY の結果が restart-case 式の
+                     結果となります。
 
-  INTERACTIVE-EXPR : 対話的に起動されたときに実行される関数を、関数名
-                     （シンボルかlambda 式）で指定します。#' はつけない
-                     でください。
-                     対話的に起動されるとこの関数は引数なしで実行されます。
-                     この関数は再起動へ渡す引数のリストを返さなければなり
-                     ません。
+  INTERACTIVE-EXPR : 対話的に起動されたときに、実行される関数を、関数名
+                     （シンボルかlambda 式）で指定します。
+                     invoke-restart-interactively によってこの再起動が起
+                     動されると、この関数が引数なしで呼び出され、戻り値
+                     のリストを再起動の処理本体の引数として使用します。
   REPORT-EXPR      : 再起動の概要を説明する文字列か、概要を出力する関数の
                      名前を指定します。
               関数   : 関数名（シンボルか lambda 式）を指定します。#' はつけ
@@ -542,22 +540,22 @@ FORM が signal, error, cerror, warn のいずれかで始まる式（か、そ�
   NAME                 : 再起動の名前（シンボル）です。
   RESTART-FUNCTION     : 再起動の処理本体です。関数を指定します。
 
-  INTERACTIVE-FUNCTION : invoke-restart-interactively によって対話的に起動され
-                         たときに、RESTART-FUNCTION に与える引数を取得する関数
-                         です。
-                         この関数は引数なしで実行され、RESTART-FUNCTION に渡す
-                         引数のリストを返さなければなりません。
+  INTERACTIVE-FUNCTION : invoke-restart-interactively によって対話的に起動
+                         されたときに、RESTART-FUNCTION に与える引数を取得
+                         する関数です。
+                         この関数は引数なしで実行され、RESTART-FUNCTION に
+                         渡す引数のリストを返さなければなりません。
   REPORT-FUNCTION      : 再起動の概要を出力する関数です。
-                         引数に出力先のストリームを受け取り、 その再起動の概要
-                         を出力します。
-  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効かどう
-                         かを判断する関数です。
-                         この関数は引数にコンディションを受け取り、与えられた
-                         コンディションについてその再起動が有効だったら true
-                         を返しましょう。
+                         引数に出力先のストリームを受け取り、 その再起動の
+                         概要を出力します。
+  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効か
+                         どうかを判断する関数です。
+                         この関数は引数にコンディションを受け取り、与えられ
+                         たコンディションについてその再起動が有効だったら
+                         true を返しましょう。
 
-restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分
-でやらなければなりません（tagbody と go で制御を移すとか）。
+restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分でや
+らなければなりません（tagbody と go で制御を移すとか）。
 大抵の場合は restart-case の方が便利だと思います。
    </description>
    <seealso>with-simple-restart</seealso>
