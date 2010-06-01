@@ -44,11 +44,11 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <book>
 
 <chapter>
-   <title>select-restart-interactively</title>
-   <type>Function</type>
-   <arguments>select-restart-interactively CONDITION</arguments>
-   <package>editor</package>
-   <description>
+<title>select-restart-interactively</title>
+<type>Function</type>
+<arguments>select-restart-interactively CONDITION</arguments>
+<package>editor</package>
+<description>
 対話的に再起動を選んで起動します。
 再起動が用意された環境で select-restart-interactively にコンディションを
 与えて実行すると、ウィンドウを分割して与えられたコンディションと有効な
@@ -59,19 +59,19 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
   ;;; 再起動を選ぶ
   (handler-bind ((error #'ed::select-restart-interactively))
     (eval (read-sexp "FORM: ")))
-   </description>
-   <seealso></seealso>
-   <link></link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso></seealso>
+<link></link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>assert</title>
-   <type>Macro</type>
-   <arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
-   <package>lisp</package>
-   <description>
+<title>assert</title>
+<type>Macro</type>
+<arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
+<package>lisp</package>
+<description>
 TEST-FORM が true に評価されることを確実にします。
 
 TEST-FORM が false に評価されると、continue 再起動を用意したうえで DATUM
@@ -87,19 +87,19 @@ PLACE* の値をミニバッファで入力した値で置き換え、assert の
   DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
                 省略した場合は simple-error が投げられます。
 
-   </description>
-   <seealso>check-type</seealso>
-   <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
-   <section>エラー</section>
-   <file>assertions.l</file>
+</description>
+<seealso>check-type</seealso>
+<link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
+<section>エラー</section>
+<file>assertions.l</file>
 </chapter>
 
 <chapter>
-   <title>check-type</title>
-   <type>Macro</type>
-   <arguments>check-type PLACE TYPESPEC [STRING]</arguments>
-   <package>lisp</package>
-   <description>
+<title>check-type</title>
+<type>Macro</type>
+<arguments>check-type PLACE TYPESPEC [STRING]</arguments>
+<package>lisp</package>
+<description>
 PLACE の値が TYPESPEC の型であることを確実にします。
 
 もし PLACE の値が TYPESPEC の型ではなかった場合、store-value 再起動を
@@ -110,19 +110,19 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
   PLACE    : 調べる場所。setf できる式を指定します。
   TYPESPEC : typep に渡す型指定をクォートせずに指定します。
   STRING   : TYPESPEC を説明する文字列です。
-   </description>
-   <seealso>assert</seealso>
-   <seealso>typep</seealso>
-   <seealso>deftype</seealso>
-   <link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm</link>
-   <section>データ型</section>
-   <file>assertions.l</file>
+</description>
+<seealso>assert</seealso>
+<seealso>typep</seealso>
+<seealso>deftype</seealso>
+<link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm</link>
+<section>データ型</section>
+<file>assertions.l</file>
 </chapter>
 
 <chapter>
-   <title>再起動ってなに</title>
-   <type>Tips</type>
-   <description>
+<title>再起動ってなに</title>
+<type>Tips</type>
+<description>
 エラーやコンディションを投げるときに、投げる側でその状況に対応する方法を
 選択肢として用意しておく仕組みです。
 
@@ -132,42 +132,42 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 にアクセスできるので、変数の値を変更したり、適当なところへ制御を移して別
 の値を返したりすることができます。
 
-   </description>
-   <seealso>restart-case</seealso>
-   <seealso>restart-bind</seealso>
-   <seealso>invoke-restart</seealso>
-   <seealso>find-restart</seealso>
-   <seealso>handler-bind</seealso>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>restart-case</seealso>
+<seealso>restart-bind</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>handler-bind</seealso>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>use-value</title>
-   <type>Function</type>
-   <arguments>use-value VALUE &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>use-value</title>
+<type>Function</type>
+<arguments>use-value VALUE &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 use-value 再起動を起動して、そのときだけ代わりに VALUE を使うようにします。
 もし有効な use-value 再起動が見つからなかった場合は nil を返します。
 
 use-value 再起動について:
   変数の値がおかしかったりしたときに、そのときだけ代わりの値を使うような
   再起動です。
-   </description>
-   <seealso>store-value</seealso>
-   <link>[CLHS: Function use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#use-value</link>
-   <link>[CLHS: Restart use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_use_va.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>store-value</seealso>
+<link>[CLHS: Function use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#use-value</link>
+<link>[CLHS: Restart use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_use_va.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>store-value</title>
-   <type>Function</type>
-   <arguments>store-value NEW-VALUE &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>store-value</title>
+<type>Function</type>
+<arguments>store-value NEW-VALUE &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 store-value 再起動を起動して、変数の値を NEW-VALUE に変更します。
 もし有効な store-value 再起動が見つからなかった場合は nil を返します。
 
@@ -175,21 +175,21 @@ store-value 再起動について:
   変数や汎変数の値を変更して処理を続行するような再起動です
   store-value 再起動を用意するときは、再起動の概要にどの変数の値を変更
   するのか書いておきましょう。
-   </description>
-   <seealso>use-value</seealso>
-   <seealso>check-type</seealso>
-   <link>[CLHS: Function store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#store-value</link>
-   <link>[CLHS: Restart store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_store_.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>use-value</seealso>
+<seealso>check-type</seealso>
+<link>[CLHS: Function store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#store-value</link>
+<link>[CLHS: Restart store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_store_.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>continue</title>
-   <type>Function</type>
-   <arguments>continue &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>continue</title>
+<type>Function</type>
+<arguments>continue &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 continue 再起動を起動して、そのまま処理を続行します。
 もし有効な continue 再起動が見つからなかった場合は nil を返して終了します。
 
@@ -199,25 +199,25 @@ continue 再起動を起動して、そのまま処理を続行します。
 continue 再起動について:
   単純に処理を続行するような再起動です。
   ※ 警告 (warning) を無視するときは muffle-warning を使います。
-   </description>
-   <seealso>restart-case</seealso>
-   <seealso>abort</seealso>
-   <seealso>muffle-warning</seealso>
-   <seealso>store-value</seealso>
-   <seealso>use-value</seealso>
-   <seealso>invoke-restart</seealso>
-   <link>[CLHS: Function continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#continue</link>
-   <link>[CLHS: Restart continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_contin.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>restart-case</seealso>
+<seealso>abort</seealso>
+<seealso>muffle-warning</seealso>
+<seealso>store-value</seealso>
+<seealso>use-value</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#continue</link>
+<link>[CLHS: Restart continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_contin.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>abort</title>
-   <type>Function</type>
-   <arguments>abort &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>abort</title>
+<type>Function</type>
+<arguments>abort &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 abort 再起動を起動して、処理を中止しようとします。
 もし有効な abort 再起動が見つからなかった場合は、silent-quit を投げて
 処理を中止するかも{{詳細未定}}。
@@ -227,21 +227,21 @@ abort 再起動を起動して、処理を中止しようとします。
 
 abort 再起動について:
   処理を中止するような再起動です。
-   </description>
-   <seealso>restart-case</seealso>
-   <seealso>invoke-restart</seealso>
-   <link>[CLHS: Function abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
-   <link>[CLHS: Restart abort] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_abort.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
+<link>[CLHS: Restart abort] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_abort.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>muffle-warning</title>
-   <type>Function</type>
-   <arguments>muffle-warning &amp;optional WARNING</arguments>
-   <package>lisp</package>
-   <description>
+<title>muffle-warning</title>
+<type>Function</type>
+<arguments>muffle-warning &amp;optional WARNING</arguments>
+<package>lisp</package>
+<description>
 muffle-warning 再起動を起動して、警告を無視します。
 
   WARNING: 警告を指定すると、その警告に対応した muffle-warning を探して
@@ -249,20 +249,20 @@ muffle-warning 再起動を起動して、警告を無視します。
 
 muffle-warning 再起動について:
   警告を無視する再起動です。warn 関数を参照してください。
-   </description>
-   <seealso></seealso>
-   <link>[CLHS: Function muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#muffle-warning</link>
-   <link>[CLHS: Restart muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_muffle.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso></seealso>
+<link>[CLHS: Function muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#muffle-warning</link>
+<link>[CLHS: Restart muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_muffle.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>warn</title>
-   <type>Function</type>
-   <arguments>warn DATUM &amp;rest ARGS</arguments>
-   <package>lisp</package>
-   <description>
+<title>warn</title>
+<type>Function</type>
+<arguments>warn DATUM &amp;rest ARGS</arguments>
+<package>lisp</package>
+<description>
 ※これは condition-restart.l で上書きされた warn の説明です。
 警告（warning コンディション）を投げます。
 
@@ -276,21 +276,21 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を確立�
 投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy は
 警告音を鳴らしたりします（共通設定->いろいろ で設定できます）が、処理を
 中止したりはせず、warn 式からは nil が返ります。
-   </description>
-   <seealso>error</seealso>
-   <seealso>signal</seealso>
-   <seealso>muffle-warning</seealso>
-   <link>[CLHS: Function warn] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_warn.htm</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>error</seealso>
+<seealso>signal</seealso>
+<seealso>muffle-warning</seealso>
+<link>[CLHS: Function warn] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_warn.htm</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>cerror</title>
-   <type>Function</type>
-   <arguments>cerror FMT-CONTROL DATUM &amp;rest ARGS</arguments>
-   <package>lisp</package>
-   <description>
+<title>cerror</title>
+<type>Function</type>
+<arguments>cerror FMT-CONTROL DATUM &amp;rest ARGS</arguments>
+<package>lisp</package>
+<description>
 回復可能なエラーを投げます。
 
 関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたエラーを投げますが、
@@ -306,20 +306,20 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を確立�
 ARGS は再起動の概要とエラー指定の両方に使われます。エラー指定に必要だけど
 概要の出力には不要なものは "~*" で無視することができます。
 
-   </description>
-   <seealso>signal</seealso>
-   <seealso>error</seealso>
-   <link>[CLHS: Function cerror] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_cerror.htm#cerror</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>signal</seealso>
+<seealso>error</seealso>
+<link>[CLHS: Function cerror] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_cerror.htm#cerror</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>invoke-restart-interactively</title>
-   <type>Function</type>
-   <arguments>invoke-restart-interactively IDENTIFIER</arguments>
-   <package>lisp</package>
-   <description>
+<title>invoke-restart-interactively</title>
+<type>Function</type>
+<arguments>invoke-restart-interactively IDENTIFIER</arguments>
+<package>lisp</package>
+<description>
 再起動を対話的に起動します。
 invoke-restart-interactively によって起動された再起動は、restart-case の
 :interactive オプションや restart-bind の :interactive-function オプション
@@ -327,21 +327,21 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 
   IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
 
-   </description>
-   <seealso>restart-bind</seealso>
-   <seealso>restart-case</seealso>
-   <seealso>invoke-restart</seealso>
-   <link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>restart-bind</seealso>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>find-restart</title>
-   <type>Function</type>
-   <arguments>find-restart IDENTIFIER &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>find-restart</title>
+<type>Function</type>
+<arguments>find-restart IDENTIFIER &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 指定された再起動を探して返します。見つからなかったら nil を返します。
 
   IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
@@ -357,21 +357,21 @@ invoke-restart-interactively によって起動された再起動は、restart-c
     して true が返る。
   - 指定されたコンディションに関連付けられているか、どのコンディションにも
     関連付けられていない。
-   </description>
-   <seealso>restart-bind</seealso>
-   <seealso>restart-case</seealso>
-   <seealso>compute-restarts</seealso>
-   <link>[CLHS: Function find-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_find_r.htm#find-restart</link>
-   <file>condition-restart.l</file>
-   <section>エラー</section>
+</description>
+<seealso>restart-bind</seealso>
+<seealso>restart-case</seealso>
+<seealso>compute-restarts</seealso>
+<link>[CLHS: Function find-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_find_r.htm#find-restart</link>
+<file>condition-restart.l</file>
+<section>エラー</section>
 </chapter>
 
 <chapter>
-   <title>invoke-restart</title>
-   <type>Function</type>
-   <arguments>invoke-restart IDENTIFIER &amp;rest ARGUMENTS</arguments>
-   <package>lisp</package>
-   <description>
+<title>invoke-restart</title>
+<type>Function</type>
+<arguments>invoke-restart IDENTIFIER &amp;rest ARGUMENTS</arguments>
+<package>lisp</package>
+<description>
 IDENTIFIER で指定される再起動を起動します。
 
   IDENTIFIER : 起動する再起動の名前（シンボル）か再起動オブジェクトを指定
@@ -384,55 +384,55 @@ IDENTIFIER で指定される再起動を起動します。
 通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動する
 と制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値
 を返した）場合、invoke-restart は再起動が返した値をそのまま返します。
-   </description>
-   <seealso>find-restart</seealso>
-   <seealso>restart-case</seealso>
-   <link>[CLHS: Function invoke-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_1.htm#invoke-restart</link>
-   <file>condition-restart.l</file>
-   <section>エラー</section>
+</description>
+<seealso>find-restart</seealso>
+<seealso>restart-case</seealso>
+<link>[CLHS: Function invoke-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_1.htm#invoke-restart</link>
+<file>condition-restart.l</file>
+<section>エラー</section>
 </chapter>
 
 <chapter>
-   <title>compute-restarts</title>
-   <type>Function</type>
-   <arguments>compute-restarts &amp;optional CONDITION</arguments>
-   <package>lisp</package>
-   <description>
+<title>compute-restarts</title>
+<type>Function</type>
+<arguments>compute-restarts &amp;optional CONDITION</arguments>
+<package>lisp</package>
+<description>
 現在の環境で確立されている再起動のリストを返します。
 
   CONDITION : コンディションを指定すると、そのコンディションに対して有効
               な再起動のみのリストを返します。
-   </description>
-   <seealso>restart-case</seealso>
-   <seealso>restart-bind</seealso>
-   <seealso>with-simple-restart</seealso>
-   <seealso>find-restart</seealso>
-   <seealso>invoke-restart</seealso>
-   <link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
-   <file>condition-restart.l</file>
-   <section>エラー</section>
+</description>
+<seealso>restart-case</seealso>
+<seealso>restart-bind</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
+<file>condition-restart.l</file>
+<section>エラー</section>
 </chapter>
 
 <chapter>
-   <title>with-simple-restart</title>
-   <type>Macro</type>
-   <arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
-   <package>lisp</package>
-   <description>
+<title>with-simple-restart</title>
+<type>Macro</type>
+<arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
+<package>lisp</package>
+<description>
 NAME という名前の再起動を確立した環境で FORMS を評価します。
 この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
 て終了します。
-   </description>
-   <link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
-   <file>condition-restart.l</file>
+</description>
+<link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>with-condition-restarts</title>
-   <type>Macro</type>
-   <arguments>with-condition-restarts CONDITION RESTARTS FORM*</arguments>
-   <package>lisp</package>
-   <description>
+<title>with-condition-restarts</title>
+<type>Macro</type>
+<arguments>with-condition-restarts CONDITION RESTARTS FORM*</arguments>
+<package>lisp</package>
+<description>
 再起動とコンディションを関連付けます。
 
 {{関連付けるってなによ}}
@@ -455,21 +455,21 @@ find-restart や compute-restarts の引数にコンディションを与えて�
 してコンディション BAR に関連付けられた再起動の中から選んで起動することが
 できたりします。
 
-   </description>
-   <seealso>restart-case</seealso>
-   <seealso>find-restart</seealso>
-   <seealso>compute-restarts</seealso>
-   <link>[CLHS: Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
-   <section>エラー</section>
-   <file>condition-restart.l</file>
+</description>
+<seealso>restart-case</seealso>
+<seealso>find-restart</seealso>
+<seealso>compute-restarts</seealso>
+<link>[CLHS: Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
-   <title>restart-case</title>
-   <type>Macro</type>
-   <arguments>restart-case FORM RESTART-CLAUSE*</arguments>
-   <package>lisp</package>
-   <description>
+<title>restart-case</title>
+<type>Macro</type>
+<arguments>restart-case FORM RESTART-CLAUSE*</arguments>
+<package>lisp</package>
+<description>
 RESTART-CLAUSE で指定された再起動を用意して FORM を評価します。
 
 restart-case で用意された再起動が起動されると、再起動の本体を実行し、
