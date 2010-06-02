@@ -437,17 +437,17 @@
 ;;; ed:select-restart-interactively の使い方
 ;;;
 ;;; handler-bind で任意のコンディションについてハンドラ関数として
-;;; ed:select-restart-interactively を登録した状態で任意の式を評価
-;;; すると、その式がエラー吐いた時に再起動を選択・起動するための
-;;; ウィンドウが開きます。
-;;;
+;;; ed:select-restart-interactively を登録した状態で任意の式を評価すると、
+;;; その式がエラー吐いた時に再起動を選択・起動するためのウィンドウが開い
+;;; てミニバッファから選べます。
 
 ;; *scratch* で試してみる
-(handler-bind ((condition 'ed:ed:select-restart-interactively))
+(handler-bind ((condition 'ed:select-restart-interactively))
   (cerror "知らねーゆ" "エラーだゆ"))
 
 ;; eval-region 経由で評価するコマンド（eval-print-last-sexp など）は
 ;; 再起動を選択・起動する
+(in-package :editor)
 (defun eval-region (from to &optional stream)
   (interactive "r")
   (let ((result nil))
@@ -476,5 +476,6 @@
           (message "~S" (car result))
         (format t "~{~S~%~}" result)))
     (values-list result)))
+(in-package :user)
 |#
 ;;;; condition-restart.l ends here
