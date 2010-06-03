@@ -363,10 +363,12 @@
       (muffle-warning () nil))))
 
 (defun cerror (fmt-control datum &rest args)
-  (restart-case
-      (apply #'error datum args)
-    (continue ()
-      :report (lambda (stream)
-                (format stream fmt-control args)))))
+  (let ((error (%make-condition datum args 'simple-error)))
+    (restart-case
+        (with-condition-restarts error (list (find-restart 'continue))
+          (si::*throw-error error))
+      (continue ()
+        :report (lambda (stream)
+                  (format stream fmt-control args))))))
 
 ;;;; condition-restart.l ends here

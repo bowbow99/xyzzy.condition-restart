@@ -9,7 +9,7 @@
 
 (export '(select-restart-interactively))
 
-(defmacro %with-other-window (&body form)
+(defmacro %with-other-window (&body forms)
   `(save-excursion
      (save-window-excursion
        (if (= 1 (count-windows))
@@ -47,7 +47,7 @@
   (let ((restarts (compute-restarts condition))
         i)
     (when restarts
-      (with-other-window
+      (%with-other-window
         (with-output-to-temp-buffer (" *Select Restart*" nil)
           (set-buffer (buffer-stream-buffer *standard-output*))
           (%report-condition condition)
