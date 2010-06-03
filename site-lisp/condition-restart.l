@@ -360,7 +360,9 @@
     (restart-case
         (with-condition-restarts warning (find-restart 'muffle-warning)
           (si:*throw-error warning))
-      (muffle-warning () nil))))
+      (muffle-warning ()
+        :report "Ç±ÇÃåxçêÇÕñ≥Ç©Ç¡ÇΩÇ±Ç∆Ç…ÅB"
+        nil))))
 
 (defun cerror (fmt-control datum &rest args)
   (let ((error (%make-condition datum args 'simple-error)))
