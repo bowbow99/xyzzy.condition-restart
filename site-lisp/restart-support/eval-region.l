@@ -3,6 +3,23 @@
 ;;; restart-support/eval-region.l
 ;;;
 ;;; This file is part of xyzzy extension 'condition-restart'.
+;;;
+
+;;; Commentary:
+
+;; トップレベルまでエラーが飛んできたときに、再起動を選択して起動できる
+;; eval-region です。lisp-mode とかのバッファにある lisp の式を評価する
+;; いくつかの関数（コマンド）で再起動を選択できるようになります。
+;;  - eval-print-last-sexp
+;;  - eval-last-sexp
+;;  - eval-defun
+;;  - eval-buffer
+;;
+;; * 設定
+;;     (require :restart-support/eval-region)
+;;
+
+;;; Code:
 
 (require :condition-restart)
 (require :restart-support/select-restart-interactively)
