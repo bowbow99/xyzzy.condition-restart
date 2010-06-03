@@ -47,6 +47,7 @@
           with-simple-restart
           with-condition-restarts
           ;; Functions deals with restarts
+          restart-name
           compute-restarts
           find-restart
           invoke-restart
@@ -66,10 +67,6 @@
 
 ;;;;
 ;;;; * Utilities
-
-(defun %condition-type (condition)
-  (si:*structure-definition-name
-   (si:*structure-definition condition)))
 
 (defmacro with-ca/dr ((cons &optional (car-name 'car) (cdr-name 'cdr)) &body body)
   `(let ((#1=#:obj ,cons))
@@ -372,110 +369,4 @@
       :report (lambda (stream)
                 (format stream fmt-control args)))))
 
-;;;;
-;;;; * eval-region with restart support
-;;;;
-
-(defun %print-condition (condition &optional (stream *standard-output*))
-  (format stream "~&~A~%   [Condition Type: ~S]~%"
-          condition
-          (%condition-type condition)))
-
-
-(defun %print-restart-options (restarts &optional (stream *standard-output*))
-  (format stream "~&Retart Options:~%")
-  (let ((i -1))
-    (dolist (restart restarts)
-      (format stream "~&~4D [~A] "
-              (incf i)
-              (or (restart-name restart) "(Anonymous)"))
-      (let ((report-fn (restart-report-function restart)))
-        (if report-fn
-            (progn (funcall report-fn stream) (fresh-line stream))
-          (format stream "~A~&" (or (restart-name restart) "")))))))
-
-
-(in-package :editor)
-
-(export '(select-restart-interactively))
-
-(defmacro with-other-window (&body forms)
-  `(save-excursion
-    (save-window-excursion
-     (if (= 1 (count-windows))
-         (let ((col (window-columns)))
-           (if (> col 140)
-               (split-window (round col -2) t)
-             (split-window (round (window-height) -2))))
-       (other-window))
-     ,@forms)))
-
-#+xyzzy
-(setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
-
-(defun select-restart-interactively (condition)
-  (let ((restarts (compute-restarts condition))
-        obuff i)
-    (when restarts
-      (with-other-window
-        (setq obuff (selected-buffer))
-        (with-output-to-temp-buffer (" *Select Restart*" nil)
-          (set-buffer (buffer-stream-buffer *standard-output*))
-          (condition-restart::%print-condition condition)
-          (format t "~&~%")
-          (condition-restart::%print-restart-options restarts)
-          ;; TODO: obtain and print CALL STACK
-          (handler-case
-              (setq i (read-integer "Restart: "))
-            (quit (q) nil))))
-      (if (and (numberp i)
-               (condition-restart::restart-p (nth i restarts)))
-          (invoke-restart-interactively (nth i restarts))
-        (abort)))))
-
-#|
-;;; ed:select-restart-interactively の使い方
-;;;
-;;; handler-bind で任意のコンディションについてハンドラ関数として
-;;; ed:select-restart-interactively を登録した状態で任意の式を評価すると、
-;;; その式がエラー吐いた時に再起動を選択・起動するためのウィンドウが開い
-;;; てミニバッファから選べます。
-
-;; *scratch* で試してみる
-(handler-bind ((condition 'ed:select-restart-interactively))
-  (cerror "知らねーゆ" "エラーだゆ"))
-
-;; eval-region 経由で評価するコマンド（eval-print-last-sexp など）は
-;; 再起動を選択・起動する
-(in-package :editor)
-(defun eval-region (from to &optional stream)
-  (interactive "r")
-  (let ((result nil))
-    (when (> from to)
-      (rotatef from to))
-    (let ((s (make-buffer-stream (selected-buffer) from to)))
-      (handler-case
-          (let ((*package* *package*))
-            (while (< (buffer-stream-point s) to)
-              (let ((form (read s nil '#1=#:eof)))
-                (when (eq form '#1#)
-                  (return))
-                (setq result (multiple-value-list
-                              (handler-bind ((condition 'select-restart-interactively))
-                                (eval form)))))))
-        ((or error reader-error quit) (c)
-         (when (<= (buffer-stream-point s) to)
-           (goto-char (buffer-stream-point s))
-           (when stream
-             (eval-region-print stream
-               (format t "~A~%" c)))
-           (let ((si:*trace-on-error* nil))
-             (error c))))))
-    (eval-region-print stream
-      (if (null stream)
-          (message "~S" (car result))
-        (format t "~{~S~%~}" result)))
-    (values-list result)))
-(in-package :user)
-|#
 ;;;; condition-restart.l ends here
