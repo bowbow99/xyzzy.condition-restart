@@ -359,16 +359,16 @@
   (let ((warning (%make-condition datum args 'simple-warning)))
     (restart-case
         (with-condition-restarts warning (find-restart 'muffle-warning)
-          (lisp::*error warning))
+          (si:*throw-error warning))
       (muffle-warning () nil))))
 
 (defun cerror (fmt-control datum &rest args)
   (let ((error (%make-condition datum args 'simple-error)))
     (restart-case
         (with-condition-restarts error (list (find-restart 'continue))
-          (si::*throw-error error))
+          (si:*throw-error error))
       (continue ()
         :report (lambda (stream)
-                  (format stream fmt-control args))))))
+                  (apply #'format stream fmt-control args))))))
 
 ;;;; condition-restart.l ends here
