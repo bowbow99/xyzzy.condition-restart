@@ -108,7 +108,7 @@
 
 (defun restart-associated-p (restart condition)
   "Return true if RESTART is associated with CONDITION, or RESTART isn't
- associated with no condition."
+ associated with any condition."
   (or (find restart (cdr (assoc condition *condition/restart-association*)))
       (notany (lambda (assoc)
                 (member restart (cdr assoc)))
