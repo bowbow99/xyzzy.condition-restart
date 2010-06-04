@@ -7,7 +7,9 @@
 
 (defun ed:eval-expression (x)
   (interactive "xEval: ")
-  (message "~S" (handler-bind ((condition 'select-restart-interactively))
-                  (eval x))))
+  (restart-case
+      (message "~S" (handler-bind ((condition 'select-restart-interactively))
+                      (eval x)))
+    (abort () :report "‚â‚ß‚éB")))
 
 ;;; restart-support/eval-expression.l ends here.
