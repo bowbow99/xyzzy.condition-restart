@@ -39,8 +39,12 @@
                 (when (eq form '#1#)
                   (return))
                 (setq result (multiple-value-list
-                              (handler-bind ((condition 'select-restart-interactively))
-                                (eval form)))))))
+                              (restart-case
+                                  (handler-bind ((condition 'select-restart-interactively))
+                                    (eval form))
+                                (abort ()
+                                  :report "Ç‚ÇﬂÇÈÅB"
+                                  (return-from eval-region nil))))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
            (goto-char (buffer-stream-point s))
