@@ -97,19 +97,7 @@
   report-function
   (test-function (lambda (&optional condition) t)))
 
-;; NOTE:
-;; Since xyzzy's typep doesn't return true for structure instance
-;; of *old* structure definition after structure has re-defined,
-;; it is neccessary to re-instantiate it when this file has been
-;; reloaded.
-(defparameter +global-abort+
-  (make-restart
-   :name 'abort
-   :function (lambda () (signal 'silent-quit))
-   :report-function (lambda (stream)
-                      (format stream "Stop evaluation, return to toplevel."))))
-
-(defparameter *active-restarts* (list +global-abort+)
+(defparameter *active-restarts* nil
   "List of active restart.")
 
 (defparameter *condition/restart-association* nil
