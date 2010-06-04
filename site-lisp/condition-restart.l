@@ -31,10 +31,6 @@
 
 ;;; Code:
 
-(eval-when (:load-toplevel :compile-toplevel :execute)
-  (defpackage :condition-restart
-    (:use :lisp)))
-
 (when (find-package :elisp)
   (shadow :abort :elisp))
 
@@ -62,6 +58,8 @@
           store-value
           ))
 
+(defpackage :condition-restart
+  (:use :lisp))
 
 (in-package :condition-restart)
 
