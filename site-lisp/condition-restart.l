@@ -8,15 +8,30 @@
 ;; 概要
 ;; ====
 ;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
+;;
+;; 再起動システムそのものについては、付属のへなちょこリファレンス形式の
+;; リファレンス（reference/condition-restart.xml）か、Common Lisp 関連
+;; の資料を参考にしてください。
+;;   参考リンク:
+;;   - [CLHS: 9.1.4.2 Restarts] http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
+;;
+;; ほぼ Common Lisp と互換になってます。（おかしかったら教えてもらえると
+;; 助かります。）
+
+;; インストール
+;; ============
+;; netinstaller でインストールした人はそのままでおｋです。
+;; 手動でインストールする場合は、アーカイブを xyzzy のディレクトリにまる
+;; っと解答すればおｋなはずです。
 
 ;; 使い方 for 開発者
 ;; =================
-;; 再起動使うためのマクロやら関数やらについては、リファレンスを参照
-;; してください。
-;; - ${XYZZY}/reference/condition-restart.xml
+;; 再起動を使いたい拡張 lisp で require して下さい。必要な関数やマクロは
+;; lisp パッケージから export してあるので、通常はそれだけで使えるように
+;; なります。
 ;;
-;; エラーがトップレベルまで飛んでいったときに、再起動を選択・起動で
-;; きるようにするには、ed:select-restart-interactively を使います。
+;;     (require :condition-restart)
+;;
 
 ;; 注意事項
 ;; ========
