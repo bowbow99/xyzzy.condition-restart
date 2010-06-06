@@ -4,6 +4,9 @@
 ;;;
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
+;;; Author:    bowbow99 <bowbow99@gmail.com>
+;;; License:   MIT
+;;;
 
 ;;; Commentary:
 
@@ -14,15 +17,18 @@
 ;;  - eval-last-sexp
 ;;  - eval-defun
 ;;  - eval-buffer
-;;
-;; * 設定
-;;     (require :restart-support/eval-region)
-;;
+
+;; 上書き注意報
+;; ------------
+;; - eval-region を上書きしています。オリジナルは lisp/lispmode.l で定
+;;   義されています。
 
 ;;; Code:
 
-(require :condition-restart)
-(require :restart-support/select-restart-interactively)
+(provide "restart-support/eval-region")
+
+(require "condition-restart")
+(require "restart-support/select-restart-interactively")
 
 (in-package :editor)
 

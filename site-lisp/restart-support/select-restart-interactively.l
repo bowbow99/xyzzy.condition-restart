@@ -2,8 +2,15 @@
 ;;;
 ;;; restart-support/select-restart-intractively.l
 ;;;
+;;; This file is part of xyzzy extension 'condition-restart'.
+;;;
+;;; Author:    bowbow99 <bowbow99@gmail.com>
+;;; License:   MIT
+;;;
 
-(require :condition-restart)
+;;; Code:
+
+(require "condition-restart")
 
 (in-package :editor)
 
