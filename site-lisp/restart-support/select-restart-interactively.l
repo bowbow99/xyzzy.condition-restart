@@ -1,6 +1,7 @@
 ;;; -*- mode: lisp; package: editor -*-
 ;;;
 ;;; restart-support/select-restart-intractively.l
+;;;     --- Interface to select and invoke restart interactively.
 ;;;
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;

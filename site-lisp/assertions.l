@@ -7,6 +7,8 @@
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
 ;;; License:   MIT
 
+;;; Commentary:
+
 ;; 概要
 ;; ====
 ;; 再起動を使った Common Lisp の assert と check-type です。
@@ -122,4 +124,4 @@
              (setf ,place new-value)
              (go #1#)))))))
 
-;;; assertions.l ends here
+;;; assertions.l ends here.
