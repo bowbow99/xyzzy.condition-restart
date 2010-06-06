@@ -1,28 +1,34 @@
 ;;; -*- mode: lisp; package: condition-restart -*-
 ;;;
-;;; condition-restart.l
+;;; condition-restart.l --- Restart system from Common Lisp.
 ;;;
-;;; Author: bowbow99 <bowbow99@gmail.com>
-;;; Version: 0.00.**
+;;; This file is part of xyzzy extension 'condition-restart'.
+;;;
+;;; Author:    bowbow99 <bowbow99@gmail.com>
+;;; Version:   0.00.**
+;;; License:   MIT
+
+;;; Commentary:
 
 ;; 概要
 ;; ====
 ;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
 ;;
-;; 再起動システムそのものについては、付属のへなちょこリファレンス形式の
-;; リファレンス（reference/condition-restart.xml）か、Common Lisp 関連
-;; の資料を参考にしてください。
+;; 個々の関数やマクロについては、付属のへなちょこリファレンス形式のリフ
+;; ァレンスを参照してください。
+;;
+;;   - File: reference/condition-restart.xml
+;;
 ;;   参考リンク:
 ;;   - [CLHS: 9.1.4.2 Restarts] http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
 ;;
-;; ほぼ Common Lisp と互換になってます。（おかしかったら教えてもらえると
-;; 助かります。）
 
 ;; インストール
 ;; ============
 ;; netinstaller でインストールした人はそのままでおｋです。
 ;; 手動でインストールする場合は、アーカイブを xyzzy のディレクトリにまる
 ;; っと解答すればおｋなはずです。
+;;
 
 ;; 使い方 for 開発者
 ;; =================
@@ -32,12 +38,36 @@
 ;;
 ;;     (require :condition-restart)
 ;;
+;; トップレベルでエラーを捕まえて再起動を選択する方法は restart-support/
+;; 以下にあるファイルを参照して下さい。
+#|
+;; とりあえず試したい人向け
+;; ------------------------
+;; lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
+;; してみてください。
 
-;; 注意事項
-;; ========
+(require "condition-restart") ;<<
+(require "restart-support/eval-region") ;<<
+
+(cerror "知るかちょ" "ﾌﾞﾙｧ!!!") ;<<
+
+(restart-case
+    (/ 3 2 1 0)
+  (zero () :report "0 を返す。" 0)
+  (one () :report "1 を返す。" 1)
+  (use-value (value)
+    :report "返す値を入力する。"
+    :interactive (lambda ()
+                   (list (eval (read-sexp ">> "))))
+    value)) ;<<
+|#
+
+;; 上書き注意報
+;; ============
 ;; - 標準の関数 warn を上書きしています。
 ;;   再起動を用意するようにした以外は標準のものと同じ挙動にしたつもり
 ;;   ですが、おかしくなっているかも知れません。
+;;
 
 ;;; Code:
 
