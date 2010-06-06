@@ -71,6 +71,11 @@
 
 ;;; Code:
 
+(provide "condition-restart")
+
+;;;;
+;;;; * Package
+
 (when (find-package :elisp)
   (shadow :abort :elisp))
 

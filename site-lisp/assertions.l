@@ -54,7 +54,12 @@
 
 ;;; Code:
 
+(provide "assertions")
+
 (require "condition-restart")
+
+;;;;
+;;;; * Package
 
 (in-package :lisp)
 

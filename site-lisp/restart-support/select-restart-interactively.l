@@ -54,11 +54,17 @@
 
 ;;; Code:
 
+(provide "restart-support/select-restart-interactively")
+
 (require "condition-restart")
+
+;;;;
+;;;; * Package
 
 (in-package :editor)
 
 (export '(select-restart-interactively))
+
 
 (defmacro %with-other-window (&body forms)
   `(save-excursion
