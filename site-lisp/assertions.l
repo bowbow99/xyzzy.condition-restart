@@ -1,9 +1,11 @@
 ;;; -*- mode: lisp; package: lisp -*-
 ;;;
-;;; assertions.l
+;;; assertions.l --- Macro assert and check-type from Common Lisp.
 ;;;
-;;; Author: bowbow99 <bowbow99@gmail.com>
+;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
+;;; Author:    bowbow99 <bowbow99@gmail.com>
+;;; License:   MIT
 
 ;; 概要
 ;; ====
@@ -11,16 +13,44 @@
 
 ;; 使い方 for 開発者
 ;; =================
-;; require すればおｋです。
-;;     (require :assertions)
+;; require するだけで使えます。
+;;
+;;     (require "assertions")
+;;
+;; トップレベルでエラーを捕まえて再起動を選択する方法は restart-support/
+;; 以下にあるファイルを参照して下さい。
+;;
+#|
+;; とりあえず試したい人向け
+;; ------------------------
+;; lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
+;; してみてください。
 
-;; 注意事項
-;; ========
+(require "assertions") ;<<
+(require "restart-support/eval-region") ;<<
+
+(let ((name :fred) (age -3))
+  (assert (and (stringp name)
+               (< (length name) 64))
+          (name)
+          "名前が変です: ~S" name)
+  (assert (and (numberp age)
+               (<= 0 age 120))
+          (age)
+          "年齢が変です: ~S" age)
+  (list name age)) ;<<
+|#
+
+;; 上書き注意報
+;; ============
 ;; - 標準のマクロ check-type を上書きしています。
 ;;   再起動を使うようにした以外は標準のものと同じ挙動にしたつもりですが
 ;;   おかしくなっているかも知れません。
 ;;   - おかしかったら教えてもらえると助かります。
 ;;   - ほんのり遅くなってます。
+;;   - xyzzy が定義している check-type-error が system パッケージに所属
+;;     です。si::check-type-error とか書くか、必要なシンボルを import し
+;;     て下さい。
 
 ;;; Code:
 
