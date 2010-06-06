@@ -8,6 +8,50 @@
 ;;; License:   MIT
 ;;;
 
+;;; Commentary:
+
+;; 概要
+;; ====
+;; ウィンドウを分割して選択可能な再起動の一覧を表示し、ミニバッファから
+;; 再起動を選択るす何かです。
+;; eval-expression のような、任意の lisp コードを実行するコマンドを実装
+;; する場合に使うことを想定しています。
+;;
+;; handler-bind にそのまま使えるようになってるので、以下のようにすると
+;; <DO WHATEVER> でエラーが投げられたときに再起動を選択できます。
+#|
+(handler-bind ((condition 'select-restart-interactively))
+  <DO WHATEVER>)
+|#
+;; select-restart-interactively は再起動を対話的に起動します。リファレン
+;; ス（reference/condition-restart.xml）の invoke-restart-interactively
+;; を参照してください。
+;;
+;; 再起動 abort について。
+;; -----------------------
+;; 任意の lisp コードを実行（評価）する際に、コードの実行を止める再起動
+;; abort があることを想定しています。（C-g とかすると abort 再起動を起動
+;; しようとします。）
+;; 「トップレベル」風なものを作るときはできれば abort 再起動を用意しとい
+;; てください。
+#|
+(defun my-eval-something (sexp)
+  (restart-case
+      (handler-bind ((condition 'select-restart-interactively))
+        (eval sexp))
+    (abort ()
+      :report "やめる。"
+      ;; 何もしなければ restart-case から nil が返る。
+      ;; 必要なら return-from や go で制御を飛ばす。
+      (return-from my-eval-something (values)))))
+|#
+
+;;; TODO:
+;; - abort が無かったら quit とか。
+;; - INTERACTIVE-FUNCTION で引数取得してる間は、再起動選択バッファ（とい
+;;   うかエラーメッセージ）を表示しておきたい。
+;; - CALL STACK
+
 ;;; Code:
 
 (require "condition-restart")
