@@ -78,7 +78,11 @@
 (require "condition-restart")
 
 (export '(restart::eval-region
-          restart::eval-expression)
+          restart::eval-expression
+          restart::eval-print-last-sexp
+          restart::eval-last-sexp
+          restart::eval-defun
+          restart::eval-buffer)
         :restart)
 ;;;;
 ;;;; * Package
@@ -149,6 +153,8 @@
 ;;;;
 ;;;; * Restart Supporting `Eval' Commands
 
+;;; Originally defined in lisp/lispmode.l
+
 (defun restart:eval-region (from to &optional stream)
   (interactive "r")
   (let ((result nil))
@@ -181,6 +187,63 @@
           (message "~S" (car result))
         (format t "~{~S~%~}" result)))
     (values-list result)))
+
+(defun eval-buffer (buffer)
+  (interactive "bEval Buffer: ")
+  (save-excursion
+    (set-buffer buffer)
+    (eval-region (point-min) (point-max))))
+
+(defun eval-last-sexp (&optional stream)
+  (interactive "p")
+  (let ((syntab (syntax-table)))
+    (let (from to)
+      (cond ((selection-start-end (start end)
+               (setq from start to end)))
+            (t
+             (use-syntax-table *lisp-mode-syntax-table*)
+             (unwind-protect
+                 (let ((opoint (point)))
+                   (setq from (progn
+                                (backward-sexp)
+                                (point))
+                         to (progn
+                              (forward-sexp)
+                              (point)))
+                   (goto-char (max opoint to)))
+               (use-syntax-table syntab))))
+      (save-excursion
+        (eval-region from to
+                     (cond ((or (streamp stream)
+                                (bufferp stream))
+                            stream)
+                           (stream
+                            (selected-buffer))
+                           (t nil)))))))
+
+(defun eval-print-last-sexp ()
+  (interactive "*")
+  (with-output-to-selected-buffer
+    (let ((*standard-input* *cooked-mode-input-stream*))
+      (when (fresh-line)
+        (goto-char (buffer-stream-point *standard-output*))
+        (refresh-screen))
+      (eval-last-sexp *standard-output*))))
+
+(defun eval-defun (&optional (arg nil f))
+  (interactive "p")
+  (save-excursion
+    (let ((opoint (point)))
+      (end-of-defun)
+      (let ((to (point))
+            (from (progn
+                    (beginning-of-defun)
+                    (point))))
+        (end-of-defun)
+        (goto-char (if (< (point) opoint) opoint to))
+        (eval-region from (point) (if f (selected-buffer) nil))))))
+
+;;; Originally defined in lisp/cmds.l
 
 (defun restart:eval-expression (x)
   (interactive "xEval: ")
