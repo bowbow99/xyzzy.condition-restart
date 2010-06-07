@@ -22,6 +22,8 @@
 ;;   参考リンク:
 ;;   - [CLHS: 9.1.4.2 Restarts] http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
 ;;
+;; おまけ: 再起動を使える assert と check-type も混ざってます。
+;;
 
 ;; インストール
 ;; ============
@@ -47,7 +49,7 @@
 ;; してみてください。
 
 (require "condition-restart") ;<<
-(require "restart-support/eval-region") ;<<
+(require "condition-restart-support") ;<<
 
 (cerror "知るかちょ" "ﾌﾞﾙｧ!!!") ;<<
 
@@ -60,6 +62,15 @@
     :interactive (lambda ()
                    (list (eval (read-sexp ">> "))))
     value)) ;<<
+
+(let ((name :fred)
+      (age -3))
+  (assert (and (stringp name) (< (length name) 64)) (name)
+          "名前が変です: ~S" name)
+  (assert (and (numberp age) (<= 0 age 120)) (age)
+          "トシが変です: ~S" age)
+  (list name age)) ;<<
+
 |#
 
 ;; 上書き注意報
@@ -101,7 +112,11 @@
           muffle-warning
           use-value
           store-value
-          ))
+          ;; assertions
+          assert
+          +check-type-error-symbols+
+          )
+        :lisp)
 
 (defpackage :condition-restart
   (:use :lisp)
@@ -404,5 +419,61 @@
       (continue ()
         :report (lambda (stream)
                   (apply #'format stream fmt-control args))))))
+
+;;;;
+;;;; * Assertions
+
+(defconstant +check-type-error-symbols+
+  '(si::check-type-error
+    si::check-type-error-datum
+    si::check-type-error-expected-type
+    si::check-type-error-place
+    si::check-type-error-string
+    ))
+
+(defmacro assert (test-form &optional places
+                  (datum t datum-supplied-p) &rest args)
+  "Ensure TEST-FORM evaluates to non-nil."
+  `(tagbody
+     #1=#:assertion-root
+     (unless ,test-form
+       (restart-case
+           (error ,@(if datum-supplied-p
+                        (list* datum args)
+                      `("The assertion ~S failed." ',test-form)))
+         (continue (&rest new-values)
+           :report (lambda (stream)
+                     (format stream "Retry assertion with new values for ~S"
+                             ',places))
+           :interactive (lambda ()
+                          (mapcar (lambda (place)
+                                    (eval (ed:read-sexp
+                                           (format nil "New Value for ~S: "
+                                                   place))))
+                            ',places))
+           (setf ,@(let ((i -1))
+                     (mapcan (lambda (place)
+                               `(,place (nth ,(incf i) new-values)))
+                       places)))
+           (go #1#))))))
+
+(defmacro check-type (place typespec &optional string)
+  "Ensure value of PLACE is type of TYPESPEC."
+  `(tagbody
+     #1=#:check-type-root
+     (let ((#2=#:datum ,place))
+       (unless (typep #2# ',typespec)
+         (restart-case
+             (error 'si::check-type-error
+                    :place ',place :datum #2# :expected-type ',typespec)
+           (store-value (new-value)
+             :report (lambda (stream)
+                       (format stream "Supply a new value for ~S" ',place))
+             :interactive (lambda ()
+                            (list
+                             (eval (ed:read-sexp
+                                    (format nil "New Value for ~S: " ',place)))))
+             (setf ,place new-value)
+             (go #1#)))))))
 
 ;;;; condition-restart.l ends here
