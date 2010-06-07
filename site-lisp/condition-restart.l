@@ -104,7 +104,8 @@
           ))
 
 (defpackage :condition-restart
-  (:use :lisp))
+  (:use :lisp)
+  (:nicknames "restart"))
 
 (in-package :condition-restart)
 
