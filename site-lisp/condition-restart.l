@@ -32,6 +32,13 @@
 ;; っと解答すればおｋなはずです。
 ;;
 
+;; 設定？
+;; ======
+;; *scratch* とかで評価してエラーったときに再起動を選択して起動する方法に
+;; ついては condition-restart-support.l を参照してください。
+;;
+
+
 ;; 使い方 for 開発者
 ;; =================
 ;; 再起動を使いたい拡張 lisp で require して下さい。必要な関数やマクロは
@@ -40,16 +47,20 @@
 ;;
 ;;     (require :condition-restart)
 ;;
-;; トップレベルでエラーを捕まえて再起動を選択する方法は restart-support/
-;; 以下にあるファイルを参照して下さい。
-#|
-;; とりあえず試したい人向け
-;; ------------------------
+;; それぞれのマクロや関数についてはリファレンスを参照してください。
+;; - reference/condition-restart.xml
+;;
+
+;; とりあえず試したい人向けサンプル
+;; --------------------------------
 ;; lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
 ;; してみてください。
-
+#|
 (require "condition-restart") ;<<
 (require "condition-restart-support") ;<<
+
+(setf original-eval-region-function #'eval-region
+      (symbol-function 'eval-region) #'restart:eval-region) ;<<
 
 (cerror "知るかちょ" "ﾌﾞﾙｧ!!!") ;<<
 
