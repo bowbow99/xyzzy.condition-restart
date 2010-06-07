@@ -188,13 +188,13 @@
         (format t "~{~S~%~}" result)))
     (values-list result)))
 
-(defun eval-buffer (buffer)
+(defun restart:eval-buffer (buffer)
   (interactive "bEval Buffer: ")
   (save-excursion
     (set-buffer buffer)
-    (eval-region (point-min) (point-max))))
+    (restart:eval-region (point-min) (point-max))))
 
-(defun eval-last-sexp (&optional stream)
+(defun restart:eval-last-sexp (&optional stream)
   (interactive "p")
   (let ((syntab (syntax-table)))
     (let (from to)
@@ -213,24 +213,24 @@
                    (goto-char (max opoint to)))
                (use-syntax-table syntab))))
       (save-excursion
-        (eval-region from to
-                     (cond ((or (streamp stream)
-                                (bufferp stream))
-                            stream)
-                           (stream
-                            (selected-buffer))
-                           (t nil)))))))
+        (restart:eval-region from to
+                             (cond ((or (streamp stream)
+                                        (bufferp stream))
+                                    stream)
+                                   (stream
+                                    (selected-buffer))
+                                   (t nil)))))))
 
-(defun eval-print-last-sexp ()
+(defun restart:eval-print-last-sexp ()
   (interactive "*")
   (with-output-to-selected-buffer
     (let ((*standard-input* *cooked-mode-input-stream*))
       (when (fresh-line)
         (goto-char (buffer-stream-point *standard-output*))
         (refresh-screen))
-      (eval-last-sexp *standard-output*))))
+      (restart:eval-last-sexp *standard-output*))))
 
-(defun eval-defun (&optional (arg nil f))
+(defun restart:eval-defun (&optional (arg nil f))
   (interactive "p")
   (save-excursion
     (let ((opoint (point)))
@@ -241,7 +241,8 @@
                     (point))))
         (end-of-defun)
         (goto-char (if (< (point) opoint) opoint to))
-        (eval-region from (point) (if f (selected-buffer) nil))))))
+        (restart:eval-region from (point)
+                             (if f (selected-buffer) nil))))))
 
 ;;; Originally defined in lisp/cmds.l
 
