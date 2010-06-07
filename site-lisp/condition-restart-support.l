@@ -15,7 +15,10 @@
 ;; エラーがトップレベルまで飛んでいった時に、再起動を選択して起動できる
 ;; コマンドとかです。
 ;;
-;; - restart:eval-region
+;; Function ed:select-restart-interactively
+;; ----------------------------------------
+;; restart:eval-region
+;; -------------------
 ;; - restart:eval-expression
 
 ;;;;
@@ -159,7 +162,7 @@
                                     (eval form))
                                 (abort ()
                                   :report "やめる。"
-                                  (return-from eval-region nil))))))))
+                                  (return-from restart:eval-region (values)))))))))
         ((or error reader-error quit) (c)
          (when (<= (buffer-stream-point s) to)
            (goto-char (buffer-stream-point s))
