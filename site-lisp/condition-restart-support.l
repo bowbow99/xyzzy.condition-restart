@@ -26,24 +26,17 @@
 ;; ==========================
 ;; lisp 書くけどよくわかんない、あるいはとりあえず動かしてみたい人向け。
 #|
-;; *scratch* とかでエラーったら再起動選択
-(require "condition-restart")
 (require "condition-restart-support")
-
-(defconstant +original-eval-region+ #'eval-region)
-(defconstant +original-eval-expression+ #'eval-expression)
-
-(setf (symbol-function 'eval-region) #'restart:eval-region
-      (symbol-function 'eval-expression) #'restart:eval-expression)
+(restart:setup-condition-restart-support)
 |#
-;; 上記の設定を .xyzzy とかに書いておくと、以下のコマンドで lisp 式を評
-;; 価してエラーったときに、再起動を選択して起動できるようになります。
+;; 上記の設定を .xyzzy とかに書いておくと、いくつかのキーバインドを変更
+;; して、以下のコマンドを使えるようになります。
 ;;
-;; - eval-print-last-sexp  lisp-interaction-mode の C-j
-;; - eval-last-sexp        lisp-mode とかの C-x C-e
-;; - eval-defun            lisp-mode とかの M-C-x
-;; - eval-buffer
-;; - eval-expression       グローバルの ESC ESC
+;; - restart:eval-print-last-sexp  lisp-interaction-mode の C-j(LFD)
+;; - restart:eval-last-sexp        lisp-mode とかの C-x C-e
+;; - restart:eval-defun            lisp-mode とかの M-C-x
+;; - restart:eval-buffer
+;; - restart:eval-expression       グローバルの ESC ESC
 ;;
 
 ;; 使い方 2: 任意のコマンドで
@@ -73,7 +66,7 @@
 
 ;;; Code:
 
-(provide "restart-support/select-restart-interactively")
+(provide "condition-restart-support")
 
 (require "condition-restart")
 
@@ -82,7 +75,8 @@
           restart::eval-print-last-sexp
           restart::eval-last-sexp
           restart::eval-defun
-          restart::eval-buffer)
+          restart::eval-buffer
+          restart::setup-condition-restart-support)
         :restart)
 ;;;;
 ;;;; * Package
@@ -252,5 +246,18 @@
       (message "~S" (handler-bind ((condition 'select-restart-interactively))
                       (eval x)))
     (abort () :report "やめる。" (values))))
+
+
+(defun restart:setup-condition-restart-support ()
+  ;; for lisp-interaction-mode
+  (define-key ed::*lisp-interaction-mode-map* #\LFD 'restart:eval-print-last-sexp)
+  (define-key ed::*lisp-interaction-mode-map* #\C-M-x 'restart:eval-defun)
+  (define-key ed::*lisp-interaction-mode-map* '(#\C-x #\C-e) 'restart:eval-last-sexp)
+  ;; for lisp-mode
+  (define-key ed::*lisp-mode-map* '(#\C-x #\C-e) 'restart:eval-last-sexp)
+  (define-key ed::*lisp-mode-map* #\C-M-x 'restart:eval-defun)
+  ;; global
+  (define-key esc-map #\ESC 'restart:eval-expression)
+  t)
 
 ;;; restart-support/select-restart-interactively.l ends here
