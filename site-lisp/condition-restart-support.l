@@ -79,6 +79,8 @@
 
 (export '(select-restart-interactively))
 
+;;;;
+;;;; * Utilities
 
 (defmacro %with-other-window (&body forms)
   `(save-excursion
@@ -114,6 +116,9 @@
 #+xyzzy
 (setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
 
+;;;;
+;;;; * Select and Invoke Restart Interactively
+
 (defun select-restart-interactively (condition)
   (let ((restarts (compute-restarts condition))
         i)
@@ -133,6 +138,8 @@
           (invoke-restart-interactively (nth i restarts))
         (abort)))))
 
+;;;;
+;;;; * Restart Supporting `Eval' Commands
 
 (defun restart:eval-region (from to &optional stream)
   (interactive "r")
