@@ -15,50 +15,55 @@
 ;; エラーがトップレベルまで飛んでいった時に、再起動を選択して起動できる
 ;; コマンドとかです。
 ;;
-;; Function ed:select-restart-interactively
-;; ----------------------------------------
-;; restart:eval-region
-;; -------------------
-;; - restart:eval-expression
 
-;;;;
-;;;; *** OLD COMMENTARY of restart-support/select-restart-interactively.l ***
+;; 能書き
+;; ======
+;; 標準の関数を上書きしたりする感じになってしまうので、今のところ激しく
+;; 自己責任でお願いしますという類のものです。
+;;
 
-;; 概要
-;; ====
-;; ウィンドウを分割して選択可能な再起動の一覧を表示し、ミニバッファから
-;; 再起動を選択るす何かです。
-;; eval-expression のような、任意の lisp コードを実行するコマンドを実装
-;; する場合に使うことを想定しています。
-;;
-;; handler-bind にそのまま使えるようになってるので、以下のようにすると
-;; <DO WHATEVER> でエラーが投げられたときに再起動を選択できます。
+;; 使い方 1: *scratch* とかで
+;; ==========================
+;; lisp 書くけどよくわかんない、あるいはとりあえず動かしてみたい人向け。
 #|
-(handler-bind ((condition 'select-restart-interactively))
-  <DO WHATEVER>)
+;; *scratch* とかでエラーったら再起動選択
+(require "condition-restart")
+(require "condition-restart-support")
+
+(defconstant +original-eval-region+ #'eval-region)
+(defconstant +original-eval-expression+ #'eval-expression)
+
+(setf (symbol-function 'eval-region) #'restart:eval-region
+      (symbol-function 'eval-expression) #'restart:eval-expression)
 |#
-;; select-restart-interactively は再起動を対話的に起動します。リファレン
-;; ス（reference/condition-restart.xml）の invoke-restart-interactively
-;; を参照してください。
+;; 上記の設定を .xyzzy とかに書いておくと、以下のコマンドで lisp 式を評
+;; 価してエラーったときに、再起動を選択して起動できるようになります。
 ;;
-;; 再起動 abort について。
-;; -----------------------
-;; 任意の lisp コードを実行（評価）する際に、コードの実行を止める再起動
-;; abort があることを想定しています。（C-g とかすると abort 再起動を起動
-;; しようとします。）
-;; 「トップレベル」風なものを作るときはできれば abort 再起動を用意しとい
-;; てください。
+;; - eval-print-last-sexp  lisp-interaction-mode の C-j
+;; - eval-last-sexp        lisp-mode とかの C-x C-e
+;; - eval-defun            lisp-mode とかの M-C-x
+;; - eval-buffer
+;; - eval-expression       グローバルの ESC ESC
+;;
+
+;; 使い方 2: 任意のコマンドで
+;; ==========================
+;; 自分用の eval-print-last-sexp みたいなものを定義するような人向け。
+;;
+;; - 全てのコンディションを select-restart-interactively で処理するよう
+;;   に handler-bind で包みます。
+;; - 常に abort 再起動が用意されるようにします。
 #|
-(defun my-eval-something (sexp)
-  (restart-case
-      (handler-bind ((condition 'select-restart-interactively))
-        (eval sexp))
-    (abort ()
-      :report "やめる。"
-      ;; 何もしなければ restart-case から nil が返る。
-      ;; 必要なら return-from や go で制御を飛ばす。
-      (return-from my-eval-something (values)))))
+    (restart-case
+        (handler-bind ((condition 'select-restart-interactively))
+          <任意の処理>)
+      (abort ()
+        :report "処理をやめる。"
+        ;; 何もしなければ restart-case 式から nil が返る。それじゃマズ
+        ;; い場合は return-from とか go で適当なところへ飛ばす。
+        (values)))
 |#
+
 
 ;;; TODO:
 ;; - abort が無かったら quit とか。
