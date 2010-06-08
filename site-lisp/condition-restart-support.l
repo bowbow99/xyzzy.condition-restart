@@ -122,7 +122,7 @@
           (format stream "~A~&" (or (restart-name restart) "")))))))
 
 #+xyzzy
-(setf (get 'with-other-window 'ed:lisp-indent-hook) 'defun)
+(setf (get '%with-other-window 'ed:lisp-indent-hook) 'defun)
 
 ;;;;
 ;;;; * Select and Invoke Restart Interactively
@@ -138,10 +138,15 @@
           (%print-restart-options restarts)
           ;; TODO: obtain and print CALL STACK
           (handler-case
-              (let ((i (read-integer "Restart: ")))
-                (if (restart::restart-p (nth i restarts))
-                    (invoke-restart-interactively (nth i restarts))
-                  (quit)))
+              (let ((i nil)
+                    (prompt (format nil "Restart[0-~S]: "
+                                    (1- (length restarts)))))
+                (loop
+                  (setq i (read-integer prompt))
+                  (if (and (numberp i) (plusp i) (< i (length restarts)))
+                      (return)
+                    (message "Invalid number of restart: ~S" i)))
+                (invoke-restart-interactively (nth i restarts)))
             (quit (q) (abort))))))))
 
 ;;;;
