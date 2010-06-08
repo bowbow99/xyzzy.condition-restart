@@ -60,8 +60,6 @@
 
 ;;; TODO:
 ;; - abort が無かったら quit とか。
-;; - INTERACTIVE-FUNCTION で引数取得してる間は、再起動選択バッファ（とい
-;;   うかエラーメッセージ）を表示しておきたい。
 ;; - CALL STACK
 
 ;;; Code:
