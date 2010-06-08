@@ -442,6 +442,10 @@
     si::check-type-error-string
     ))
 
+(defun gen-assert-reporter (places)
+  `(lambda (stream)
+     (format stream "Retry assert with new value(s) for ~S" ',places)))
+
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
   "Ensure TEST-FORM evaluates to non-nil."
@@ -453,9 +457,7 @@
                         (list* datum args)
                       `("The assertion ~S failed." ',test-form)))
          (continue (&rest new-values)
-           :report (lambda (stream)
-                     (format stream "Retry assertion with new values for ~S"
-                             ',places))
+           :report ,(gen-assert-reporter places)
            :interactive (lambda ()
                           (mapcar (lambda (place)
                                     (eval (ed:read-sexp
