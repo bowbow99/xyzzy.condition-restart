@@ -88,19 +88,6 @@
 ;;;;
 ;;;; * Utilities
 
-(defmacro %with-other-window (&body forms)
-  `(let ((#1=#:winconf (current-window-configuration)))
-     (unwind-protect
-         (progn
-           (if (= 1 (count-windows))
-               (let ((col (window-columns)))
-                 (if (> col 140)
-                     (split-window (round col -2) t)
-                   (split-window (round (window-height) -2))))
-             (other-window))
-           ,@forms)
-       (set-window-configuration #1#))))
-
 (defun %condition-type (condition)
   (si:*structure-definition-name
    (si:*structure-definition condition)))
@@ -121,34 +108,43 @@
             (progn (funcall report-fn stream) (fresh-line stream))
           (format stream "~A~&" (or (restart-name restart) "")))))))
 
-#+xyzzy
-(setf (get '%with-other-window 'ed:lisp-indent-hook) 'defun)
-
 ;;;;
 ;;;; * Select and Invoke Restart Interactively
 
 (defun select-restart-interactively (condition)
   (let ((restarts (compute-restarts condition)))
-    (when restarts
-      (%with-other-window
-        (with-output-to-temp-buffer (" *Select Restart*" nil)
-          (set-buffer (buffer-stream-buffer *standard-output*))
-          (%report-condition condition)
-          (format t "~&~%")
-          (%print-restart-options restarts)
-          ;; TODO: obtain and print CALL STACK
-          (handler-case
-              (let ((i nil)
-                    (prompt (format nil "Restart[0-~S]: "
-                                    (1- (length restarts)))))
-                (loop
-                  (setq i (read-integer prompt))
-                  (if (and (numberp i) (< -1 i (length restarts)))
-                      (return)
-                    (message "Invalid number of restart: ~S" i)))
-                (handler-bind ((condition 'select-restart-interactively))
-                  (invoke-restart-interactively (nth i restarts))))
-            (quit (q) (abort))))))))
+    (unless restarts (return-from select-restart-interactively nil))
+    (with-output-to-temp-buffer (" *Select Restart*" nil)
+      (let ((buffer (buffer-stream-buffer *standard-output*))
+            (winconf (current-window-configuration)))
+        (unwind-protect
+            (progn
+              (unless (get-buffer-window buffer)
+                (if (= 1 (count-windows))
+                    (let ((col (window-columns)))
+                      (if (> col 140)
+                          (split-window (round col -2) t)
+                        (split-window (round (window-height) -2))))
+                  (other-window))
+                (set-buffer buffer))
+              (%report-condition condition)
+              (format t "~&~%")
+              (%print-restart-options restarts)
+              ;; TODO: obtain and print CALL STACK
+              (handler-case
+                  (let ((i nil)
+                        (prompt (format nil "Restart[0-~S]: "
+                                        (1- (length restarts)))))
+                    (loop
+                      (setq i (read-integer prompt))
+                      (if (and (numberp i) (< -1 i (length restarts)))
+                          (return)
+                        (message "Invalid number of restart: ~S" i)))
+                    (handler-bind ((condition 'select-restart-interactively))
+                      (invoke-restart-interactively (nth i restarts))))
+                (quit (q) (abort))))
+          (set-window-configuration winconf))))))
+
 
 ;;;;
 ;;;; * Restart Supporting `Eval' Commands
