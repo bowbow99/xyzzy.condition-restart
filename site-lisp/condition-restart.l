@@ -446,6 +446,13 @@
   `(lambda (stream)
      (format stream "Retry assert with new value(s) for ~S" ',places)))
 
+(defun gen-assert-interactive (places)
+  `(lambda ()
+     (mapcar (lambda (place)
+               (eval (ed:read-sexp
+                      (format nil "New value for  ~S : " place))))
+       ',places)))
+
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
   "Ensure TEST-FORM evaluates to non-nil."
@@ -458,12 +465,7 @@
                       `("The assertion ~S failed." ',test-form)))
          (continue (&rest new-values)
            :report ,(gen-assert-reporter places)
-           :interactive (lambda ()
-                          (mapcar (lambda (place)
-                                    (eval (ed:read-sexp
-                                           (format nil "New Value for ~S: "
-                                                   place))))
-                            ',places))
+           :interactive ,(gen-assert-interactive places)
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
                                `(,place (nth ,(incf i) new-values)))
