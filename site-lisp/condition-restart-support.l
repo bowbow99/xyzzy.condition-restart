@@ -146,7 +146,8 @@
                   (if (and (numberp i) (< -1 i (length restarts)))
                       (return)
                     (message "Invalid number of restart: ~S" i)))
-                (invoke-restart-interactively (nth i restarts)))
+                (handler-bind ((condition 'select-restart-interactively))
+                  (invoke-restart-interactively (nth i restarts))))
             (quit (q) (abort))))))))
 
 ;;;;
