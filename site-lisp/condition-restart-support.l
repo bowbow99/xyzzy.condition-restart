@@ -113,12 +113,14 @@
 
 (defun select-restart-interactively (condition)
   (let ((restarts (compute-restarts condition)))
-    (unless restarts (return-from select-restart-interactively nil))
+    (unless restarts
+      (return-from select-restart-interactively nil))
     (with-output-to-temp-buffer (" *Select Restart*" nil)
       (let ((buffer (buffer-stream-buffer *standard-output*))
             (winconf (current-window-configuration)))
         (unwind-protect
             (progn
+              ;; prepare window
               (unless (get-buffer-window buffer)
                 (if (= 1 (count-windows))
                     (let ((col (window-columns)))
@@ -127,10 +129,12 @@
                         (split-window (round (window-height) -2))))
                   (other-window))
                 (set-buffer buffer))
+              ;; print condition and restarts
+              ;; TODO: obtain and print CALL STACK
               (%report-condition condition)
               (format t "~&~%")
               (%print-restart-options restarts)
-              ;; TODO: obtain and print CALL STACK
+              ;; ask and invoke a restart
               (handler-case
                   (let ((i nil)
                         (prompt (format nil "Restart[0-~S]: "
