@@ -68,16 +68,19 @@
 
 (provide "condition-restart-support")
 
-(require "condition-restart")
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (require "condition-restart"))
 
-(export '(restart::eval-region
-          restart::eval-expression
-          restart::eval-print-last-sexp
-          restart::eval-last-sexp
-          restart::eval-defun
-          restart::eval-buffer
-          restart::setup-condition-restart-support)
-        :restart)
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (export '(restart::eval-region
+            restart::eval-expression
+            restart::eval-print-last-sexp
+            restart::eval-last-sexp
+            restart::eval-defun
+            restart::eval-buffer
+            restart::setup-condition-restart-support)
+          :restart))
+
 ;;;;
 ;;;; * Package
 

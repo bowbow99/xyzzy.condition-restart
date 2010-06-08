@@ -154,10 +154,11 @@
 ;;;;
 ;;;; * Restart Object
 
-(defun print-restart (restart stream #:what?)
-  (format stream "#<restart: ~A>"
-          (or (restart-name restart)
-              "(anonymous)")))
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (defun print-restart (restart stream #:what?)
+    (format stream "#<restart: ~A>"
+            (or (restart-name restart)
+                "(anonymous)"))))
 
 (defstruct (restart
             (:print-function print-restart))
@@ -215,38 +216,39 @@
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
 
 ;;; - Macro restart-case
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (defun transform-keyword-option-report (form)
+    (list :report-function
+          (case (type-of form)
+            (simple-string
+             `(lambda (#1=#:stream) (format #1# ,form)))
+            (symbol
+             (if form
+                 `',form
+               (error "Invalid function for :report option: ~S" form)))
+            (cons ; lambda form
+             (if (eql 'lambda (car form))
+                 form
+               (error "Invalid function for :report option: ~S" form)))
+            (t (error "Invalid function for :report option: ~S" form)))))
 
-(defun transform-keyword-option-report (form)
-  (list :report-function
-        (case (type-of form)
-          (simple-string
-           `(lambda (#1=#:stream) (format #1# ,form)))
-          (symbol
-           (if form
-               `',form
-             (error "Invalid function for :report option: ~S" form)))
-          (cons ; lambda form
-           (if (eql 'lambda (car form))
-               form
-             (error "Invalid function for :report option: ~S" form)))
-          (t (error "Invalid function for :report option: ~S" form)))))
+  (defun transform-keyword-option-test (form)
+    (list :test-function `#',form))
 
-(defun transform-keyword-option-test (form)
-  (list :test-function `#',form))
+  (defun transform-keyword-option-interactive (form)
+    (list :interactive-function `#',form))
 
-(defun transform-keyword-option-interactive (form)
-  (list :interactive-function `#',form))
-
-(defun transform-keyword-option (keyword/form)
-  (let ((keyword (car keyword/form))
-        (form (cadr keyword/form)))
-    (funcall (case keyword
-               (:report 'transform-keyword-option-report)
-               (:interactive 'transform-keyword-option-interactive)
-               (:test 'transform-keyword-option-test)
-               (t (error "Invalid keyword option for restart-case clause: ~S"
-                         keyword)))
-             form)))
+  (defun transform-keyword-option (keyword/form)
+    (let ((keyword (car keyword/form))
+          (form (cadr keyword/form)))
+      (funcall (case keyword
+                 (:report 'transform-keyword-option-report)
+                 (:interactive 'transform-keyword-option-interactive)
+                 (:test 'transform-keyword-option-test)
+                 (t (error "Invalid keyword option for restart-case clause: ~S"
+                           keyword)))
+               form)))
+  )
 
 (defmacro %with-tag/clause ((tag/clause) &body body)
   `(let ((tag (first ,tag/clause))
