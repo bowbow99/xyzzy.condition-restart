@@ -143,7 +143,7 @@
                                     (1- (length restarts)))))
                 (loop
                   (setq i (read-integer prompt))
-                  (if (and (numberp i) (plusp i) (< i (length restarts)))
+                  (if (and (numberp i) (< -1 i (length restarts)))
                       (return)
                     (message "Invalid number of restart: ~S" i)))
                 (invoke-restart-interactively (nth i restarts)))
