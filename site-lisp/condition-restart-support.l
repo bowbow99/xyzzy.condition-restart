@@ -89,15 +89,17 @@
 ;;;; * Utilities
 
 (defmacro %with-other-window (&body forms)
-  `(save-excursion
-     (save-window-excursion
-       (if (= 1 (count-windows))
-           (let ((col (window-columns)))
-             (if (> col 140)
-                 (split-window (round col -2) t)
-               (split-window (round (window-height) -2))))
-         (other-window))
-       ,@forms)))
+  `(let ((#1=#:winconf (current-window-configuration)))
+     (unwind-protect
+         (progn
+           (if (= 1 (count-windows))
+               (let ((col (window-columns)))
+                 (if (> col 140)
+                     (split-window (round col -2) t)
+                   (split-window (round (window-height) -2))))
+             (other-window))
+           ,@forms)
+       (set-window-configuration #1#))))
 
 (defun %condition-type (condition)
   (si:*structure-definition-name
@@ -126,8 +128,7 @@
 ;;;; * Select and Invoke Restart Interactively
 
 (defun select-restart-interactively (condition)
-  (let ((restarts (compute-restarts condition))
-        i)
+  (let ((restarts (compute-restarts condition)))
     (when restarts
       (%with-other-window
         (with-output-to-temp-buffer (" *Select Restart*" nil)
@@ -137,12 +138,11 @@
           (%print-restart-options restarts)
           ;; TODO: obtain and print CALL STACK
           (handler-case
-              (setq i (read-integer "Restart: "))
-            (quit (q) nil))))
-      (if (and (numberp i)
-               (condition-restart::restart-p (nth i restarts)))
-          (invoke-restart-interactively (nth i restarts))
-        (abort)))))
+              (let ((i (read-integer "Restart: ")))
+                (if (restart::restart-p (nth i restarts))
+                    (invoke-restart-interactively (nth i restarts))
+                  (quit)))
+            (quit (q) (abort))))))))
 
 ;;;;
 ;;;; * Restart Supporting `Eval' Commands
