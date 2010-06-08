@@ -449,8 +449,16 @@
 (defun gen-assert-interactive (places)
   `(lambda ()
      (mapcar (lambda (place)
-               (eval (ed:read-sexp
-                      (format nil "New value for  ~S : " place))))
+               (block :read-value
+                 (tagbody :begin
+                   (restart-case
+                       (return-from :read-value
+                         (eval (ed:read-sexp (format nil "~S: " place))))
+                     (re-enter ()
+                       :report (lambda (stream)
+                                 (format stream "Enter a new value for ~S again."
+                                         place))
+                       (go :begin))))))
        ',places)))
 
 (defmacro assert (test-form &optional places
