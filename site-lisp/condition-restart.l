@@ -5,7 +5,7 @@
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.01.00
+;;; Version:   0.01.01
 ;;; License:   MIT Lisence
 #|
 Copyright (c) 2010 bowbow99
@@ -111,6 +111,14 @@ THE SOFTWARE.
 ;;   ですが、おかしくなっているかも知れません。
 ;;
 
+;;; ChangeLog:
+#|
+* 2010-06-10 - version 0.01.01
+   - 再起動を選択を繰り返したときの画面分割のバグに対処した。
+* 2010-06-10 - version 0.01.00
+   - 作った。公開なう。
+|#
+
 ;;; Code:
 
 (provide "condition-restart")
@@ -155,7 +163,7 @@ THE SOFTWARE.
 
 (in-package :condition-restart)
 
-(defconstant *version* "0.01.00")
+(defconstant *version* "0.01.01")
 
 ;;;;
 ;;;; * Utilities
