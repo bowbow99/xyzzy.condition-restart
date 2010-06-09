@@ -56,13 +56,12 @@
 ;; lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
 ;; してみてください。
 #|
-(require "condition-restart") ;<<
-(require "condition-restart-support") ;<<
+(require "condition-restart")
+(require "condition-restart-support")
 
-(setf original-eval-region-function #'eval-region
-      (symbol-function 'eval-region) #'restart:eval-region) ;<<
+(restart:setup-key-bindings)
 
-(cerror "知るかちょ" "ﾌﾞﾙｧ!!!") ;<<
+(cerror "知るかちょ" "ﾌﾞﾙｧ!!!")
 
 (restart-case
     (/ 3 2 1 0)
@@ -72,7 +71,7 @@
     :report "返す値を入力する。"
     :interactive (lambda ()
                    (list (eval (read-sexp ">> "))))
-    value)) ;<<
+    value))
 
 (let ((name :fred)
       (age -3))
@@ -80,7 +79,7 @@
           "名前が変です: ~S" name)
   (assert (and (numberp age) (<= 0 age 120)) (age)
           "トシが変です: ~S" age)
-  (list name age)) ;<<
+  (list name age))
 
 |#
 
