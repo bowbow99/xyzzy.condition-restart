@@ -167,7 +167,8 @@ THE SOFTWARE.
                     (handler-bind ((condition 'select-restart-interactively))
                       (invoke-restart-interactively (nth i restarts))))
                 (quit (q) (abort))))
-          (set-window-configuration winconf))))))
+          (set-window-configuration winconf)
+          (refresh-screen))))))
 
 
 ;;;;
