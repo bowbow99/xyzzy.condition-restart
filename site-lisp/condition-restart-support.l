@@ -26,11 +26,14 @@
 ;; ==========================
 ;; lisp 書くけどよくわかんない、あるいはとりあえず動かしてみたい人向け。
 #|
+;;; eval-*** でエラーったら再起動を選択する
 (require "condition-restart-support")
-(restart:setup-condition-restart-support)
+(restart:setup-key-bindings)
 |#
 ;; 上記の設定を .xyzzy とかに書いておくと、いくつかのキーバインドを変更
 ;; して、以下のコマンドを使えるようになります。
+;; どれも同名の標準のコマンドを、エラーったときに再起動を選択できるよう
+;; にしたものです。
 ;;
 ;; - restart:eval-print-last-sexp  lisp-interaction-mode の C-j(LFD)
 ;; - restart:eval-last-sexp        lisp-mode とかの C-x C-e
@@ -76,7 +79,7 @@
             restart::eval-last-sexp
             restart::eval-defun
             restart::eval-buffer
-            restart::setup-condition-restart-support)
+            restart::setup-key-bindings)
           :restart))
 
 ;;;;
@@ -255,7 +258,7 @@
     (abort () :report "やめる。" (values))))
 
 
-(defun restart:setup-condition-restart-support ()
+(defun restart:setup-key-bindings ()
   ;; for lisp-interaction-mode
   (define-key ed::*lisp-interaction-mode-map* #\LFD 'restart:eval-print-last-sexp)
   (define-key ed::*lisp-interaction-mode-map* #\C-M-x 'restart:eval-defun)
