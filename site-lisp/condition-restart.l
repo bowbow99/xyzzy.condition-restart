@@ -447,20 +447,17 @@
   `(lambda (stream)
      (format stream "Retry assert with new value(s) for ~S" ',places)))
 
+(defun read-value-for (place)
+  (restart-case
+      (eval (ed:read-sexp (format nil "`~S' ÇÃíl: " place)))
+    (re-enter ()
+      :report (lambda (stream)
+                (format stream "`~S' ÇÃílÇì¸óÕÇµíºÇ∑ÅB" place))
+      (read-value-for place))))
+
 (defun gen-assert-interactive (places)
   `(lambda ()
-     (mapcar (lambda (place)
-               (block :read-value
-                 (tagbody :begin
-                   (restart-case
-                       (return-from :read-value
-                         (eval (ed:read-sexp (format nil "~S: " place))))
-                     (re-enter ()
-                       :report (lambda (stream)
-                                 (format stream "Enter a new value for ~S again."
-                                         place))
-                       (go :begin))))))
-       ',places)))
+     (mapcar 'read-value-for ',places)))
 
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
@@ -497,9 +494,7 @@
              :report (lambda (stream)
                        (format stream "Supply a new value for ~S" ',place))
              :interactive (lambda ()
-                            (list
-                             (eval (ed:read-sexp
-                                    (format nil "New Value for ~S: " ',place)))))
+                            (list (read-value-for ',place)))
              (setf ,place new-value)
              (go #1#)))))))
 
