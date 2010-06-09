@@ -443,10 +443,6 @@
     si::check-type-error-string
     ))
 
-(defun gen-assert-reporter (places)
-  `(lambda (stream)
-     (format stream "Retry assert with new value(s) for ~S" ',places)))
-
 (defun read-value-for (place)
   (restart-case
       (eval (ed:read-sexp (format nil "`~S' の値: " place)))
@@ -454,10 +450,6 @@
       :report (lambda (stream)
                 (format stream "`~S' の値を入力し直す。" place))
       (read-value-for place))))
-
-(defun gen-assert-interactive (places)
-  `(lambda ()
-     (mapcar 'read-value-for ',places)))
 
 (defmacro assert (test-form &optional places
                   (datum t datum-supplied-p) &rest args)
@@ -468,10 +460,13 @@
        (restart-case
            (error ,@(if datum-supplied-p
                         (list* datum args)
-                      `("The assertion ~S failed." ',test-form)))
+                      ;; TODO: WTF is this message...
+                      `("ダメでした: ~S" ',test-form)))
          (continue (&rest new-values)
-           :report ,(gen-assert-reporter places)
-           :interactive ,(gen-assert-interactive places)
+           :report (lambda (stream)
+                     (format stream "値を変更してやり直す。(~{~S~^ ~})" ',places))
+           :interactive (lambda ()
+                          (mapcar #'read-value-for ',places))
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
                                `(,place (nth ,(incf i) new-values)))
@@ -492,7 +487,7 @@
                     :string ,string)
            (store-value (new-value)
              :report (lambda (stream)
-                       (format stream "Supply a new value for ~S" ',place))
+                       (format stream "`~S' の値を変更してやり直す。" ',place))
              :interactive (lambda ()
                             (list (read-value-for ',place)))
              (setf ,place new-value)
