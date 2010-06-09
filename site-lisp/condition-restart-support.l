@@ -98,7 +98,7 @@
 (defun %print-restart-options (restarts &optional (stream *standard-output*))
   (let ((i -1))
     (dolist (restart restarts t)
-      (format stream "~&~3D [~7A] "
+      (format stream "~&~3D [~8A] "
               (incf i)
               (or (restart-name restart) "(–¼–³‚µ‚³‚ñ)"))
       (let ((report-fn (condition-restart::restart-report-function restart)))
@@ -141,7 +141,7 @@
                       (setq i (read-integer prompt))
                       (if (and (numberp i) (< -1 i (length restarts)))
                           (return)
-                        (message "Invalid number of restart: ~S" i)))
+                        (message "–³Œø‚È”Ô†‚Å‚·: ~S" i)))
                     (handler-bind ((condition 'select-restart-interactively))
                       (invoke-restart-interactively (nth i restarts))))
                 (quit (q) (abort))))
