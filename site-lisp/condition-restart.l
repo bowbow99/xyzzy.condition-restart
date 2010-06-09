@@ -5,7 +5,7 @@
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.00.**
+;;; Version:   0.01.00
 ;;; License:   MIT Lisence
 #|
 Copyright (c) 2010 bowbow99
@@ -154,6 +154,8 @@ THE SOFTWARE.
   (:nicknames "restart"))
 
 (in-package :condition-restart)
+
+(defconstant *version* "0.01.00")
 
 ;;;;
 ;;;; * Utilities

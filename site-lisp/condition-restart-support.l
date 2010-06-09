@@ -86,14 +86,16 @@ THE SOFTWARE.
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (require "condition-restart"))
 
+(in-package :condition-restart)
+
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (export '(restart::eval-region
-            restart::eval-expression
-            restart::eval-print-last-sexp
-            restart::eval-last-sexp
-            restart::eval-defun
-            restart::eval-buffer
-            restart::setup-key-bindings)
+  (export '(eval-region
+            eval-expression
+            eval-print-last-sexp
+            eval-last-sexp
+            eval-defun
+            eval-buffer
+            setup-key-bindings)
           :restart))
 
 ;;;;
