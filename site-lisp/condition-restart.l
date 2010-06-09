@@ -489,7 +489,10 @@
        (unless (typep #2# ',typespec)
          (restart-case
              (error 'si::check-type-error
-                    :place ',place :datum #2# :expected-type ',typespec)
+                    :place ',place
+                    :datum #2#
+                    :expected-type ',typespec
+                    :string ,string)
            (store-value (new-value)
              :report (lambda (stream)
                        (format stream "Supply a new value for ~S" ',place))
