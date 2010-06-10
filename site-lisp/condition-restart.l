@@ -495,7 +495,8 @@ THE SOFTWARE.
                       `("ダメでした: ~S" ',test-form)))
          (continue (&rest new-values)
            :report (lambda (stream)
-                     (format stream "値を変更してやり直す。(~{~S~^ ~})" ',places))
+                     (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
+                             ',places))
            :interactive (lambda ()
                           (mapcar #'read-value-for ',places))
            (setf ,@(let ((i -1))
