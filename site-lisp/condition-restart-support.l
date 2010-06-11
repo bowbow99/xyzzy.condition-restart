@@ -139,7 +139,7 @@ THE SOFTWARE.
       (let ((buffer (buffer-stream-buffer *standard-output*))
             (winconf (current-window-configuration)))
         (unwind-protect
-            (progn
+            (with-set-buffer
               ;; prepare window
               (unless (get-buffer-window buffer)
                 (if (= 1 (count-windows))
