@@ -5,7 +5,7 @@
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.01.01
+;;; Version:   0.01.02
 ;;; License:   MIT Lisence
 #|
 Copyright (c) 2010 bowbow99
@@ -113,6 +113,11 @@ THE SOFTWARE.
 
 ;;; ChangeLog:
 #|
+* 2010-06-13 - version 0.01.02
+   - リファレンスの file が間違ってたのを修正した。
+   - select-restart-interactively が再帰的に呼ばれたときにウィンドウの
+     サイズがおかしくなってたのを修正したつもり。
+   - assert の PLACES が nil のときのメッセージを変更した。
 * 2010-06-10 - version 0.01.01
    - 再起動を選択を繰り返したときの画面分割のバグに対処した。
 * 2010-06-10 - version 0.01.00
@@ -163,7 +168,7 @@ THE SOFTWARE.
 
 (in-package :condition-restart)
 
-(defconstant *version* "0.01.01")
+(defconstant *version* "0.01.02")
 
 ;;;;
 ;;;; * Utilities
