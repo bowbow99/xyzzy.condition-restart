@@ -63,7 +63,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <seealso></seealso>
 <link></link>
 <section>エラー</section>
-<file>condition-restart.l</file>
+<file>condition-restart-support.l</file>
 </chapter>
 
 <chapter>
@@ -90,7 +90,7 @@ TEST-FORM が false に評価されると、continue 再起動を用意したう
 <seealso>check-type</seealso>
 <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
 <section>エラー</section>
-<file>assertions.l</file>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
@@ -115,7 +115,7 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 <seealso>deftype</seealso>
 <link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm</link>
 <section>データ型</section>
-<file>assertions.l</file>
+<file>condition-restart.l</file>
 </chapter>
 
 <chapter>
