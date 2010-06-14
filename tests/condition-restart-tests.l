@@ -42,10 +42,17 @@
                                   (bar (lambda () :bar)))
                      (restart-name (find-restart 'bar)))))
 
-(define-test find-restart
+(define-test find-restart-2
   "find-restart returns nil if no restart found."
   (assert-eql nil (restart-bind ((foo (lambda () :foo))
                                  (bar (lambda () :bar)))
                     (find-restart 'fred))))
+
+(define-test find-restart-3
+  "find-restart don't find restart which isn't associated with the condition."
+  (let ((error (make-condition 'simple-error)))
+    (assert-eql nil (restart-bind ((foo (lambda () :foo)))
+                      (with-condition-restarts error (list (find-restart 'foo))
+                        (find-restart 'foo error))))))
 
 ;;; condition-restart-tests.l ends here.
