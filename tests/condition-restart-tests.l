@@ -49,10 +49,31 @@
                     (find-restart 'fred))))
 
 (define-test find-restart-3
-  "find-restart don't find restart which isn't associated with the condition."
+  "find-restart finds restart that is associated with the condition."
   (let ((error (make-condition 'simple-error)))
+    (assert-eql 'foo (restart-bind ((foo (lambda () :foo)))
+                       (with-condition-restarts error (list (find-restart 'foo))
+                         (restart-name (find-restart 'foo error)))))))
+
+(define-test find-restart-4
+  "find-restart don't find restart that is associated another condition."
+  (let ((error (make-condition 'simple-error))
+        (warning (make-condition 'simple-warning)))
     (assert-eql nil (restart-bind ((foo (lambda () :foo)))
                       (with-condition-restarts error (list (find-restart 'foo))
-                        (find-restart 'foo error))))))
+                        (find-restart 'foo warning))))))
+
+(define-test find-restart-5
+  "find-restart also find restart that is associated with no condition."
+  (let ((error (make-condition 'simple-error)))
+    (assert-eql 'foo (restart-bind ((foo (lambda () :foo)))
+                       (restart-name (find-restart 'foo error))))))
+
+(define-test find-restart-6
+  "find-restart find inner most restart."
+  (assert-eql :inner (restart-bind ((foo (lambda () :outer)))
+                       (restart-bind ((foo (lambda () :middle)))
+                         (restart-bind ((foo (lambda () :inner)))
+                           (invoke-restart (find-restart 'foo)))))))
 
 ;;; condition-restart-tests.l ends here.
