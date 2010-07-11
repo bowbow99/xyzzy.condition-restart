@@ -387,17 +387,18 @@ THE SOFTWARE.
 
 (defun find-restart (identifier &optional condition)
   "Return a particular restart from current dynamic environment."
-  (case (type-of identifier)
-    (symbol
-     (find-if (lambda (restart)
-                (and (eql (restart-name restart) identifier)
-                     (restart-test restart condition)
-                     (restart-associated-p restart condition)))
-       *active-restarts*))
-    (structure
-     (when (and (typep identifier 'restart)
-                (member identifier *active-restarts*))
-       identifier))))
+  (cond
+   ((symbolp identifier)
+    (find-if (lambda (restart)
+               (and (eql (restart-name restart) identifier)
+                    (restart-test restart condition)
+                    (restart-associated-p restart condition)))
+      *active-restarts*))
+   ((restart-p identifier)
+    (when (and (typep identifier 'restart)
+               (member identifier *active-restarts*))
+      identifier))
+   (t (error "invalid restart designator: ~S" identifier))))
 
 (define-condition restart-not-found (control-error)
   (designator condition)
