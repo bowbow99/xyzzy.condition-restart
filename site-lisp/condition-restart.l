@@ -497,8 +497,7 @@ THE SOFTWARE.
        (restart-case
            (error ,@(if datum-supplied-p
                         (list* datum args)
-                      ;; TODO: WTF is this message...
-                      `("ダメでした: ~S" ',test-form)))
+                      `("assert に失敗しました: ~S" ',test-form)))
          (continue (&rest new-values)
            :report (lambda (stream)
                      (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
