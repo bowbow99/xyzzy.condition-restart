@@ -5,7 +5,7 @@
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.01.02
+;;; Version:   0.01.03
 ;;; License:   MIT Lisence
 #|
 Copyright (c) 2010 bowbow99
@@ -113,6 +113,9 @@ THE SOFTWARE.
 
 ;;; ChangeLog:
 #|
+* 2010-08-06 - version 0.01.03
+   - assert のメッセージを少しマシにした。
+   - ゴミが混入してたので削除 (thx to @southly)
 * 2010-06-13 - version 0.01.02
    - リファレンスの file が間違ってたのを修正した。
    - select-restart-interactively が再帰的に呼ばれたときにウィンドウの
@@ -168,7 +171,7 @@ THE SOFTWARE.
 
 (in-package :condition-restart)
 
-(defconstant *version* "0.01.02")
+(defconstant *version* "0.01.03")
 
 ;;;;
 ;;;; * Utilities
