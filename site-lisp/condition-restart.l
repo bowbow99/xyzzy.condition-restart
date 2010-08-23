@@ -457,7 +457,7 @@ THE SOFTWARE.
 (defun warn (datum &rest args)
   (let ((warning (%make-condition datum args 'simple-warning)))
     (restart-case
-        (with-condition-restarts warning (find-restart 'muffle-warning)
+        (with-condition-restarts warning (list (find-restart 'muffle-warning))
           (si:*throw-error warning))
       (muffle-warning ()
         :report "Ç±ÇÃåxçêÇÕñ≥Ç©Ç¡ÇΩÇ±Ç∆Ç…ÅB"
