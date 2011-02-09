@@ -8,7 +8,9 @@ Common Lisp のコンディションシステムにある再起動 (Restart) で
 - File: reference/condition-restart.xml
 
 参考リンク:
-- [CLHS: 9.1.4.2 Restarts] http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
+- [CLHS: 9.1.4.2 Restarts] 
+
+  [CLHS: 9.1.4.2 Restarts]: http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
 
 おまけ: 再起動を使える assert と check-type も混ざってます。
 
@@ -19,7 +21,7 @@ NetInstaller から
 -----------------
 [カフェイン中毒] からどうぞ
 
-  [カフェイン中毒] http://bowbow99.sakura.ne.jp/xyzzy/packages.l
+  [カフェイン中毒]: http://bowbow99.sakura.ne.jp/xyzzy/packages.l
 
 他の拡張が condition-restart に依存している、という場合はインストールしておく
 だけで OK です。
@@ -79,5 +81,5 @@ lisp パッケージから export してあるので、通常はそれだけで�
 
 バグ報告、質問、要望などは [GitHubIssues] か [@bowbow99] あたりへお願いします。
 
-  [GitHubIssues] http://github.com/bowbow99/xyzzy.condition-restart/issues
-  [@bowbow99] http://twitter.com/bowbow99
+  [GitHubIssues]: http://github.com/bowbow99/xyzzy.condition-restart/issues
+  [@bowbow99]: http://twitter.com/bowbow99
