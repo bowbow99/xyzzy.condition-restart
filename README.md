@@ -1,5 +1,5 @@
-概要
-====
+これは何
+========
 Common Lisp のコンディションシステムにある再起動 (Restart) です。
 
 個々の関数やマクロについては、付属のへなちょこリファレンス形式のリフ
@@ -14,9 +14,15 @@ Common Lisp のコンディションシステムにある再起動 (Restart) で
 
 インストール
 ============
-netinstaller でインストールした人はそのままでおｋです。
-手動でインストールする場合は、アーカイブを xyzzy のディレクトリにまる
-っと解答すればおｋなはずです。
+
+NetInstaller から
+-----------------
+[カフェイン中毒] からどうぞ
+
+  [カフェイン中毒] http://bowbow99.sakura.ne.jp/xyzzy/packages.l
+
+他の拡張が condition-restart に依存している、という場合はインストールしておく
+だけで OK です。
 
 設定？
 ======
@@ -37,36 +43,41 @@ lisp パッケージから export してあるので、通常はそれだけで�
 
 とりあえず試したい人向けサンプル
 --------------------------------
-lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
+`lisp-mode` の `C-x` `C-e` か `lisp-interaction-mode` の `C-j` で上から順に評価
 してみてください。
 
-(require "condition-restart")
-(require "condition-restart-support")
+    (require "condition-restart")
+    (require "condition-restart-support")
+    
+    (restart:setup-key-bindings)
+    
+    (cerror "知るかちょ" "ﾌﾞﾙｧ!!!")
+    
+    (restart-case
+        (/ 3 2 1 0)
+      (zero () :report "0 を返す。" 0)
+      (one () :report "1 を返す。" 1)
+      (use-value (value)
+        :report "返す値を入力する。"
+        :interactive (lambda ()
+                       (list (eval (read-sexp ">> "))))
+        value))
+    
+    (let ((name :fred)
+          (age -3))
+      (assert (and (stringp name) (< (length name) 64)) (name)
+              "名前が変です: ~S" name)
+      (assert (and (numberp age) (<= 0 age 120)) (age)
+              "トシが変です: ~S" age)
+      (list name age))
 
-(restart:setup-key-bindings)
-
-(cerror "知るかちょ" "ﾌﾞﾙｧ!!!")
-
-(restart-case
-    (/ 3 2 1 0)
-  (zero () :report "0 を返す。" 0)
-  (one () :report "1 を返す。" 1)
-  (use-value (value)
-    :report "返す値を入力する。"
-    :interactive (lambda ()
-                   (list (eval (read-sexp ">> "))))
-    value))
-
-(let ((name :fred)
-      (age -3))
-  (assert (and (stringp name) (< (length name) 64)) (name)
-          "名前が変です: ~S" name)
-  (assert (and (numberp age) (<= 0 age 120)) (age)
-          "トシが変です: ~S" age)
-  (list name age))
-
-上書き注意報
-============
-- 標準の関数 warn を上書きしています。
+注意点、既知の問題など
+======================
+- 標準の関数 `warn` を上書きしています。
   再起動を用意するようにした以外は標準のものと同じ挙動にしたつもり
   ですが、おかしくなっているかも知れません。
+
+バグ報告、質問、要望などは [GitHubIssues] か [@bowbow99] あたりへお願いします。
+
+  [GitHubIssues] http://github.com/bowbow99/xyzzy.condition-restart/issues
+  [@bowbow99] http://twitter.com/bowbow99
