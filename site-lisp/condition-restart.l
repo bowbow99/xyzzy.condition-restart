@@ -4,9 +4,9 @@
 ;;;
 ;;; This file is part of xyzzy extension 'condition-restart'.
 ;;;
-;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.01.03
-;;; License:   MIT (see COPYING)
+;;; Author:     bowbow99 <bowbow99@gmail.com>
+;;; Version:    0.01.03
+;;; License:    MIT (see COPYING)
 ;;; Commentary: (see README)
 ;;; ChangeLog:  (see ChangeLog)
 
