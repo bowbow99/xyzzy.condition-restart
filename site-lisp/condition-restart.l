@@ -78,8 +78,8 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (defun print-restart (restart stream #:what?)
     (format stream "#<restart: ~A>"
-            (or (restart-name restart)
-                "(anonymous)"))))
+      (or (restart-name restart)
+          "(anonymous)"))))
 
 (defstruct (restart
             (:print-function print-restart))
@@ -95,17 +95,6 @@
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-(defun restart-active-p (restart)
-  (find restart *active-restarts*))
-
-(defun restart-associated-p (restart condition)
-  "Return true if RESTART is associated with CONDITION, or RESTART isn't
- associated with any condition."
-  (or (find restart (cdr (assoc condition *condition/restart-association*)))
-      (notany (lambda (assoc)
-                (member restart (cdr assoc)))
-        *condition/restart-association*)))
-
 ;;;; * Restart Establishing Macros
 
 ;;; - Macro restart-bind
@@ -113,12 +102,12 @@
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
-          (append (list ,@(mapcar (lambda (restart)
-                                    `(make-restart :name ',(car restart)
-                                                   :function #',(cadr restart)
-                                                   ,@(cddr restart)))
-                            restarts))
-                  *active-restarts*)))
+           (append (list ,@(mapcar (lambda (restart)
+                                     `(make-restart :name ',(car restart)
+                                                    :function ,(cadr restart)
+                                                    ,@(cddr restart)))
+                             restarts))
+                   *active-restarts*)))
      ,@body))
 
 #+xyzzy
@@ -129,8 +118,8 @@
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
   `(let ((*condition/restart-association*
-          (%add-key/value ,condition ,restarts
-                          *condition/restart-association*)))
+           (%add-key/value ,condition ,restarts
+                           *condition/restart-association*)))
      ,@body))
 
 #+xyzzy
@@ -145,11 +134,11 @@
              `(lambda (#1=#:stream) (format #1# ,form)))
             (symbol
              (if form
-                 `',form
+               `',form
                (error "Invalid function for :report option: ~S" form)))
             (cons ; lambda form
              (if (eql 'lambda (car form))
-                 form
+               form
                (error "Invalid function for :report option: ~S" form)))
             (t (error "Invalid function for :report option: ~S" form)))))
 
@@ -195,7 +184,7 @@
      (apply #'make-condition datum args))
     (t
      (if (and (typep datum 'condition) (null args))
-         datum
+       datum
        (error 'type-error
               :datum datum
               :expected-type '(or condition symbol string))))))
@@ -220,21 +209,21 @@
                ,(let ((form (macroexpand form)))
                   (if (and (consp form)
                            (member (car form) '(signal warn error cerror)))
-                      (let ((operator (car form))
-                            (datum (cadr form))
-                            (args (cddr form)))
-                        `(let ((#4=#:condition
-                                (%make-condition ,datum (list ,@args)
-                                                 ',(case operator
-                                                     ((error cerror) 'simple-error)
-                                                     (signal 'simple-condition)
-                                                     (warn 'simple-warning)))))
-                           (with-condition-restarts #4#
-                               (list ,@(mapcar (lambda (tag/clause)
-                                                 (%with-tag/clause (tag/clause)
-                                                   `(find-restart ',name)))
-                                         tags/clauses))
-                             (,operator #4#))))
+                    (let ((operator (car form))
+                          (datum (cadr form))
+                          (args (cddr form)))
+                      `(let ((#4=#:condition
+                               (%make-condition ,datum (list ,@args)
+                                                ',(case operator
+                                                    ((error cerror) 'simple-error)
+                                                    (signal 'simple-condition)
+                                                    (warn 'simple-warning)))))
+                         (with-condition-restarts #4#
+                             (list ,@(mapcar (lambda (tag/clause)
+                                               (%with-tag/clause (tag/clause)
+                                                 `(find-restart ',name)))
+                                       tags/clauses))
+                           (,operator #4#))))
                     form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
@@ -259,16 +248,33 @@
 ;;;;
 ;;;; * Functions Use Active Restarts
 
-(defun restart-test (restart condition)
-  (or (null condition)
-      (null (restart-test-function restart))
-      (funcall (restart-test-function restart) condition)))
+(defun restart-applicable-p (restart condition)
+  "Return true if restart is visible according to condition."
+  (macrolet
+      ((restart-is-associated-with-condition ()
+         `(find restart (cdr (assoc condition *condition/restart-association*))))
+       (restart-is-not-associated-at-all ()
+         `(notany (lambda (association)
+                    (member restart (cdr association)))
+            *condition/restart-association*)))
+    (and
+     ;; check if its visible according to :test-function
+     ;; NOTE: If test-function calls `compute-restarts` or `find-restarts`,
+     ;; it invokes test-function once more and result in an infinite loop.
+     ;; To prevent it, make the restart invisible while execution of its
+     ;; test-function.
+     (let ((*active-restarts* (remove restart *active-restarts*)))
+       ;; NOTE: :test-function defaults to (constantly t)
+       (funcall (restart-test-function restart) condition))
+     ;; check association
+     (or (null condition)
+         (restart-is-associated-with-condition)
+         (restart-is-not-associated-at-all)))))
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
-  (remove-if-not (lambda (restart)
-                   (and (restart-test restart condition)
-                        (restart-associated-p restart condition)))
+  (remove-if-not #'(lambda (restart)
+                     (restart-applicable-p restart condition))
     *active-restarts*))
 
 (defun find-restart (identifier &optional condition)
@@ -277,12 +283,11 @@
    ((symbolp identifier)
     (find-if (lambda (restart)
                (and (eql (restart-name restart) identifier)
-                    (restart-test restart condition)
-                    (restart-associated-p restart condition)))
+                    (restart-applicable-p restart condition)))
       *active-restarts*))
    ((restart-p identifier)
-    (when (and (typep identifier 'restart)
-               (member identifier *active-restarts*))
+    (when (and (member identifier *active-restarts*)
+               (restart-applicable-p identifier condition))
       identifier))
    (t (error "invalid restart designator: ~S" identifier))))
 
@@ -290,8 +295,8 @@
   (designator condition)
   (:report (lambda (condition stream)
              (format stream "Could not find active restart ~S~@[ for condition ~S~]"
-                     (restart-not-found-designator condition)
-                     (restart-not-found-condition condition)))))
+               (restart-not-found-designator condition)
+               (restart-not-found-condition condition)))))
 #+xyzzy
 (setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
 
@@ -374,20 +379,19 @@
                 (format stream "`~S' の値を入力し直す。" place))
       (read-value-for place))))
 
-(defmacro assert (test-form &optional places
-                  (datum t datum-supplied-p) &rest args)
+(defmacro assert (test-form &optional places (datum t datum-supplied-p) &rest args)
   "Ensure TEST-FORM evaluates to non-nil."
   `(tagbody
      #1=#:assertion-root
      (unless ,test-form
        (restart-case
            (error ,@(if datum-supplied-p
-                        (list* datum args)
+                      (list* datum args)
                       `("assert に失敗しました: ~S" ',test-form)))
          (continue (&rest new-values)
            :report (lambda (stream)
                      (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
-                             ',places))
+                       ',places))
            :interactive (lambda ()
                           (mapcar #'read-value-for ',places))
            (setf ,@(let ((i -1))
