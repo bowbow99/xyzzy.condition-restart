@@ -262,11 +262,16 @@ associated with any condition."
                 (member restart (cdr assoc)))
         *condition/restart-association*)))
 
+(defun restart-applicable-p (restart condition)
+  "Return true if restart is visible according to condition."
+  (and (restart-visible-p restart condition)
+       (or (null condition)
+           (restart-associated-p restart condition))))
+
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
-  (remove-if-not (lambda (restart)
-                   (and (restart-visible-p restart condition)
-                        (restart-associated-p restart condition)))
+  (remove-if-not #'(lambda (restart)
+                     (restart-applicable-p restart condition))
     *active-restarts*))
 
 (defun find-restart (identifier &optional condition)
@@ -275,13 +280,11 @@ associated with any condition."
    ((symbolp identifier)
     (find-if (lambda (restart)
                (and (eql (restart-name restart) identifier)
-                    (restart-visible-p restart condition)
-                    (restart-associated-p restart condition)))
+                    (restart-applicable-p restart condition)))
       *active-restarts*))
    ((restart-p identifier)
     (when (and (member identifier *active-restarts*)
-               (restart-visible-p identifier condition)
-               (restart-associated-p identifier condition))
+               (restart-applicable-p identifier condition))
       identifier))
    (t (error "invalid restart designator: ~S" identifier))))
 
