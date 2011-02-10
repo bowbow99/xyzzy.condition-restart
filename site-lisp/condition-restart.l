@@ -95,14 +95,6 @@
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-(defun restart-associated-p (restart condition)
-  "Return true if RESTART is associated with CONDITION, or RESTART isn't
-associated with any condition."
-  (or (find restart (cdr (assoc condition *condition/restart-association*)))
-      (notany (lambda (assoc)
-                (member restart (cdr assoc)))
-        *condition/restart-association*)))
-
 ;;;; * Restart Establishing Macros
 
 ;;; - Macro restart-bind
@@ -261,6 +253,14 @@ associated with any condition."
   (let ((fn (restart-test-function restart)))
     (or (null fn)
         (funcall fn condition))))
+
+(defun restart-associated-p (restart condition)
+  "Return true if RESTART is associated with CONDITION, or RESTART isn't
+associated with any condition."
+  (or (find restart (cdr (assoc condition *condition/restart-association*)))
+      (notany (lambda (assoc)
+                (member restart (cdr assoc)))
+        *condition/restart-association*)))
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
