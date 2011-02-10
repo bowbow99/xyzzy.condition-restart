@@ -260,6 +260,7 @@
 ;;;; * Functions Use Active Restarts
 
 (defun restart-visible-p (restart condition)
+  "Return true if RESTART is visible in current dynamic environment according to :test-function."
   (or (null condition)
       (null (restart-test-function restart))
       (funcall (restart-test-function restart) condition)))
