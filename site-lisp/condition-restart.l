@@ -261,9 +261,9 @@
 
 (defun restart-visible-p (restart condition)
   "Return true if RESTART is visible in current dynamic environment according to :test-function."
-  (or (null condition)
-      (null (restart-test-function restart))
-      (funcall (restart-test-function restart) condition)))
+  (let ((fn (restart-test-function restart)))
+    (or (null fn)
+        (funcall fn condition))))
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
