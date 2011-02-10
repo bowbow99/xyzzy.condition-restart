@@ -115,7 +115,7 @@
   `(let ((*active-restarts*
           (append (list ,@(mapcar (lambda (restart)
                                     `(make-restart :name ',(car restart)
-                                                   :function #',(cadr restart)
+                                                   :function ,(cadr restart)
                                                    ,@(cddr restart)))
                             restarts))
                   *active-restarts*)))
