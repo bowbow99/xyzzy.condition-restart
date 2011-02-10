@@ -282,7 +282,9 @@
                     (restart-associated-p restart condition)))
       *active-restarts*))
    ((restart-p identifier)
-    (when (member identifier *active-restarts*)
+    (when (and (member identifier *active-restarts*)
+               (restart-visible-p identifier condition)
+               (restart-associated-p identifier condition))
       identifier))
    (t (error "invalid restart designator: ~S" identifier))))
 
