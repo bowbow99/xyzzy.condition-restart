@@ -95,9 +95,6 @@
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-(defun restart-active-p (restart)
-  (find restart *active-restarts*))
-
 (defun restart-associated-p (restart condition)
   "Return true if RESTART is associated with CONDITION, or RESTART isn't
 associated with any condition."
