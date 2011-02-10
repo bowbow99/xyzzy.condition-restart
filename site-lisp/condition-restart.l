@@ -78,8 +78,8 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (defun print-restart (restart stream #:what?)
     (format stream "#<restart: ~A>"
-            (or (restart-name restart)
-                "(anonymous)"))))
+      (or (restart-name restart)
+          "(anonymous)"))))
 
 (defstruct (restart
             (:print-function print-restart))
@@ -100,7 +100,7 @@
 
 (defun restart-associated-p (restart condition)
   "Return true if RESTART is associated with CONDITION, or RESTART isn't
- associated with any condition."
+associated with any condition."
   (or (find restart (cdr (assoc condition *condition/restart-association*)))
       (notany (lambda (assoc)
                 (member restart (cdr assoc)))
@@ -113,12 +113,12 @@
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
-          (append (list ,@(mapcar (lambda (restart)
-                                    `(make-restart :name ',(car restart)
-                                                   :function ,(cadr restart)
-                                                   ,@(cddr restart)))
-                            restarts))
-                  *active-restarts*)))
+           (append (list ,@(mapcar (lambda (restart)
+                                     `(make-restart :name ',(car restart)
+                                                    :function ,(cadr restart)
+                                                    ,@(cddr restart)))
+                             restarts))
+                   *active-restarts*)))
      ,@body))
 
 #+xyzzy
@@ -129,8 +129,8 @@
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
   `(let ((*condition/restart-association*
-          (%add-key/value ,condition ,restarts
-                          *condition/restart-association*)))
+           (%add-key/value ,condition ,restarts
+                           *condition/restart-association*)))
      ,@body))
 
 #+xyzzy
@@ -145,11 +145,11 @@
              `(lambda (#1=#:stream) (format #1# ,form)))
             (symbol
              (if form
-                 `',form
+               `',form
                (error "Invalid function for :report option: ~S" form)))
             (cons ; lambda form
              (if (eql 'lambda (car form))
-                 form
+               form
                (error "Invalid function for :report option: ~S" form)))
             (t (error "Invalid function for :report option: ~S" form)))))
 
@@ -195,7 +195,7 @@
      (apply #'make-condition datum args))
     (t
      (if (and (typep datum 'condition) (null args))
-         datum
+       datum
        (error 'type-error
               :datum datum
               :expected-type '(or condition symbol string))))))
@@ -220,21 +220,21 @@
                ,(let ((form (macroexpand form)))
                   (if (and (consp form)
                            (member (car form) '(signal warn error cerror)))
-                      (let ((operator (car form))
-                            (datum (cadr form))
-                            (args (cddr form)))
-                        `(let ((#4=#:condition
-                                (%make-condition ,datum (list ,@args)
-                                                 ',(case operator
-                                                     ((error cerror) 'simple-error)
-                                                     (signal 'simple-condition)
-                                                     (warn 'simple-warning)))))
-                           (with-condition-restarts #4#
-                               (list ,@(mapcar (lambda (tag/clause)
-                                                 (%with-tag/clause (tag/clause)
-                                                   `(find-restart ',name)))
-                                         tags/clauses))
-                             (,operator #4#))))
+                    (let ((operator (car form))
+                          (datum (cadr form))
+                          (args (cddr form)))
+                      `(let ((#4=#:condition
+                               (%make-condition ,datum (list ,@args)
+                                                ',(case operator
+                                                    ((error cerror) 'simple-error)
+                                                    (signal 'simple-condition)
+                                                    (warn 'simple-warning)))))
+                         (with-condition-restarts #4#
+                             (list ,@(mapcar (lambda (tag/clause)
+                                               (%with-tag/clause (tag/clause)
+                                                 `(find-restart ',name)))
+                                       tags/clauses))
+                           (,operator #4#))))
                     form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
@@ -292,8 +292,8 @@
   (designator condition)
   (:report (lambda (condition stream)
              (format stream "Could not find active restart ~S~@[ for condition ~S~]"
-                     (restart-not-found-designator condition)
-                     (restart-not-found-condition condition)))))
+               (restart-not-found-designator condition)
+               (restart-not-found-condition condition)))))
 #+xyzzy
 (setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
 
@@ -376,20 +376,19 @@
                 (format stream "`~S' の値を入力し直す。" place))
       (read-value-for place))))
 
-(defmacro assert (test-form &optional places
-                  (datum t datum-supplied-p) &rest args)
+(defmacro assert (test-form &optional places (datum t datum-supplied-p) &rest args)
   "Ensure TEST-FORM evaluates to non-nil."
   `(tagbody
      #1=#:assertion-root
      (unless ,test-form
        (restart-case
            (error ,@(if datum-supplied-p
-                        (list* datum args)
+                      (list* datum args)
                       `("assert に失敗しました: ~S" ',test-form)))
          (continue (&rest new-values)
            :report (lambda (stream)
                      (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
-                             ',places))
+                       ',places))
            :interactive (lambda ()
                           (mapcar #'read-value-for ',places))
            (setf ,@(let ((i -1))
