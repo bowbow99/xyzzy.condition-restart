@@ -259,7 +259,7 @@
 ;;;;
 ;;;; * Functions Use Active Restarts
 
-(defun restart-test (restart condition)
+(defun restart-visible-p (restart condition)
   (or (null condition)
       (null (restart-test-function restart))
       (funcall (restart-test-function restart) condition)))
@@ -267,7 +267,7 @@
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
   (remove-if-not (lambda (restart)
-                   (and (restart-test restart condition)
+                   (and (restart-visible-p restart condition)
                         (restart-associated-p restart condition)))
     *active-restarts*))
 
@@ -277,7 +277,7 @@
    ((symbolp identifier)
     (find-if (lambda (restart)
                (and (eql (restart-name restart) identifier)
-                    (restart-test restart condition)
+                    (restart-visible-p restart condition)
                     (restart-associated-p restart condition)))
       *active-restarts*))
    ((restart-p identifier)
