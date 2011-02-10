@@ -1,3 +1,15 @@
+* 2011-02-10  bowbow99  <bowbow99@gmail.com>
+	* いくつかバグ修正
+	- condition を与えずに `find-restart` や `compute-restart` した時に
+	  :test-function が実行されてなかった
+	- `find-restart` に restart object を指定した場合に :test-function
+	  でのチェックも condition との関連付けチェックもしてなかった
+	- `restart-bind` で再起動の本体関数を評価せずに `function` に渡して
+	  た（`#'(lambda ...) とかに展開されてた）
+	- :test-function 内で `compute-restart` した時に（`compute-restart`
+	  がその :test-function を呼び出すので）無限ループってた
+	* あちこちコード見直し
+
 * 2010-08-06 - version 0.01.03
 	- assert のメッセージを少しマシにした。
 	- ゴミが混入してたので削除 (thx to @southly)
