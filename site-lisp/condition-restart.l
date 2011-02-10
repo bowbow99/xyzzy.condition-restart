@@ -259,8 +259,13 @@
             *condition/restart-association*)))
     (and
      ;; check if its visible according to :test-function
-     ;; NOTE: :test-function defaults to (constantly t)
-     (funcall (restart-test-function restart) condition)
+     ;; NOTE: If test-function calls `compute-restarts` or `find-restarts`,
+     ;; it invokes test-function once more and result in an infinite loop.
+     ;; To prevent it, make the restart invisible while execution of its
+     ;; test-function.
+     (let ((*active-restarts* (remove restart *active-restarts*)))
+       ;; NOTE: :test-function defaults to (constantly t)
+       (funcall (restart-test-function restart) condition))
      ;; check association
      (or (null condition)
          (restart-is-associated-with-condition)
