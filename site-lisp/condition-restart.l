@@ -361,6 +361,44 @@
                   (apply #'format stream fmt-control args))))))
 
 ;;;;
+;;;; * Function read-value
+
+;; NOTE: export from editor package to be visible in most of user code
+(export (mapcar (lambda (name) (intern (string name) :editor))
+          '(#:read-value
+            #:*read-sexp-function*))
+        :editor)
+
+(defvar ed:*read-sexp-function* 'ed::read-sexp
+  "A function to read sexp used in `read-value`.
+It must take one argument, prompt string, and return a sexp. It is permissible
+to signal an error `quit`.")
+
+(defun ed:read-value (prompt &optional (predicate (lambda (&rest #:ignore) t)))
+  "Return a value as user answered.
+The way `read-value` ask to user is depend on `*read-sexp-function*`.
+If the sexp user typed in result in an error, user get asked to type again
+until it return normally.
+If `predicate` given, it must be a function which take one argument, the value,
+and return true if the value is suitable. Otherwise, user asked for another
+value.
+User should be allowed to quit somehow (typically, by hittig `C-g`). In that
+case, `read-value` just pass the error `quit` which `*read-sexp-function*` has
+signalled. So the caller of `read-value` should be prepared for error `quit`."
+  (tagbody read-value-toplevel
+    (handler-bind ((error (lambda (e)
+                            (unless (typep e 'quit)
+                              (ed:message "Error: ~A" e)
+                              (go read-value-toplevel)))))
+      (let ((value (eval (funcall ed:*read-sexp-function* prompt))))
+        (if (funcall predicate value)
+          (return-from ed:read-value value)
+          (progn
+            (ed:message "Invalid value: ~S (using ~S)" value predicate)
+            (go read-value-toplevel)))))))
+
+
+;;;;
 ;;;; * Assertions
 
 (defconstant +check-type-error-symbols+
