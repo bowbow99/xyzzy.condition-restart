@@ -248,25 +248,23 @@
 ;;;;
 ;;;; * Functions Use Active Restarts
 
-(defun restart-visible-p (restart condition)
-  "Return true if RESTART is visible in current dynamic environment according to :test-function."
-  (let ((fn (restart-test-function restart)))
-    (or (null fn)
-        (funcall fn condition))))
-
-(defun restart-associated-p (restart condition)
-  "Return true if RESTART is associated with CONDITION, or RESTART isn't
-associated with any condition."
-  (or (find restart (cdr (assoc condition *condition/restart-association*)))
-      (notany (lambda (assoc)
-                (member restart (cdr assoc)))
-        *condition/restart-association*)))
-
 (defun restart-applicable-p (restart condition)
   "Return true if restart is visible according to condition."
-  (and (restart-visible-p restart condition)
-       (or (null condition)
-           (restart-associated-p restart condition))))
+  (macrolet
+      ((restart-is-associated-with-condition ()
+         `(find restart (cdr (assoc condition *condition/restart-association*))))
+       (restart-is-not-associated-at-all ()
+         `(notany (lambda (association)
+                    (member restart (cdr association)))
+            *condition/restart-association*)))
+    (and
+     ;; check if its visible according to :test-function
+     ;; NOTE: :test-function defaults to (constantly t)
+     (funcall (restart-test-function restart) condition)
+     ;; check association
+     (or (null condition)
+         (restart-is-associated-with-condition)
+         (restart-is-not-associated-at-all)))))
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
