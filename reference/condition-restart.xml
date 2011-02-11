@@ -66,6 +66,79 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <file>condition-restart-support.l</file>
 </chapter>
 
+
+<chapter>
+<title>read-value</title>
+<type>Function</type>
+<arguments>read-value PROMPT &optional PREDICATE</arguments>
+<package>editor</package>
+<description>
+ユーザーから式の入力を受け付け、その式を評価した結果を返します。
+
+引数:
+  PROMPT    : プロンプト文字列
+  PREDICATE : 任意の値を取り、真偽値を返す関数
+
+read-value は *read-value-sexp-reader* によってユーザーから式の入力を受け
+付け、その式を評価した結果を返します。
+
+もしユーザーが入力をキャンセルした（*read-value-sexp-reader* が quit を
+投げた）場合には、quit をそのまま伝搬させます。
+それ以外のエラーが発生した場合は、エラーメッセージを表示して再入力を求め
+ます。
+引数 PREDICATE を指定すると、値が PREDICATE を満たさない場合にはメッセージ
+を表示して再入力を求めます。
+
+つまり read-value を呼び出すと、結果は次のいずれかになります。
+- （PREDICATE を満たす）値を返す
+- エラー quit が投げられる（＝ユーザーが入力をキャンセルした）
+</dscription>
+<seealso>read-sexp</seealso>
+<seealso>*read-sexp-function*</seealso>
+<file>condition-restart.l</file>
+</chapter>
+
+
+<chapter>
+<title>*read-value-sexp-reader*</title>
+<type>Variable</title>
+<package>editor</package>
+<description>
+read-value でユーザーから式の入力を受け付ける関数を設定します。デフォルトは
+read-sexp （ミニバッファから入力）です。
+
+設定する値は、プロンプト文字列を受け取り、（ユーザーが入力した）sexp を返す
+関数でなければいけません。
+ユーザーが入力をキャンセルした場合は quit を投げてください。それ以外のエラー
+が投げられると、read-value は再びこの関数を呼び出して再入力を求めます。
+</description>
+<seealso>read-value</seealso>
+<seealso>read-sexp</seealso>
+<file>condition-restart.l</file>
+</chapter>
+
+
+<chapter>
+<title>*read-value-message-printer*</title>
+<type>Variable</type>
+<package>editor</package>
+<description>
+read-value で何かあった時にメッセージを表示する関数を設定します。デフォルト
+は message （ステータスバーに表示）です。
+
+設定する値は、フォーマット文字列とその引数を受け取る関数でなければいけません。
+read-value で、ユーザーの入力を評価した際にエラーになったり評価結果が predicate
+を満たさない場合に、それらしきメッセージを表示しようとこの関数が呼び出されるの
+でそれなりに表示してください。
+戻り値は捨てられるので何でもいいです。エラーは投げないでください。
+</description>
+<seealso>read-value</seealso>
+<seealso>message</seealso>
+<seealso>format</seealso>
+<file>condition-restart.l</file>
+</chapter>
+
+
 <chapter>
 <title>assert</title>
 <type>Macro</type>
