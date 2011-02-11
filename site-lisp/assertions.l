@@ -48,6 +48,14 @@
 ;;;;
 ;;;; * Assertions
 
+;;; NOTE: 不可解なことに xyzzy 標準の `check-type` で使っている `check-type-error`
+;;; は system パッケージで定義されていて、捕まえようとすると `si::check-type-error`
+;;; と書かなきゃいけなかったりして不便なので、関係あるシンボルのリストを用意して
+;;; あります。
+;;; `import` しておけばそのパッケージ内で "si::" 抜きで使えます。
+;;;
+;;;     (import +check-type-error-symbols+)
+;;;
 (defconstant +check-type-error-symbols+
   '(si::check-type-error
     si::check-type-error-datum
