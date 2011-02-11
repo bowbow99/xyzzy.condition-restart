@@ -111,4 +111,5 @@
              (setf ,place new-value)
              (go #1#)))))))
 
+(provide "assertions")
 ;;; assertions.l ends here.
