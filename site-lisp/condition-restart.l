@@ -23,27 +23,28 @@
 ;;; exporting from lisp package
 (in-package :lisp)
 
-(export '(;; Macros establishes restarts
-          restart-case
-          restart-bind
-          with-simple-restart
-          with-condition-restarts
-          ;; Functions deals with restarts
-          restart-name
-          compute-restarts
-          find-restart
-          invoke-restart
-          invoke-restart-interactively
-          ;; Signallers
-          cerror
-          ;; standard restart interface
-          abort
-          continue
-          muffle-warning
-          use-value
-          store-value
-          )
-        :lisp)
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (export '(;; Macros establishes restarts
+            restart-case
+            restart-bind
+            with-simple-restart
+            with-condition-restarts
+            ;; Functions deals with restarts
+            restart-name
+            compute-restarts
+            find-restart
+            invoke-restart
+            invoke-restart-interactively
+            ;; Signallers
+            cerror
+            ;; standard restart interface
+            abort
+            continue
+            muffle-warning
+            use-value
+            store-value
+            )
+          :lisp))
 
 (defpackage :condition-restart
   (:use :lisp)
@@ -361,11 +362,12 @@
 ;;;; * Function read-value
 
 ;; NOTE: export from editor package to be visible in most of user code
-(export (mapcar (lambda (name) (intern (string name) :editor))
-          '(#:read-value
-            #:*read-value-sexp-reader*
-            #:*read-value-message-printer*))
-        :editor)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export (mapcar (lambda (name) (intern (string name) :editor))
+            '(#:read-value
+              #:*read-value-sexp-reader*
+              #:*read-value-message-printer*))
+          :editor))
 
 (defvar ed:*read-value-sexp-reader* 'ed:read-sexp
   "A function to ask user for sexp to produce a value to be returned from `read-value`.
