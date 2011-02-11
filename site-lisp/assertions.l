@@ -14,6 +14,10 @@
 ;; - `assert`
 ;; - `check-type`
 ;;
+;; 依存するライブラリ
+;; ==================
+;; - typespec+
+;;
 ;; 使い方
 ;; ======
 ;; `assert` や `check-type` を使うファイルで `require` してください。
@@ -37,7 +41,8 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "condition-restart"))
+  (require "condition-restart")
+  (require "typespec+"))
 
 (in-package :lisp)
 
@@ -90,7 +95,7 @@
   `(tagbody
      #1=#:check-type-root
      (let ((#2=#:datum ,place))
-       (unless (typep #2# ',typespec)
+       (unless ,(typespec+:optimize-type-check '#2# typespec)
          (restart-case
              (error 'si::check-type-error
                     :place ',place
