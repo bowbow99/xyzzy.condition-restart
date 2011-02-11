@@ -10,6 +10,9 @@
 
 ;;; Code:
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (require "condition-restart"))
+
 (in-package :lisp)
 
 (export '(assert
