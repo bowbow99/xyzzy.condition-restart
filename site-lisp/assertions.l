@@ -6,7 +6,33 @@
 ;;;
 ;;; Author:     bowbow99  <bowbow99@gmail.com>
 ;;; License:    MIT (see COPYING)
+
 ;;; Commentary:
+;; これは何
+;; ========
+;; 値をチェックするマクロで再起動を使うようにしたものです。
+;; - `assert`
+;; - `check-type`
+;;
+;; 使い方
+;; ======
+;; `assert` や `check-type` を使うファイルで `require` してください。
+;;
+;;     (eval-when (:compile-toplevel :load-toplevel :execute)
+;;       (require "assertions"))
+;;
+;; `assert` も `check-type` もマクロなのですが、展開後に condition-restart
+;; で定義されている関数が必要になるので、コンパイル済みファイルを読み込む
+;; 場合にも `require` しておく必要があります。
+;;
+;; 後は `assert` 式や `check-type` 式を書いておけば、いちいち指定された通り
+;; になっているか確認してくれます。
+;; もし指定された通りになっていなければ再起動を用意してエラーを投げるので、
+;; （再起動の選択をサポートしていれば）変数の値を変更して続行したりできます。
+;;
+;; それぞれのマクロについてはリファレンスを参照してください。
+;;
+;; - File: reference/condition-restart.xml
 
 ;;; Code:
 
