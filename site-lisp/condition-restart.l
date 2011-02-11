@@ -363,12 +363,18 @@
 ;; NOTE: export from editor package to be visible in most of user code
 (export (mapcar (lambda (name) (intern (string name) :editor))
           '(#:read-value
-            #:*read-value-sexp-reader*))
+            #:*read-value-sexp-reader*
+            #:*read-value-message-printer*))
         :editor)
 
 (defvar ed:*read-value-sexp-reader* 'ed:read-sexp
   "A function to ask user for sexp to produce a value to be returned from `read-value`.
 The function must take prompt string, and return a sexp to be evaluated.")
+
+(defvar ed:*read-value-message-printer* 'ed:message
+  "A function to print message from `read-value` somehow.
+The function must take a format-control-string and its aruguments, and print it
+to somewhere appropriate.")
 
 (defun ed:read-value (prompt &optional (predicate (lambda (&rest #:ignore) t)))
   "Return a value as user answered.
@@ -384,13 +390,16 @@ signalled. So the caller of `read-value` should be prepared for error `quit`."
   (tagbody read-value-toplevel
     (handler-bind ((error (lambda (e)
                             (unless (typep e 'quit)
-                              (ed:message "Error: ~A" e)
+                              (funcall ed:*read-value-message-printer*
+                                       "エラー: ~A" e)
                               (go read-value-toplevel)))))
       (let ((value (eval (funcall ed:*read-value-sexp-reader* prompt))))
         (if (funcall predicate value)
           (return-from ed:read-value value)
           (progn
-            (ed:message "Invalid value: ~S (using ~S)" value predicate)
+            (funcall ed:*read-value-message-printer*
+                     "不正な値です（～S じゃないです）: ~S"
+                     value predicate)
             (go read-value-toplevel)))))))
 
 ;;;; condition-restart.l ends here
