@@ -363,13 +363,12 @@
 ;; NOTE: export from editor package to be visible in most of user code
 (export (mapcar (lambda (name) (intern (string name) :editor))
           '(#:read-value
-            #:*read-sexp-function*))
+            #:*read-value-sexp-reader*))
         :editor)
 
-(defvar ed:*read-sexp-function* 'ed::read-sexp
-  "A function to read sexp used in `read-value`.
-It must take one argument, prompt string, and return a sexp. It is permissible
-to signal an error `quit`.")
+(defvar ed:*read-value-sexp-reader* 'ed:read-sexp
+  "A function to ask user for sexp to produce a value to be returned from `read-value`.
+The function must take prompt string, and return a sexp to be evaluated.")
 
 (defun ed:read-value (prompt &optional (predicate (lambda (&rest #:ignore) t)))
   "Return a value as user answered.
@@ -387,7 +386,7 @@ signalled. So the caller of `read-value` should be prepared for error `quit`."
                             (unless (typep e 'quit)
                               (ed:message "Error: ~A" e)
                               (go read-value-toplevel)))))
-      (let ((value (eval (funcall ed:*read-sexp-function* prompt))))
+      (let ((value (eval (funcall ed:*read-value-sexp-reader* prompt))))
         (if (funcall predicate value)
           (return-from ed:read-value value)
           (progn
