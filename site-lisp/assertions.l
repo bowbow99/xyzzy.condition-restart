@@ -64,14 +64,6 @@
     si::check-type-error-string
     ))
 
-(defun read-value-for (place)
-  (restart-case
-      (eval (ed:read-sexp (format nil "`~S' の値: " place)))
-    (re-enter ()
-      :report (lambda (stream)
-                (format stream "`~S' の値を入力し直す。" place))
-      (read-value-for place))))
-
 (defmacro assert (test-form &optional places (datum t datum-supplied-p) &rest args)
   "Ensure TEST-FORM evaluates to non-nil."
   `(tagbody
@@ -86,7 +78,7 @@
                      (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
                        ',places))
            :interactive (lambda ()
-                          (mapcar #'read-value-for ',places))
+                          (mapcar #'ed:read-value (mapcar #'string ',places)))
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
                                `(,place (nth ,(incf i) new-values)))
@@ -109,7 +101,8 @@
              :report (lambda (stream)
                        (format stream "`~S' の値を変更してやり直す。" ',place))
              :interactive (lambda ()
-                            (list (read-value-for ',place)))
+                            (list (ed:read-value
+                                   (format nil "`~S': " ',place))))
              (setf ,place new-value)
              (go #1#)))))))
 
