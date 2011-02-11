@@ -10,6 +10,12 @@
 
 ;;; Code:
 
+(in-package :lisp)
+
+(export '(assert
+          +check-type-error-symbols+
+          ))
+
 ;;;;
 ;;;; * Assertions
 

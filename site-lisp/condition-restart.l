@@ -42,9 +42,6 @@
           muffle-warning
           use-value
           store-value
-          ;; assertions
-          assert
-          +check-type-error-symbols+
           )
         :lisp)
 
