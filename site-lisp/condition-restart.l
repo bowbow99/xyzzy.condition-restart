@@ -7,7 +7,7 @@
 ;;; Author:     bowbow99 <bowbow99@gmail.com>
 ;;; Version:    0.01.03
 ;;; License:    MIT (see COPYING)
-;;; Commentary: (see README)
+;;; Commentary: (see README.md)
 ;;; ChangeLog:  (see ChangeLog)
 
 ;;; Code:

@@ -1,3 +1,13 @@
+* 2011-02-11  bowbow99  <bowbow99@gmail.com>
+	* ちょっとマシになった `ed:read-value` を追加
+	- `ed:*read-value-sexp-reader*` で入力方法を設定可能
+	- `ed:*read-value-message-printer*` でメッセージ表示方法を設定可能
+	- 触りやすいように editor から `export` しておいた
+	* assertions を別ファイルに分離
+	* `assert` と `check-type` の再起動で `ed:read-value` を使うように
+	* `check-type` が typespec+ を使うように
+	- そのせいで assertions は typespec+ に依存
+
 * 2011-02-10  bowbow99  <bowbow99@gmail.com>
 	* いくつかバグ修正
 	- condition を与えずに `find-restart` や `compute-restart` した時に
