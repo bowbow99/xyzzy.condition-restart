@@ -1,8 +1,6 @@
 ;;; -*- mode: lisp; package: condition-restart -*-
 ;;;
-;;; condition-restart.l --- Restart system from Common Lisp.
-;;;
-;;; This file is part of xyzzy extension 'condition-restart'.
+;;; condition-restart.l --- Common Lisp ‚ÌÄ‹N“®iRestartj
 ;;;
 ;;; Author:     bowbow99 <bowbow99@gmail.com>
 ;;; Version:    0.01.03
