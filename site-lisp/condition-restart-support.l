@@ -1,8 +1,8 @@
 ;;; -*- mode: lisp; package: editor -*-
 ;;;
-;;; condition-restart-support.l --- Select and invoke restart interactively.
+;;; condition-restart-support.l --- 対話的に再起動を選択・起動する
 ;;;
-;;; This file is part of xyzzy extension 'condition-restart'.
+;;; このファイルは condition-restart の付属品です。
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
 ;;; License:   MIT (see COPYING)
