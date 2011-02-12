@@ -12,8 +12,6 @@
 
 ;;; Code:
 
-(provide "condition-restart")
-
 ;;;;
 ;;;; * Package
 
@@ -404,4 +402,6 @@ signalled. So the caller of `read-value` should be prepared for error `quit`."
                      value predicate)
             (go read-value-toplevel)))))))
 
+
+(provide "condition-restart")
 ;;;; condition-restart.l ends here
