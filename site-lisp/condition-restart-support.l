@@ -6,22 +6,22 @@
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
 ;;; License:   MIT (see COPYING)
-;;; Commentary:
 
+;;; Commentary:
 ;; 概要
 ;; ====
 ;; エラーがトップレベルまで飛んでいった時に、再起動を選択して起動できる
 ;; コマンド（lisp 式を評価する eval-*** の類）とかです。
 ;;
-
 ;; 使い方 1: *scratch* とかで
 ;; ==========================
 ;; lisp 書くけどよくわかんない、あるいはとりあえず動かしてみたい人向け。
-#|
-;;; eval-*** でエラーったら再起動を選択する
-(require "condition-restart-support")
-(restart:setup-key-bindings)
-|#
+;;
+;; eval-*** でエラーったら再起動を選択する
+;;
+;;     (require "condition-restart-support")
+;;     (restart:setup-key-bindings)
+;;
 ;; 上記の設定を .xyzzy とかに書いておくと、いくつかのキーバインドを変更
 ;; して、以下のコマンドを使えるようになります。
 ;; どれも同名の標準のコマンドを、エラーったときに再起動を選択できるよう
@@ -33,7 +33,6 @@
 ;; - restart:eval-buffer
 ;; - restart:eval-expression       グローバルの ESC ESC
 ;;
-
 ;; 使い方 2: 任意のコマンドで
 ;; ==========================
 ;; 自分用の eval-print-last-sexp みたいなものを定義するような人向け。
@@ -41,25 +40,22 @@
 ;; - 全てのコンディションを select-restart-interactively で処理するよう
 ;;   に handler-bind で包みます。
 ;; - 常に abort 再起動が用意されるようにします。
-#|
-    (restart-case
-        (handler-bind ((condition 'select-restart-interactively))
-          <任意の処理>)
-      (abort ()
-        :report "処理をやめる。"
-        ;; 何もしなければ restart-case 式から nil が返る。それじゃマズ
-        ;; い場合は return-from とか go で適当なところへ飛ばす。
-        (values)))
-|#
-
+;;
+;;     (restart-case
+;;         (handler-bind ((condition 'select-restart-interactively))
+;;           <任意の処理>)
+;;       (abort ()
+;;         :report "処理をやめる。"
+;;         ;; 何もしなければ restart-case 式から nil が返る。それじゃマズ
+;;         ;; い場合は return-from とか go で適当なところへ飛ばす。
+;;         (values)))
+;;
 
 ;;; TODO:
 ;; - abort が無かったら quit とか。
 ;; - CALL STACK
 
 ;;; Code:
-
-(provide "condition-restart-support")
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (require "condition-restart"))
@@ -265,4 +261,6 @@
   (define-key esc-map #\ESC 'restart:eval-expression)
   t)
 
+
+(provide "condition-restart-support")
 ;;; restart-support/select-restart-interactively.l ends here
