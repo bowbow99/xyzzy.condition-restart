@@ -4,6 +4,7 @@
 ;;;
 ;;; Author:     bowbow99 <bowbow99@gmail.com>
 ;;; Version:    0.01.03
+;;; Category:   Lisp Libraries
 ;;; License:    MIT (see COPYING)
 ;;; Commentary: (see README.md)
 ;;; ChangeLog:  (see ChangeLog)
