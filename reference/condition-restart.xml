@@ -95,7 +95,8 @@ read-value は *read-value-sexp-reader* によってユーザーから式の入�
 - エラー quit が投げられる（＝ユーザーが入力をキャンセルした）
 </dscription>
 <seealso>read-sexp</seealso>
-<seealso>*read-sexp-function*</seealso>
+<seealso>*read-value-sexp-reader*</seealso>
+<seealso>*read-value-message-printer*</seealso>
 <file>condition-restart.l</file>
 </chapter>
 
@@ -115,6 +116,7 @@ read-sexp （ミニバッファから入力）です。
 </description>
 <seealso>read-value</seealso>
 <seealso>read-sexp</seealso>
+<seealso>*read-value-message-printer*</seealso>
 <file>condition-restart.l</file>
 </chapter>
 
@@ -134,6 +136,7 @@ read-value で、ユーザーの入力を評価した際にエラーになった
 戻り値は捨てられるので何でもいいです。エラーは投げないでください。
 </description>
 <seealso>read-value</seealso>
+<seealso>*read-value-sexp-reader*</seealso>
 <seealso>message</seealso>
 <seealso>format</seealso>
 <file>condition-restart.l</file>
