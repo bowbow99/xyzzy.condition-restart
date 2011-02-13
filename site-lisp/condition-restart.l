@@ -21,27 +21,38 @@
 (in-package :lisp)
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (export '(;; Macros establishes restarts
-            restart-case
-            restart-bind
-            with-simple-restart
-            with-condition-restarts
-            ;; Functions deals with restarts
-            restart-name
-            compute-restarts
-            find-restart
-            invoke-restart
-            invoke-restart-interactively
-            ;; Signallers
-            cerror
-            ;; standard restart interface
-            abort
-            continue
-            muffle-warning
-            use-value
-            store-value
-            )
-          :lisp))
+
+  (export (mapcar (lambda (name) (intern (string name) :lisp))
+            '(;; Restart establishing macros
+              #:restart-case
+              #:restart-bind
+              #:with-simple-restart
+              #:with-condition-restart
+              ;; Restart manipulating functions
+              #:restart-name
+              #:compute-restart
+              #:find-restart
+              #:invoke-restart
+              #:invoke-restart-interactively
+              ;; Condition signaller
+              #:cerror
+              ;; Standard restart names
+              #:abort
+              #:continue
+              #:muffle-warning
+              #:use-value
+              #:store-value))
+          :lisp)
+
+  ;; NOTE: export `read-value` related symbols from editor package to be
+  ;; visible in most of user code.
+  (export (mapcar (lambda (name) (intern (string name) :editor))
+            '(#:read-value
+              #:*read-value-sexp-reader*
+              #:*read-value-message-printer*))
+          :editor)
+
+  ) ; end of `eval-when`
 
 (defpackage :condition-restart
   (:use :lisp)
@@ -357,14 +368,6 @@
 
 ;;;;
 ;;;; * Function read-value
-
-;; NOTE: export from editor package to be visible in most of user code
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (export (mapcar (lambda (name) (intern (string name) :editor))
-            '(#:read-value
-              #:*read-value-sexp-reader*
-              #:*read-value-message-printer*))
-          :editor))
 
 (defvar ed:*read-value-sexp-reader* 'ed:read-sexp
   "A function to ask user for sexp to produce a value to be returned from `read-value`.
