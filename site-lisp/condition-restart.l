@@ -17,11 +17,9 @@
 (when (find-package :elisp)
   (shadow :abort :elisp))
 
-;;; exporting from lisp package
-(in-package :lisp)
-
 (eval-when (:load-toplevel :compile-toplevel :execute)
 
+  ;; NOTE: CL standard symbols are exported from lisp package.
   (export (mapcar (lambda (name) (intern (string name) :lisp))
             '(;; Restart establishing macros
               #:restart-case
@@ -44,7 +42,7 @@
               #:store-value))
           :lisp)
 
-  ;; NOTE: export `read-value` related symbols from editor package to be
+  ;; NOTE: Export `read-value` related symbols from editor package to be
   ;; visible in most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
             '(#:read-value
@@ -61,6 +59,21 @@
 (in-package :condition-restart)
 
 (defconstant *version* "0.01.03")
+
+;;;;
+;;;; * User Configuration
+
+(defvar ed:*read-value-sexp-reader* 'ed:read-sexp
+  "`ed:read-value` でユーザーから式の入力を受ける関数を指定します。
+関数はプロンプト文字列を受け取り、（ユーザーが入力した）式を返さなければなりません。
+デフォルトは `ed:read-value` です。")
+
+(defvar ed:*read-value-message-printer* 'ed:message
+  "`ed:read-value` で何かあった時にメッセージを表示する関数を指定します。
+`ed:read-value` でエラーなどがあった場合に、フォーマット文字列とその引数が与えられ
+この関数が呼び出されます。
+デフォルトは `ed:message` です。")
+
 
 ;;;;
 ;;;; * Utilities
@@ -368,15 +381,6 @@
 
 ;;;;
 ;;;; * Function read-value
-
-(defvar ed:*read-value-sexp-reader* 'ed:read-sexp
-  "A function to ask user for sexp to produce a value to be returned from `read-value`.
-The function must take prompt string, and return a sexp to be evaluated.")
-
-(defvar ed:*read-value-message-printer* 'ed:message
-  "A function to print message from `read-value` somehow.
-The function must take a format-control-string and its aruguments, and print it
-to somewhere appropriate.")
 
 (defun ed:read-value (prompt &optional (predicate (lambda (&rest #:ignore) t)))
   "Return a value as user answered.
