@@ -43,8 +43,8 @@
               ))
           :lisp)
 
-  ;; NOTE: Export `read-value` related symbols from editor package to be
-  ;; visible in most of user code.
+  ;; NOTE: Export `prompt-for` from editor package to be visible from
+  ;; most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
             '(#:prompt-for
               ))
@@ -367,7 +367,7 @@
                   (apply #'format stream fmt-control args))))))
 
 ;;;;
-;;;; * Function read-value
+;;;; * Function ed:prompt-for
 
 ;; >>>
 ;; 注意事項: 本章中の多くの場所で使用されている関数 prompt-for は、Common
