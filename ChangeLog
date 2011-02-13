@@ -1,3 +1,15 @@
+2011-02-13  bowbow99  <bowbow99@gmail.com>
+
+	* `ed:read-value` を `ed:prompt-for` で置き換えた。
+	CLtL2 のサンプルコードに使われてた架空の関数 prompt-for が欲しい
+	ものと一致してたのでそれに合わせた。
+
+	* 関数 `abort` で再起動 `abort` が見つからなければエラー `quit`
+	を投げるようにした。
+	Common Lisp だと常に再起動 `abort` がある前提で関数 `abort` は
+	再起動 `abort` を起動することになってるけど、xyzzy だと用意して
+	なかったら無いので。
+
 2011-02-11  bowbow99  <bowbow99@gmail.com>
 
 	* ちょっとマシになった `ed:read-value` を追加。
