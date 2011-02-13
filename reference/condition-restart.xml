@@ -12,6 +12,7 @@
 <!ELEMENT section (#PCDATA)>
 <!ELEMENT file (#PCDATA)>
 ]>
+<!-- LICENSE: MIT (see COPYING) -->
 <!--
 reference/condition-restart.xml
 
