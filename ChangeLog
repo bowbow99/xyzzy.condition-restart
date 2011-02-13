@@ -1,37 +1,66 @@
-* 2011-02-11  bowbow99  <bowbow99@gmail.com>
-	* ちょっとマシになった `ed:read-value` を追加
-	- `ed:*read-value-sexp-reader*` で入力方法を設定可能
-	- `ed:*read-value-message-printer*` でメッセージ表示方法を設定可能
-	- 触りやすいように editor から `export` しておいた
-	* assertions を別ファイルに分離
+2011-02-11  bowbow99  <bowbow99@gmail.com>
+
+	* ちょっとマシになった `ed:read-value` を追加。
+	再起動を用意する時に :interactive でユーザーが入力した値を受け取る
+	のは xyzzy だと `(eval (read-sexp "hoge: "))` とかするのが楽なんだ
+	けど、エラーの処理を毎回書くのがめんどくなったので、同様のことをし
+	つつエラーだったら再入力させる関数を作った。
+	（ユーザーが入力をキャンセルした場合（quit が投げられた場合）だけ、
+	quit をそのまま通知する。）
+
+	`ed:*read-value-sexp-reader*` で入力方法を設定可能。
+	`ed:*read-value-message-printer*` でメッセージ表示方法を設定可能。
+
+	触りやすいように editor から export しておいた。
+
+	* `check-type` が typespec+ を使うようにした。
+
+	* `assert` と `check-type` を別ファイル assertions.l に分離
+	`check-type` が typespec+ に依存するようになったけど、condition-
+	restart だけなら typespec+ なしでも使えるように。
+
+	`assert` を使うには "condition-restart" じゃなくて "assertions" を
+	require する必要あり。
+
 	* `assert` と `check-type` の再起動で `ed:read-value` を使うように
-	* `check-type` が typespec+ を使うように
-	- そのせいで assertions は typespec+ に依存
+	した。
 
-* 2011-02-10  bowbow99  <bowbow99@gmail.com>
-	* いくつかバグ修正
-	- condition を与えずに `find-restart` や `compute-restart` した時に
-	  :test-function が実行されてなかった
-	- `find-restart` に restart object を指定した場合に :test-function
-	  でのチェックも condition との関連付けチェックもしてなかった
-	- `restart-bind` で再起動の本体関数を評価せずに `function` に渡して
-	  た（`#'(lambda ...) とかに展開されてた）
-	- :test-function 内で `compute-restart` した時に（`compute-restart`
-	  がその :test-function を呼び出すので）無限ループってた
-	* あちこちコード見直し
+2011-02-10  bowbow99  <bowbow99@gmail.com>
 
-* 2010-08-06 - version 0.01.03
-	- assert のメッセージを少しマシにした。
-	- ゴミが混入してたので削除 (thx to @southly)
+	* condition を与えずに `find-restart` や `compute-restart` した時に
+	:test-function が実行されてなかったのを修正。
 
-* 2010-06-13 - version 0.01.02
-	- リファレンスの file が間違ってたのを修正した。
-	- select-restart-interactively が再帰的に呼ばれたときにウィンドウの
-	  サイズがおかしくなってたのを修正したつもり。
-	- assert の PLACES が nil のときのメッセージを変更した。
+	* `find-restart` に restart object を渡した場合に :test-function で
+	のチェックも condition との関連付けチェックもしてなかったのを修正。
 
-* 2010-06-10 - version 0.01.01
-	- 再起動を選択を繰り返したときの画面分割のバグに対処した。
+	* `restart-bind` で再起動の本体関数を評価せずに `function` に渡して
+	たのを修正。
 
-* 2010-06-10 - version 0.01.00
-	- 作った。公開なう。
+	* :test-function 内で `compute-restart` や `find-restart` した場合に
+	（そいつらが同じ :test-function をまた呼び出すので）無限ループってた
+	のを修正。
+
+	* あちこちコード見直し。
+
+2010-08-06  bowbow99  <bowbow99@gmail.com> -- version 0.01.03
+
+	* assert のメッセージを少しマシにした。
+
+	* 配布物にゴミが混入してたので削除。(thx to @southly)
+
+2010-06-13  bowbow99  <bowbow99@gmail.com> -- version 0.01.02
+
+	* リファレンスの file が間違ってたのを修正した。
+
+	* select-restart-interactively が再帰的に呼ばれたときにウィンドウの
+	サイズがおかしくなってたのを修正したつもり。
+
+	* assert の PLACES が nil のときのメッセージを変更した。
+
+2010-06-10  bowbow99  <bowbow99@gmail.com> -- version 0.01.01
+
+	* 再起動を選択を繰り返したときの画面分割のバグに対処した。
+
+2010-06-10  bowbow99  <bowbow99@gmail.com> -- version 0.01.00
+
+	* 作った。公開なう。
