@@ -58,7 +58,7 @@
 
 (in-package :condition-restart)
 
-(defconstant *version* "0.01.03")
+(defconstant +version+ "0.01.03")
 
 ;;;;
 ;;;; * User Configuration
