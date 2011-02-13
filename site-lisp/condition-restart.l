@@ -39,15 +39,15 @@
               #:continue
               #:muffle-warning
               #:use-value
-              #:store-value))
+              #:store-value
+              ))
           :lisp)
 
-  ;; NOTE: Export `read-value` related symbols from editor package to be
-  ;; visible in most of user code.
+  ;; NOTE: Export `prompt-for` from editor package to be visible from
+  ;; most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
-            '(#:read-value
-              #:*read-value-sexp-reader*
-              #:*read-value-message-printer*))
+            '(#:prompt-for
+              ))
           :editor)
 
   ) ; end of `eval-when`
@@ -59,20 +59,6 @@
 (in-package :condition-restart)
 
 (defconstant +version+ "0.01.03")
-
-;;;;
-;;;; * User Configuration
-
-(defvar ed:*read-value-sexp-reader* 'ed:read-sexp
-  "`ed:read-value` でユーザーから式の入力を受ける関数を指定します。
-関数はプロンプト文字列を受け取り、（ユーザーが入力した）式を返さなければなりません。
-デフォルトは `ed:read-value` です。")
-
-(defvar ed:*read-value-message-printer* 'ed:message
-  "`ed:read-value` で何かあった時にメッセージを表示する関数を指定します。
-`ed:read-value` でエラーなどがあった場合に、フォーマット文字列とその引数が与えられ
-この関数が呼び出されます。
-デフォルトは `ed:message` です。")
 
 
 ;;;;
@@ -381,34 +367,30 @@
                   (apply #'format stream fmt-control args))))))
 
 ;;;;
-;;;; * Function read-value
+;;;; * Function ed:prompt-for
 
-(defun ed:read-value (prompt &optional (predicate (lambda (&rest #:ignore) t)))
-  "Return a value as user answered.
-The way `read-value` ask to user is depend on `*read-sexp-function*`.
-If the sexp user typed in result in an error, user get asked to type again
-until it return normally.
-If `predicate` given, it must be a function which take one argument, the value,
-and return true if the value is suitable. Otherwise, user asked for another
-value.
-User should be allowed to quit somehow (typically, by hittig `C-g`). In that
-case, `read-value` just pass the error `quit` which `*read-sexp-function*` has
-signalled. So the caller of `read-value` should be prepared for error `quit`."
-  (tagbody read-value-toplevel
-    (handler-bind ((error (lambda (e)
-                            (unless (typep e 'quit)
-                              (funcall ed:*read-value-message-printer*
-                                       "エラー: ~A" e)
-                              (go read-value-toplevel)))))
-      (let ((value (eval (funcall ed:*read-value-sexp-reader* prompt))))
-        (if (funcall predicate value)
-          (return-from ed:read-value value)
-          (progn
-            (funcall ed:*read-value-message-printer*
-                     "不正な値です（～S じゃないです）: ~S"
-                     value predicate)
-            (go read-value-toplevel)))))))
-
+;; >>>
+;; 注意事項: 本章中の多くの場所で使用されている関数 prompt-for は、Common
+;; Lisp の一部ではない。表示を容易にするだけの理由で本章の中で使用されてい
+;; るのである。型指定子、任意のフォーマット文字列と、それに関連する引数を
+;; 受け入れることが仮定されている。それは、会話形式の入力促進の一部として
+;; フォーマット文字列と関連する引数を使用し、Lisp オブジェクトを読むために
+;; read を使用する。しかしながら、型指定子に指示された型のオブジェクトだけ
+;; が受け入れられる。
+;; <<< CLtL2 p.774
+(defun ed:prompt-for (typespec prompt-control &rest args)
+  "Ask user a value that is type of TYPESPEC."
+  (labels ((again (fmt &rest margs)
+             (apply #'ed:message fmt margs)
+             (apply #'ed:prompt-for typespec prompt-control args)))
+    (let ((form (ed:read-sexp (apply #'format nil prompt-control args))))
+      (handler-case
+          (let ((value (eval form)))
+            (if (typep value typespec)
+              value
+              (again "`~S' は `~S' ではありません" value typespec)))
+        (error (e)
+          (again "Error: ~A" e))))))
 
 (provide "condition-restart")
 ;;;; condition-restart.l ends here

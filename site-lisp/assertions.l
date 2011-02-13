@@ -83,7 +83,9 @@
                      (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
                        ',places))
            :interactive (lambda ()
-                          (mapcar #'ed:read-value (mapcar #'string ',places)))
+                          (mapcar (lambda (place)
+                                    (prompt-for t "`~S' の値: " place))
+                            ',places))
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
                                `(,place (nth ,(incf i) new-values)))
@@ -106,8 +108,7 @@
              :report (lambda (stream)
                        (format stream "`~S' の値を変更してやり直す。" ',place))
              :interactive (lambda ()
-                            (list (ed:read-value
-                                   (format nil "`~S': " ',place))))
+                            (list (ed:read-value ',typespec "`~S' の値: " ',place)))
              (setf ,place new-value)
              (go #1#)))))))
 

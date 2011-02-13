@@ -52,7 +52,6 @@
 ;;
 
 ;;; TODO:
-;; - abort Ç™ñ≥Ç©Ç¡ÇΩÇÁ quit Ç∆Ç©ÅB
 ;; - CALL STACK
 
 ;;; Code:
