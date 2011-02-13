@@ -169,6 +169,40 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 </chapter>
 
 <chapter>
+<title>再起動の可視性と関連付けについて</title>
+<type>Tips</type>
+<description>
+restart-case などで用意された再起動は以下の2つの条件次第で find-restart
+や compute-restarts で見つけられたり見つけられなかったりします。
+
+1. 再起動の可視性
+restart-case の :test （restart-bind であれば :test-function）に指定され
+た関数によるチェック。
+この関数を、find-restart や compute-restarts で指定されたコンディション
+を引数として与えて呼び出し、nil を返すようであればその再起動は見つけられ
+なくなります。
+
+2. 再起動とコンディションの関連付け
+再起動は with-condition-restarts によって（あるいは restart-case によっ
+て自動的に）特定のコンディションと関連付けることができます。1つの再起動
+を複数のコンディションに関連付けることも、1つのコンディションに複数の再
+起動を関連付けることもできます。
+特定のコンディションに関連付けられた再起動は、関連付けられていないコンデ
+ィションを引数に find-restart や compute-restarts を呼び出した場合には
+見つけられなくなります。
+
+</description>
+<seealso>restart-case</seealso>
+<seealso>with-condition-restart</seealso>
+<seealso>find-restart</seealso>
+<seealos>compute-restarts</seealso>
+<seealso>再起動って何</seealso>
+<link>[CLHS: Section 9.1.4.2.4 Associating a Restart with a Condition] http://www.lispworks.com/documentation/HyperSpec/Body/09_adbd.htm
+<section>エラー</section>
+</chapter>
+
+
+<chapter>
 <title>use-value</title>
 <type>Function</type>
 <arguments>use-value VALUE &amp;optional CONDITION</arguments>
