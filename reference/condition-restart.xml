@@ -343,7 +343,7 @@ muffle-warning 再起動について:
 ※これは condition-restart.l で上書きされた warn の説明です。
 警告（warning コンディション）を投げます。
 
-warn 関数は、警告を投げるときに muffle-warning 再起動を確立しておきます。
+warn 関数は、警告を投げるときに muffle-warning 再起動を用意しておきます。
 この muffle-warning 再起動を起動すると警告を無視することができます。
 
   DATUM, ARGS : 投げる警告を指定します。error 関数を参照してください。
@@ -371,7 +371,7 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を確立�
 回復可能なエラーを投げます。
 
 関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたエラーを投げますが、
-そのときに再起動 continue を確立しておきます。
+そのときに再起動 continue を用意しておきます。
 この continue 再起動を起動すると cerror 式から nil を返して、その後の処理
 を続行させることができます。
 
@@ -475,7 +475,7 @@ IDENTIFIER で指定される再起動を起動します。
 <arguments>compute-restarts &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-現在の環境で確立されている再起動のリストを返します。
+現在の環境で用意されている再起動のリストを返します。
 
   CONDITION : コンディションを指定すると、そのコンディションに対して有効
               な再起動のみのリストを返します。
@@ -496,7 +496,7 @@ IDENTIFIER で指定される再起動を起動します。
 <arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
 <package>lisp</package>
 <description>
-NAME という名前の再起動を確立した環境で FORMS を評価します。
+NAME という名前の再起動を用意した環境で FORMS を評価します。
 この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
 て終了します。
 </description>
