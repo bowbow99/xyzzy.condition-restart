@@ -296,15 +296,22 @@ continue 再起動について:
 <package>lisp</package>
 <description>
 abort 再起動を起動して、処理を中止しようとします。
-もし有効な abort 再起動が見つからなかった場合は、silent-quit を投げて
-処理を中止するかも{{詳細未定}}。
+もし有効な abort 再起動が見つからなかった場合は、quit を投げることで処理
+を中止します。
 
   CONDITION : コンディションを指定すると、そのコンディションに対応した
               abort 再起動を探して起動します。
 
+Common Lisp 処理系では常に abort 再起動が用意されているので、abort 関数
+は abort 再起動を起動することで処理を中止しますが、xyzzy ではそんなもの
+無かったりするので quit エラーを投げて中止します。
+結果として abort 関数は、quit 関数の abort 再起動があれば使うバージョン
+のように振る舞います。
+
 abort 再起動について:
   処理を中止するような再起動です。
 </description>
+<seealso>quit</seealso>
 <seealso>restart-case</seealso>
 <seealso>invoke-restart</seealso>
 <link>[CLHS: Function abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>

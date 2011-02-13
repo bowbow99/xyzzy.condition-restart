@@ -339,7 +339,8 @@
 ;;; - Interface Functions for Standard Restart
 
 (defun abort (&optional condition)
-  (invoke-restart (find-restart 'abort condition)))
+  (let ((r (find-restart 'abort condition)))
+    (if r (invoke-restart r) (quit))))
 
 (defun continue (&optional condition)
   (let ((restart (find-restart 'continue condition)))
