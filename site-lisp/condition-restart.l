@@ -116,7 +116,8 @@
      ,@body))
 
 #+xyzzy
-(setf (get 'restart-bind 'ed:lisp-indent-hook) 1)
+(setf (get 'restart-bind 'ed:lisp-indent-hook) 1
+      (get 'restart-bind 'ed::lisp-indent-flet) t)
 
 ;;; - Macro with-condition-restarts
 
