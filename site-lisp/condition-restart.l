@@ -28,7 +28,7 @@
               #:with-condition-restart
               ;; Restart manipulating functions
               #:restart-name
-              #:compute-restart
+              #:compute-restarts
               #:find-restart
               #:invoke-restart
               #:invoke-restart-interactively
