@@ -625,6 +625,23 @@ restart-case で用意された再起動が起動されると、再起動の本�
                      省略されるとその再起動は全てのコンディションに対して
                      有効になります。
 
+使用例:
+  ;; 再起動 use-value を用意してエラーを投げる関数
+  (defun signaller ()
+    (restart-case
+        (error "No good reason.")
+      (use-value (x)
+        x)))
+  => signaller
+  
+  ;; エラーを捕まえて再起動を起動する
+  (handler-bind
+      ((error (lambda (err)
+                (let ((r (find-restart 'use-value err)))
+                  (when r (invoke-restart r :restarted))))))
+    (signaller))
+  => :restarted
+
 FORM が signal, error, cerror, warn のいずれかで始まる式（か、それに展開
 されマクロ呼び出し）だったら、その restart-case で用意される再起動は勝手
 に投げられるコンディションに関連付けられます。
