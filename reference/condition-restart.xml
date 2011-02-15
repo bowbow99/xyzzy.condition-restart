@@ -651,15 +651,11 @@ restart-case で用意された再起動が起動されると、与えられた�
   => :restarted
 
 
-捕捉1:
+捕捉:
   FORM が error, cerror, warn, signal のいずれかの式（あるいは、それに
   展開されるマクロ呼び出し）だった場合、その restart-case で用意される
   再起動は自動的に FORM が投げるコンディションに関連付けられます。
   参考: with-condition-restarts
-
-捕捉2:
-  restart-case は restart-bind を使って実装されています。
-
 </description>
 <seealso>invoke-restart</seealso>
 <seealso>with-simple-restart</seealso>
@@ -690,26 +686,41 @@ FORM* が何事もなく終了すれば、その値を返します。
                  ...)
     FORM*)
 
-  NAME                 : 再起動の名前（シンボル）です。
-  RESTART-FUNCTION     : 再起動の処理本体です。関数を指定します。
+restart-bind で用意される再起動は（restart-case と違って）、起動されると 
+RESTART-FUNCTION を呼び出すだけで、どこかへ制御を移したりはしません。必
+要に応じて return-form で block からリターンしたり、tagbody や prog でタ
+グを用意しておいて go でジャンプするなどして、適当なところへ制御を移す必
+要があります。
 
-  INTERACTIVE-FUNCTION : invoke-restart-interactively によって対話的に起
-                         動されたときに、RESTART-FUNCTION に与える引数を
-                         取得する関数です。
-                         この関数は引数なしで実行され、RESTART-FUNCTION
-                         に渡す引数のリストを返さなければなりません。
-  REPORT-FUNCTION      : 再起動の概要を出力する関数です。
-                         引数に出力先のストリームを受け取り、その再起動の
-                         概要を出力します。
-  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効
-                         かどうかを判断する関数です。
-                         この関数は引数にコンディションを受け取り、与えら
-                         れたコンディションについてその再起動が有効だった
-                         ら true を返しましょう。
+INTERACTIVE-FUNCTION, REPORT-FUNCTION, TEST-FUNCTION の各関数については、
+指定方法が違うだけで使われ方は restart-case と同じなので、そちらを参照し
+てください。
 
-restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分で
-やらなければなりません（tagbody と go で制御を移すとか）。
-大抵の場合は restart-case の方が便利だと思います。
+捕捉:
+  restart-bind は再起動の基本的な仕組みを提供するだけのマクロなので、た
+  いていの場合は restart-case の方が便利かと思います。
+
+参考:
+  restart-case は restart-bind を使って実装されています。
+
+      (restart-case
+          任意の式
+        (名前 (仮引数)
+          <オプション>
+          本処理..))
+
+  という restart-case 式は、だいたい以下に展開されます。
+
+      (block #1=#:restart-case
+        (let ((#2=#:args nil))
+          (tagbody
+            (restart-bind ((名前 (lambda (&rest temp)
+                                   (setq #2# temp)
+                                   (go #3=#:restart))
+                             <整形したオプション>))
+              (return-from #1# FORM))
+            #3# (return-from #1#
+                  (apply #'(lambda (仮引数) 本処理..) #2#)))))
 </description>
 <seealso>with-simple-restart</seealso>
 <seealso>restart-case</seealso>
