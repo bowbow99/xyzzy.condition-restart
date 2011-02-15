@@ -678,6 +678,10 @@ restart-case で用意された再起動が起動されると、与えられた�
 <description>
 RESTART* で指定された再起動を用意して FORM* を評価します。
 
+FORM* が何事もなく終了すれば、その値を返します。
+もし FORM* の評価中に（エラーが発生して、それを捕らえたハンドラから、な
+ど）再起動が起動されると、再起動の本処理を実行します。
+
   (restart-bind ((NAME RESTART-FUNCTION
                    {:interactive-function INTERACTIVE-FUNCTION}
                    {:report-function REPORT-FUNCTION}
