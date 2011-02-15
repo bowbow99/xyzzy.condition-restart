@@ -673,17 +673,17 @@ restart-case で用意された再起動が起動されると、与えられた�
 <chapter>
 <title>restart-bind</title>
 <type>Macro</type>
-<arguments>restart-bind (&amp;rest RESTARTS) &amp;body BODY</arguments>
+<arguments>restart-bind (RESTART*) FORM*</arguments>
 <package>lisp</package>
 <description>
-再起動を用意して BODY を評価します。
+RESTART* で指定された再起動を用意して FORM* を評価します。
 
   (restart-bind ((NAME RESTART-FUNCTION
                    {:interactive-function INTERACTIVE-FUNCTION}
                    {:report-function REPORT-FUNCTION}
                    {:test-function TEST-FUNCTION})
                  ...)
-    BODY...)
+    FORM*)
 
   NAME                 : 再起動の名前（シンボル）です。
   RESTART-FUNCTION     : 再起動の処理本体です。関数を指定します。
