@@ -642,9 +642,15 @@ restart-case で用意された再起動が起動されると、再起動の本�
     (signaller))
   => :restarted
 
-FORM が signal, error, cerror, warn のいずれかで始まる式（か、それに展開
-されマクロ呼び出し）だったら、その restart-case で用意される再起動は勝手
-に投げられるコンディションに関連付けられます。
+
+捕捉1:
+  FORM が error, cerror, warn, signal のいずれかの式（あるいは、それに
+  展開されるマクロ呼び出し）だった場合、その restart-case で用意される
+  再起動は自動的に FORM が投げるコンディションに関連付けられます。
+  参考: with-condition-restarts
+
+捕捉2:
+  restart-case は restart-bind を使って実装されています。
 
 </description>
 <seealso>invoke-restart</seealso>
