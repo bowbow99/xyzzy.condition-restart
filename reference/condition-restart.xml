@@ -680,7 +680,8 @@ RESTART* で指定された再起動を用意して FORM* を評価します。
 
 FORM* が何事もなく終了すれば、その値を返します。
 もし FORM* の評価中に（エラーが発生して、それを捕らえたハンドラから、な
-ど）再起動が起動されると、再起動の本処理を実行します。
+ど）再起動が起動されると、起動された再起動の RESTART-FUNCTION を呼び出し
+ます。
 
   (restart-bind ((NAME RESTART-FUNCTION
                    {:interactive-function INTERACTIVE-FUNCTION}
