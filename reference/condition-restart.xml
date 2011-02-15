@@ -202,6 +202,11 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
                            (invoke-restart r replacement)))))))
     (my-concat "foo" 'bar "baz"))
   => "foobarbaz"
+
+捕捉:
+  handler-case のハンドラは、エラーを捕まえた時点で途中まで実行した結果
+  （用意された再起動も含む）を捨ててしまうので、ハンドラから再起動を使う
+  場合は handler-bind を使います。
 </description>
 <seealso>restart-case</seealso>
 <seealso>restart-bind</seealso>
