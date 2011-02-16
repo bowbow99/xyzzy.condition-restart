@@ -84,7 +84,7 @@
                        ',places))
            :interactive (lambda ()
                           (mapcar (lambda (place)
-                                    (ed:prompt-for t "`~S' の値: " place))
+                                    (ed:read-value (format nil "`~S' の値: " place)))
                             ',places))
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
@@ -108,7 +108,8 @@
              :report (lambda (stream)
                        (format stream "`~S' の値を変更してやり直す。" ',place))
              :interactive (lambda ()
-                            (list (ed:prompt-for ',typespec "`~S' の値: " ',place)))
+                            (list (ed:read-value (format nil "`~S' の値: " ',place)
+                                                 (typespec+::typepred ,typespec))))
              (setf ,place new-value)
              (go #1#)))))))
 
