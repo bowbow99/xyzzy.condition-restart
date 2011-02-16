@@ -542,27 +542,27 @@ NAME という名前の再起動を用意した環境で FORMS を評価しま�
   で用意した再起動は自動的に投げるエラーに関連付けられます。
 
 使用例:
-(block example
-  (handler-bind
-      ((error (lambda (error)
-                (format t "エラー ~A を捕まえました、以下の再起動が見えます:~%~
-                           ~{  ~A~%~}"
-                  error
-                  (compute-restarts error))
-                (return-from example nil))))
-    (restart-case
-        (let ((E1 (make-condition 'simple-error :format-string "E1")))
-          (with-condition-restarts E1 (list (find-restart 'R1))
-            (restart-case
-                (error "E2")
-              (R2 () "R2"))))
-      (R0 () "R0")
-      (R1 () "R1"))))
-エラー E2 を捕まえました、以下の再起動が見えます:
-  #<restart: R2>
-  #<restart: R0>
-  #<restart: abort>
-=> nil
+  (block example
+    (handler-bind
+        ((error (lambda (error)
+                  (format t "エラー ~A を捕まえました、以下の再起動が見えます:~%~
+                             ~{  ~A~%~}"
+                    error
+                    (compute-restarts error))
+                  (return-from example nil))))
+      (restart-case
+          (let ((E1 (make-condition 'simple-error :format-string "E1")))
+            (with-condition-restarts E1 (list (find-restart 'R1))
+              (restart-case
+                  (error "E2")
+                (R2 () "R2"))))
+        (R0 () "R0")
+        (R1 () "R1"))))
+  エラー E2 を捕まえました、以下の再起動が見えます:
+    #<restart: R2>
+    #<restart: R0>
+    #<restart: abort>
+  => nil
 </description>
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
