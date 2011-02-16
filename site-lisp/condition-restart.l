@@ -25,7 +25,7 @@
               #:restart-case
               #:restart-bind
               #:with-simple-restart
-              #:with-condition-restart
+              #:with-condition-restarts
               ;; Restart manipulating functions
               #:restart-name
               #:compute-restarts
