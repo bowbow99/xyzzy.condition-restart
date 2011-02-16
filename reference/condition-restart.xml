@@ -218,39 +218,6 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 </chapter>
 
 <chapter>
-<title>再起動の可視性と関連付けについて</title>
-<type>Tips</type>
-<description>
-restart-case などで用意された再起動は以下の2つの条件次第で find-restart
-や compute-restarts で見つけられたり見つけられなかったりします。
-
-1. 再起動の可視性
-restart-case の :test （restart-bind であれば :test-function）に指定され
-た関数によるチェック。
-この関数を、find-restart や compute-restarts で指定されたコンディション
-を引数として与えて呼び出し、nil を返すようであればその再起動は見つけられ
-なくなります。
-
-2. 再起動とコンディションの関連付け
-再起動は with-condition-restarts によって（あるいは restart-case によっ
-て自動的に）特定のコンディションと関連付けることができます。1つの再起動
-を複数のコンディションに関連付けることも、1つのコンディションに複数の再
-起動を関連付けることもできます。
-特定のコンディションに関連付けられた再起動は、関連付けられていないコンデ
-ィションを引数に find-restart や compute-restarts を呼び出した場合には
-見つけられなくなります。
-</description>
-<seealso>restart-case</seealso>
-<seealso>with-condition-restart</seealso>
-<seealso>find-restart</seealso>
-<seealos>compute-restarts</seealso>
-<seealso>再起動って何</seealso>
-<link>[CLHS: Section 9.1.4.2.4 Associating a Restart with a Condition] http://www.lispworks.com/documentation/HyperSpec/Body/09_adbd.htm
-<section>エラー</section>
-</chapter>
-
-
-<chapter>
 <title>use-value</title>
 <type>Function</type>
 <arguments>use-value VALUE &amp;optional CONDITION</arguments>
@@ -551,26 +518,51 @@ NAME という名前の再起動を用意した環境で FORMS を評価しま�
 <description>
 再起動とコンディションを関連付けます。
 
-{{関連付けるってなによ}}
+  CONDITION : コンディションオブジェクト（評価されます）
+  RESTARTS  : 再起動のリスト（評価されます）
 
-  CONDITION : 関連付けるコンディションを指定します。
-              コンディションの型ではなくコンディションオブジェクトを指定
-              します。
-  RESTARTS  : 関連付ける再起動のリストを指定します。
+コンディションと関連付けられた再起動は、関連付けられていないコンディショ
+ンを指定して（find-restart や compute-restarts で）再起動を探す場合には
+見えなくなります。
 
+例えば、エラー E1 を投げる時に、エラー E1 に対応する再起動 R1 を用意した
+とします。
+（再起動 R1 がアクティブな状態のまま）全く別のエラー E2 が投げられると、
+エラー E2 を捕まえたハンドラからは再起動 R1 も見えますが、再起動 R1 はエ
+ラー E1 に対応するための再起動なのでエラー E2 には対応できません。
+再起動 R1 とエラー E1 を関連付けておくと、エラー E2 を指定して再起動を探
+したときには再起動 R1 は見えなくなるので、何かの間違いで起動してしまうの
+を防ぐことができます。
 
-find-restart や compute-restarts の引数にコンディションを与えて呼び出すと
-そのコンディションに関連付けられた再起動（とどのコンディションにも関連付け
-られていない再起動）のみを探すことができます。
+注意:
+  どのコンディションにも関連付けられていない再起動は常に見えます。
 
-例えば、いくつか再起動を用意してコンディション FOO が投げられたとします。
-それを捕まえたハンドラが、更にいくつかの再起動を追加で用意して別のコンディ
-ション BAR を投げたとします。
-さらに上位のハンドラがコンディション BAR を捕まえた時点では、上記の全ての
-再起動が有効なままですが、コンディション FOO に関連付けられた再起動は無視
-してコンディション BAR に関連付けられた再起動の中から選んで起動することが
-できたりします。
+捕捉:
+  restart-case で直接エラーやコンディションを投げると、その restart-case 
+  で用意した再起動は自動的に投げるエラーに関連付けられます。
 
+使用例:
+(block example
+  (handler-bind
+      ((error (lambda (error)
+                (format t "エラー ~A を捕まえました、以下の再起動が見えます:~%~
+                           ~{  ~A~%~}"
+                  error
+                  (compute-restarts error))
+                (return-from example nil))))
+    (restart-case
+        (let ((E1 (make-condition 'simple-error :format-string "E1")))
+          (with-condition-restarts E1 (list (find-restart 'R1))
+            (restart-case
+                (error "E2")
+              (R2 () "R2"))))
+      (R0 () "R0")
+      (R1 () "R1"))))
+エラー E2 を捕まえました、以下の再起動が見えます:
+  #<restart: R2>
+  #<restart: R0>
+  #<restart: abort>
+=> nil
 </description>
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
