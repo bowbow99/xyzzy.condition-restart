@@ -46,7 +46,7 @@
   ;; NOTE: Export `prompt-for` from editor package to be visible from
   ;; most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
-            '(#:prompt-for
+            '(
               ))
           :editor)
 
@@ -367,31 +367,6 @@
         :report (lambda (stream)
                   (apply #'format stream fmt-control args))))))
 
-;;;;
-;;;; * Function ed:prompt-for
-
-;; >>>
-;; 注意事項: 本章中の多くの場所で使用されている関数 prompt-for は、Common
-;; Lisp の一部ではない。表示を容易にするだけの理由で本章の中で使用されてい
-;; るのである。型指定子、任意のフォーマット文字列と、それに関連する引数を
-;; 受け入れることが仮定されている。それは、会話形式の入力促進の一部として
-;; フォーマット文字列と関連する引数を使用し、Lisp オブジェクトを読むために
-;; read を使用する。しかしながら、型指定子に指示された型のオブジェクトだけ
-;; が受け入れられる。
-;; <<< CLtL2 p.774
-(defun ed:prompt-for (typespec prompt-control &rest args)
-  "Ask user a value that is type of TYPESPEC."
-  (labels ((again (fmt &rest margs)
-             (apply #'ed:message fmt margs)
-             (apply #'ed:prompt-for typespec prompt-control args)))
-    (let ((form (ed:read-sexp (apply #'format nil prompt-control args))))
-      (handler-case
-          (let ((value (eval form)))
-            (if (typep value typespec)
-              value
-              (again "`~S' は `~S' ではありません" value typespec)))
-        (error (e)
-          (again "Error: ~A" e))))))
 
 (provide "condition-restart")
 ;;;; condition-restart.l ends here
