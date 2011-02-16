@@ -46,7 +46,7 @@
   ;; NOTE: Export `prompt-for` from editor package to be visible from
   ;; most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
-            '(
+            '(#:read-value
               ))
           :editor)
 
@@ -367,6 +367,17 @@
         :report (lambda (stream)
                   (apply #'format stream fmt-control args))))))
 
+;;;;
+;;;; * Function ed:read-value
+
+(defun ed:read-value (prompt)
+  (labels ((again (msg &rest args)
+             (apply #'message msg args)
+             (ed:read-value prompt)))
+    (let ((form (read-sexp prompt)))
+      (handler-case
+          (eval form)
+        (error (e) (again "ÉGÉâÅ[: ~A" e))))))
 
 (provide "condition-restart")
 ;;;; condition-restart.l ends here
