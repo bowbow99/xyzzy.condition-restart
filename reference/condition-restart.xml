@@ -204,7 +204,7 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
   => "foobarbaz"
 
 捕捉:
-  handler-case のハンドラは、エラーを捕まえた時点で途中まで実行した結果
+  handler-case のハンドラは、エラーを捕まえた時点でそれまで実行した結果
   （用意された再起動も含む）を捨ててしまうので、ハンドラから再起動を使う
   場合は handler-bind を使います。
 </description>
@@ -239,7 +239,6 @@ restart-case の :test （restart-bind であれば :test-function）に指定�
 特定のコンディションに関連付けられた再起動は、関連付けられていないコンデ
 ィションを引数に find-restart や compute-restarts を呼び出した場合には
 見つけられなくなります。
-
 </description>
 <seealso>restart-case</seealso>
 <seealso>with-condition-restart</seealso>
