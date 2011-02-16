@@ -84,7 +84,8 @@
                        ',places))
            :interactive (lambda ()
                           (mapcar (lambda (place)
-                                    (ed:read-value (format nil "`~S' の値: " place)))
+                                    (ed:read-value
+                                     (format nil "`~S' の値: " place)))
                             ',places))
            (setf ,@(let ((i -1))
                      (mapcan (lambda (place)
@@ -100,16 +101,17 @@
        (unless ,(typespec+:optimize-type-check '#2# typespec)
          (restart-case
              (error 'si::check-type-error
-                    :place ',place
-                    :datum #2#
-                    :expected-type ',typespec
-                    :string ,string)
+               :place ',place
+               :datum #2#
+               :expected-type ',typespec
+               :string ,string)
            (store-value (new-value)
              :report (lambda (stream)
                        (format stream "`~S' の値を変更してやり直す。" ',place))
              :interactive (lambda ()
-                            (list (ed:read-value (format nil "`~S' の値: " ',place)
-                                                 (typespec+::typepred ,typespec))))
+                            (list (ed:read-value
+                                   (format nil "`~S' の値: " ',place)
+                                   (typespec+::typepred ,typespec))))
              (setf ,place new-value)
              (go #1#)))))))
 
