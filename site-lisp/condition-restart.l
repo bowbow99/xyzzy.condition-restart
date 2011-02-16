@@ -372,9 +372,9 @@
 
 (defun ed:read-value (prompt)
   (labels ((again (msg &rest args)
-             (apply #'message msg args)
+             (apply #'ed:message msg args)
              (ed:read-value prompt)))
-    (let ((form (read-sexp prompt)))
+    (let ((form (ed:read-sexp prompt)))
       (handler-case
           (eval form)
         (error (e) (again "ƒGƒ‰[: ~A" e))))))
