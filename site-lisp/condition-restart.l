@@ -370,13 +370,17 @@
 ;;;;
 ;;;; * Function ed:read-value
 
-(defun ed:read-value (prompt)
+(defun ed:read-value (prompt &optional predicate)
   (labels ((again (msg &rest args)
              (apply #'ed:message msg args)
-             (ed:read-value prompt)))
+             (ed:read-value prompt predicate)))
     (let ((form (ed:read-sexp prompt)))
       (handler-case
-          (eval form)
+          (let ((value (eval form)))
+            (if (or (null predicate)
+                    (funcall predicate value))
+              value
+              (again "不正な値です: ~S: ~S" value predicate)))
         (error (e) (again "エラー: ~A" e))))))
 
 (provide "condition-restart")
