@@ -425,21 +425,16 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 <arguments>find-restart IDENTIFIER &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-指定された再起動を探して返します。見つからなかったら nil を返します。
+現在の環境で有効な再起動の中から、IDENTIFIER で指定された再起動を探して
+見つかればそれを、見つからなければ nil を返します。
 
-  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
-  CONDITION  : コンディションを指定すると、そのコンディションに対して有効
-               な再起動の中から探します。
-               restart-bind の :test-function 参照。
+引数:
+  IDENTIFIER  : シンボルか再起動オブジェクト
+  CONDITION   : コンディションオブジェクト
 
-再起動の有効/無効について:
-  find-restart や compute-restart は restart-bind によって用意された再起動
-  の中から探してきますが、コンディションが指定された場合は以下の条件を満た
-  す再起動のみが有効になります。
-  - TEST-FUNCTION があるなら、TEST-FUNCTION をコンディションを引数に呼び出
-    して true が返る。
-  - 指定されたコンディションに関連付けられているか、どのコンディションにも
-    関連付けられていない。
+IDENTIFIER にシンボルを与えると、そのシンボルを名前として持つ再起動を探
+します。
+同名の再起動が複数あった場合、一番最後に用意された再起動が優先されます。
 </description>
 <seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
@@ -481,10 +476,11 @@ IDENTIFIER で指定される再起動を起動します。
 <arguments>compute-restarts &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-現在の環境で用意されている再起動のリストを返します。
+現在の環境で有効な再起動のリストを返します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対して有効
-              な再起動のみのリストを返します。
+引数:
+  CONDITION : コンディションオブジェクト、あるいは nil
+
 </description>
 <seealso>restart-case</seealso>
 <seealso>restart-bind</seealso>
