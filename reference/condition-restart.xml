@@ -67,40 +67,31 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <file>condition-restart-support.l</file>
 </chapter>
 
-
 <chapter>
-<title>prompt-for</title>
+<title>read-value</title>
 <type>Function</type>
-<arguments>prompt-for  TYPESPEC PROMPT-CONTROL &rest ARGS</arguments>
+<arguments>read-value PROMPT &amp; PREDICATE</arguments>
 <package>editor</package>
 <description>
-ミニバッファにプロンプトを表示してユーザーから値の入力を受け付け、入力
-された値が TYPESPEC の型であればそれを返します。
+ミニバッファにプロンプトを表示して、ユーザーから値の入力を受け付けます。
 
 引数:
-  TYPESPEC       : 受け入れる値の型指定子
-  PROMPT-CONTROL : プロンプト文字列
-                   フォーマットの ~A やらなんやらが使えます。
-  ARGS           : プロンプト文字列への引数
+  PROMPT     : プロンプト文字列
+  PREDICATE  : 値をチェックする関数
 
-プロンプト文字列は PROMPT-CONTROL と ARGS から作られます。フォーマット
-指示子については format を参照してください。
-ユーザーが入力をキャンセル（C-g）した場合は、投げられた quit をそのま
-ま通過させます。
-ユーザーが入力した式を評価する際にエラーが発生した、あるいは評価結果
-（値）が TYPESPEC の型ではなかった場合には、ステータスバーにメッセージ
-を表示してユーザーに再度入力を求めます。
+PREDICATE を指定すると、入力された値が PREDICATE を満たさない場合にはユ
+ーザーに再入力を求めます。
+入力された式を評価する際にエラーが発生した場合も、ユーザーに再入力を求め
+ます。
 
-つまり、prompt-for を呼び出すと結果は次のいずれかになります。
-- TYPESPEC の型である値を返す
-- quit を投げる
-
+例外:
+  ユーザーが入力を途中でキャンセルした場合は、エラー qui を投げて終了し
+  ます。
 </description>
 <seealso>read-sexp</seealso>
 <file>condition-restart.l</file>
 <section>ミニバッファ</section>
 </chapter>
-
 
 <chapter>
 <title>assert</title>
