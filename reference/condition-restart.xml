@@ -105,6 +105,7 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <description>
 TEST-FORM が non-nil に評価されることを確実にします。
 
+引数:
   TEST-FORM   : true を返すはずの任意の式を指定します。
                 1回以上評価されます。
 
