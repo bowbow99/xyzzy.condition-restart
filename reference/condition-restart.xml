@@ -85,7 +85,7 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 ます。
 
 例外:
-  ユーザーが入力を途中でキャンセルした場合は、エラー qui を投げて終了し
+  ユーザーが入力を途中でキャンセルした場合は、エラー quit を投げて終了し
   ます。
 </description>
 <seealso>read-sexp</seealso>
