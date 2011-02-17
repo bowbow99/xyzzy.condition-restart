@@ -44,6 +44,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 -->
 <book>
 
+
 <chapter>
 <title>select-restart-interactively</title>
 <type>Function</type>
@@ -92,6 +93,8 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <file>condition-restart.l</file>
 <section>ミニバッファ</section>
 </chapter>
+
+
 
 <chapter>
 <title>assert</title>
@@ -144,6 +147,8 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 <section>データ型</section>
 <file>condition-restart.l</file>
 </chapter>
+
+
 
 <chapter>
 <title>再起動ってなに</title>
@@ -216,6 +221,8 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 <section>エラー</section>
 <file>condition-restart.l</file>
 </chapter>
+
+
 
 <chapter>
 <title>use-value</title>
@@ -340,6 +347,8 @@ muffle-warning 再起動について:
 <file>condition-restart.l</file>
 </chapter>
 
+
+
 <chapter>
 <title>warn</title>
 <type>Function</type>
@@ -397,30 +406,30 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <file>condition-restart.l</file>
 </chapter>
 
+
+
 <chapter>
-<title>invoke-restart-interactively</title>
+<title>compute-restarts</title>
 <type>Function</type>
-<arguments>invoke-restart-interactively IDENTIFIER</arguments>
+<arguments>compute-restarts &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-再起動を対話的に起動します。
+現在の環境で有効な再起動のリストを返します。
 
-  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
+引数:
+  CONDITION : コンディションオブジェクト、あるいは nil
 
-再起動を invoke-restart-interactively によって起動すると、その再起動の 
-INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
-
-例外:
-  INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
-  がキャンセルするとエラー quit が通知されます。
 </description>
-<seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
+<seealso>restart-bind</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
-<link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
-<section>エラー</section>
+<link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
 <file>condition-restart.l</file>
+<section>エラー</section>
 </chapter>
+
 
 <chapter>
 <title>find-restart</title>
@@ -446,6 +455,33 @@ IDENTIFIER にシンボルを与えると、そのシンボルを名前として
 <file>condition-restart.l</file>
 <section>エラー</section>
 </chapter>
+
+
+<chapter>
+<title>invoke-restart-interactively</title>
+<type>Function</type>
+<arguments>invoke-restart-interactively IDENTIFIER</arguments>
+<package>lisp</package>
+<description>
+再起動を対話的に起動します。
+
+  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
+
+再起動を invoke-restart-interactively によって起動すると、その再起動の 
+INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
+
+例外:
+  INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
+  がキャンセルするとエラー quit が通知されます。
+</description>
+<seealso>restart-bind</seealso>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
+</chapter>
+
 
 <chapter>
 <title>invoke-restart</title>
@@ -473,27 +509,7 @@ IDENTIFIER で指定される再起動を起動します。
 <section>エラー</section>
 </chapter>
 
-<chapter>
-<title>compute-restarts</title>
-<type>Function</type>
-<arguments>compute-restarts &amp;optional CONDITION</arguments>
-<package>lisp</package>
-<description>
-現在の環境で有効な再起動のリストを返します。
 
-引数:
-  CONDITION : コンディションオブジェクト、あるいは nil
-
-</description>
-<seealso>restart-case</seealso>
-<seealso>restart-bind</seealso>
-<seealso>with-simple-restart</seealso>
-<seealso>find-restart</seealso>
-<seealso>invoke-restart</seealso>
-<link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
-<file>condition-restart.l</file>
-<section>エラー</section>
-</chapter>
 
 <chapter>
 <title>with-simple-restart</title>
