@@ -52,6 +52,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <package>editor</package>
 <description>
 対話的に再起動を選んで起動します。
+
 再起動が用意された環境で select-restart-interactively にコンディション
 を与えて実行すると、ウィンドウを分割して与えられたコンディションと有効
 な再起動を表示し、ミニバッファから再起動を選ぶことができます。
@@ -102,20 +103,37 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
 <package>lisp</package>
 <description>
-TEST-FORM が true に評価されることを確実にします。
-
-TEST-FORM が false に評価されると、continue 再起動を用意したうえで DATUM
-と ARGS で指定されたエラーを投げます。
-この continue 再起動を起動すると PLACE* の値をミニバッファで入力した値で
-置き換えてから、assert の最初（TEST-FORM の評価）からやり直します。
+TEST-FORM が non-nil に評価されることを確実にします。
 
   TEST-FORM   : true を返すはずの任意の式を指定します。
                 1回以上評価されます。
+
   PLACE       : continue 再起動を起動したときに置き換える場所（setf 可能
                 な汎変数）を指定します。
+                複数回評価されたり、値を変更されたりする可能性があります。
   DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
                 省略した場合は simple-error が投げられます。
 
+TEST-FORM が nil に評価されると、DATUM と ARGS で指定されたエラー（省略
+された場合は simple-error）を投げます。
+assert は、エラーを投げる際に再起動 continue を用意しておきます。この 
+再起動 continue を起動すると、PLACE* の値を与えられた引数（対話的に起動
+した場合は、各 PLACE の新しい値をミニバッファから入力できます）に変更し
+て、再度 TEST-FORM の評価からやり直します。
+
+使用例:
+  (let ((x 1))
+    (assert (and (integerp x) (evenp x)) (x)
+            "偶数でないとダメです: ~S" x)
+    x)
+  ; エラー:  偶数で無いとダメです: 1
+  ;
+  ; Available Restarts:
+  ;   0 [continue  ] 値を変更してやり直す。(x)
+  ;   1 [abort     ] 評価を中止する。
+  ; > 0
+  ; `x' の値: 2
+  => 2
 </description>
 <seealso>check-type</seealso>
 <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
