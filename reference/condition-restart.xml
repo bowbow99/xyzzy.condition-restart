@@ -115,6 +115,9 @@ TEST-FORM が non-nil に評価されることを確実にします。
   DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
                 省略した場合は simple-error が投げられます。
 
+TEST-FORM を評価しその値が non-nil であれば、assert 式は nil を返して終
+了します。
+
 TEST-FORM が nil に評価されると、DATUM と ARGS で指定されたエラー（省略
 された場合は simple-error）を投げます。
 assert は、エラーを投げる際に再起動 continue を用意しておきます。この 
