@@ -1,3 +1,18 @@
+2011-02-17  bowbow99  <bowbow99@gmail.com>
+
+	* `ed:read-value` 復活。`ed:prompt-for` を削除。
+	CLtL2 にあった `prompt-for` は typespec を利用するので、[typespec+] 
+    や [patch/typespec.l] の有無によって `deftype` で定義された typespec
+    を使えるかどうかが変わってしまう。公開する前提のコードだと、
+    [typespec+] に依存するか、標準の typespec しか使わないか、ということ
+    になってしまってさほど美味しくないので typespec を使うのは却下。
+
+	CLtL2 に書いてある `prompt-for` とは互換性のないインターフェースにな
+    ってしまうので名前も変えておいた。
+
+	  [typespec+]: http://github.com/bowbow99/typespec-plus
+	  [patch/typespec.l]: http://xyzzy.s53.xrea.com/wiki/index.php?patch%2Ftypespec.l
+
 2011-02-13  bowbow99  <bowbow99@gmail.com>
 
 	* `ed:read-value` を `ed:prompt-for` で置き換えた。
