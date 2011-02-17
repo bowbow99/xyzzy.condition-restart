@@ -404,12 +404,15 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <package>lisp</package>
 <description>
 再起動を対話的に起動します。
-invoke-restart-interactively によって起動された再起動は、restart-case の
-:interactive オプションや restart-bind の :interactive-function オプショ
-ンで指定された関数を実行することで、再起動の引数を対話的に取得します。
 
   IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
 
+再起動を invoke-restart-interactively によって起動すると、その再起動の 
+INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
+
+例外:
+  INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
+  がキャンセルするとエラー quit が通知されます。
 </description>
 <seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
