@@ -53,15 +53,19 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <description>
 対話的に再起動を選んで起動します。
 
-再起動が用意された環境で select-restart-interactively にコンディション
-を与えて実行すると、ウィンドウを分割して与えられたコンディションと有効
-な再起動を表示し、ミニバッファから再起動を選ぶことができます。
+ウィンドウを分割して与えられたコンディションと有効な再起動の一覧を表示
+し、ミニバッファでユーザーから起動する再起動の番号の入力を受け付けます。
+ユーザーが再起動を選択すると、選択された再起動を対話的に起動します。
 
 使用例:
-  ;;; ミニバッファで入力した式を評価して、エラーが投げられたら対話的に
-  ;;; 再起動を選ぶ
-  (handler-bind ((error #'ed::select-restart-interactively))
-    (eval (read-sexp "FORM: ")))
+  ;; 簡易 repl
+  (restart-case
+      (handler-bind ((quit 'abort)
+                     (error 'ed:select-restart-interactively))
+        (loop
+          (with-simple-restart (continue "無視して続ける")
+            (message "=> ~S" (eval (read-sexp ">>> "))))))
+    (abort () :report "やめる" (values)))
 </description>
 <seealso></seealso>
 <link></link>
