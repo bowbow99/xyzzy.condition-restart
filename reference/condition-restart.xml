@@ -104,7 +104,7 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <chapter>
 <title>assert</title>
 <type>Macro</type>
-<arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
+<arguments>assert TEST-FORM {(PLACE*) {DATUM ARG*}}</arguments>
 <package>lisp</package>
 <description>
 TEST-FORM が non-nil に評価されることを確実にします。
