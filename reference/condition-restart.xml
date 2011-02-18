@@ -119,15 +119,15 @@ TEST-FORM が non-nil に評価されることを確実にします。
   DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
                 省略した場合は simple-error が投げられます。
 
-TEST-FORM を評価しその値が non-nil であれば、assert 式は nil を返して終
-了します。
+まず TEST-FORM を評価し、その戻り値が non-nil であれば、assert 式は nil 
+を返して終了します。
 
-TEST-FORM が nil に評価されると、DATUM と ARGS で指定されたエラー（省略
-された場合は simple-error）を投げます。
-assert は、エラーを投げる際に再起動 continue を用意しておきます。この 
-再起動 continue を起動すると、PLACE* の値を与えられた引数（対話的に起動
-した場合は、各 PLACE の新しい値をミニバッファから入力できます）に変更し
-て、再度 TEST-FORM の評価からやり直します。
+もし TEST-FORM が nil を返した場合、DATUM と ARG で指定されたエラー（省
+略した場合は simple-error）を投げます。この時、再起動 continue を用意し
+ておきます。
+再起動 continue が起動されると、各 PLACE の値を与えられた引数（対話的に
+起動された場合は、各 PLACE の新しい値をミニバッファから入力できます。）
+に変更し、TEST-FORM の評価からやり直します。
 
 使用例:
   (let ((x 1))
