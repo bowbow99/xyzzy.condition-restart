@@ -534,20 +534,6 @@ IDENTIFIER で指定される再起動を起動します。
 
 
 <chapter>
-<title>with-simple-restart</title>
-<type>Macro</type>
-<arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
-<package>lisp</package>
-<description>
-NAME という名前の再起動を用意した環境で FORMS を評価します。
-この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
-て終了します。
-</description>
-<link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
-<file>condition-restart.l</file>
-</chapter>
-
-<chapter>
 <title>with-condition-restarts</title>
 <type>Macro</type>
 <arguments>with-condition-restarts CONDITION RESTARTS FORM*</arguments>
@@ -606,6 +592,22 @@ NAME という名前の再起動を用意した環境で FORMS を評価しま�
 <seealso>compute-restarts</seealso>
 <link>[CLHS: Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
 <section>エラー</section>
+<file>condition-restart.l</file>
+</chapter>
+
+
+
+<chapter>
+<title>with-simple-restart</title>
+<type>Macro</type>
+<arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
+<package>lisp</package>
+<description>
+NAME という名前の再起動を用意した環境で FORMS を評価します。
+この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
+て終了します。
+</description>
+<link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
 <file>condition-restart.l</file>
 </chapter>
 
