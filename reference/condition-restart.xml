@@ -83,7 +83,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 
 引数:
   PROMPT     : プロンプト文字列
-  PREDICATE  : 値をチェックする関数
+  PREDICATE  : 値をチェックする関数（省略可）
 
 PREDICATE を指定すると、入力された値が PREDICATE を満たさない場合にはユ
 ーザーに再入力を求めます。
