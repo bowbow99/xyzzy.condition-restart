@@ -109,15 +109,19 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <description>
 TEST-FORM が non-nil に評価されることを確実にします。
 
-引数:
-  TEST-FORM   : true を返すはずの任意の式を指定します。
-                1回以上評価されます。
+TEST-FORM    : テストする式
+               この式を評価して nil を返すとエラーを投げます。
+               1回以上評価されます。
 
-  PLACE       : continue 再起動を起動したときに置き換える場所（setf 可能
-                な汎変数）を指定します。
-                複数回評価される可能性があります。
-  DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
-                省略した場合は simple-error が投げられます。
+PLACE        : 再起動 continue から変更する汎変数（省略可）
+               setf 可能な場所を複数指定できます。エラーを投げる度に評価
+               され、再起動から変更されます。
+               省略した場合は、再起動 continue を起動しても何も変更せず
+               に TEST-FORM の評価からやり直します。
+DATUM, ARG*  : 投げるエラー（省略可）
+               関数 error に与えるものと同じです。エラーを投げる度に評価
+               されます。
+               省略した場合は、simple-error を投げます。
 
 まず TEST-FORM を評価し、その戻り値が non-nil であれば、assert 式は nil 
 を返して終了します。
