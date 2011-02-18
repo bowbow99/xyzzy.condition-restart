@@ -146,7 +146,7 @@ assert は、エラーを投げる際に再起動 continue を用意しておき
 <seealso>check-type</seealso>
 <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
 <section>エラー</section>
-<file>condition-restart.l</file>
+<file>assertions.l</file>
 </chapter>
 
 <chapter>
@@ -171,7 +171,7 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 <seealso>deftype</seealso>
 <link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm</link>
 <section>データ型</section>
-<file>condition-restart.l</file>
+<file>assertions.l</file>
 </chapter>
 
 
