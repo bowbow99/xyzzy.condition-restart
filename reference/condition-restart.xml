@@ -134,7 +134,7 @@ TEST-FORM が non-nil に評価されることを確実にします。
     (assert (and (integerp x) (evenp x)) (x)
             "偶数でないとダメです: ~S" x)
     x)
-  ; エラー:  偶数で無いとダメです: 1
+  ; エラー:  偶数でないとダメです: 1
   ;
   ; Available Restarts:
   ;   0 [continue  ] 値を変更してやり直す。(x)
