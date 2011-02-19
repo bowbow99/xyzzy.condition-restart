@@ -497,8 +497,8 @@ CONDITION を与えると、そのコンディションに対して有効な再�
 ※どの再起動が有効なのかについては、関数 find-restart を参照してください。
 </description>
 <seealso>restart-case</seealso>
-<seealso>restart-bind</seealso>
 <seealso>with-simple-restart</seealso>
+<seealso>with-condition-restarts</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
 <link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
@@ -545,9 +545,11 @@ IDENTIFIER に再起動オブジェクトを与えると、その再起動オブ
     けられているか、その再起動はどのコンディションにも関連付けられていな
     いこと
 </description>
-<seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>with-condition-restarts</seealso>
 <seealso>compute-restarts</seealso>
+<seealso>invoke-restart</seealso>
 <link>[CLHS: Function find-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_find_r.htm#find-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
