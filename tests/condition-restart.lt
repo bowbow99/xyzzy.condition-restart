@@ -1,0 +1,112 @@
+;;; -*- mode: lisp; package: test.condition-restart -*-
+;;;
+;;; tests/condition-restart.lt
+;;;
+
+(require "condition-restart")
+(require "lisp-unit")
+(require "typespec+")
+
+(defpackage :test.condition-restart
+  (:use :lisp :lisp-unit :typespec+))
+
+(in-package :test.condition-restart)
+
+(remove-all-tests :test.condition-restart)
+
+;;;;
+;;;; * Utilities
+
+(deftype list-of (element-type)
+  `(and list
+        (satisfies (lambda (x)
+                     (every (typepred ,element-type) x)))))
+
+
+;;;;
+;;;; * restart-bind: Establish, Find, and Invoke Restart
+
+(define-test restart-case-establish-findable-restarts
+  "Macro restart-case establish restarts, and those can be found via
+find-restart and compute-restarts."
+  (let ((restart (restart-case
+                     (find-restart 'foo)
+                   (foo ())
+                   (bar ())
+                   (baz ()))))
+    (assert-true restart)
+    (assert-eql 'foo (restart-name restart)))
+  (let ((restarts (restart-case
+                      (compute-restarts)
+                    (foo ())
+                    (bar ())
+                    (baz ()))))
+    (assert-type (list-of condition-restart::restart) restarts)
+    (assert-true (>= (length restarts) 3))
+    (assert-true (find 'foo restarts :key 'restart-name))
+    (assert-true (find 'bar restarts :key 'restart-name))
+    (assert-true (find 'baz restarts :key 'restart-name))))
+
+
+(define-test restart-is-visible-in-upper-handlers
+  "Restarts are visible from error handlers established in somewhere in
+`upper'."
+  (assert-type
+   condition-restart::restart
+   (block test
+     (handler-bind ((simple-error (lambda (e)
+                                    (return-from test
+                                      (find-restart 'foo)))))
+       (restart-case
+           (error "error")
+         (foo ())))))
+  (assert-type (list-of condition-restart::restart)
+   (block test
+     (handler-bind ((simple-error (lambda (e)
+                                    (return-from test
+                                      (compute-restarts)))))
+       (restart-case
+           (error "error")
+         (foo ())
+         (bar ())
+         (baz ()))))))
+
+
+(define-test restart-case-returns-value-from-form
+  "when FORM returned normally, restart-case returns the value returned
+from FORM."
+  (assert-eql 'foo (restart-case 'foo))
+  (assert-eql 'normal-foo
+      (restart-case 'normal-foo
+        (foo () 'restart-foo)))
+  (assert-eql 'normal-foo
+      (restart-case
+          (progn
+            (find-restart 'foo)
+            'normal-foo)
+        (foo () 'restart-foo))))
+
+
+(define-test restart-case-returns-value-from-restart-body
+  "when restart established by restart-case invoked, restart-case returns
+the values that body of restart returned."
+  (assert-eql 'foo
+      (restart-case
+          (invoke-restart (find-restart 'foo))
+        (foo () 'foo)))
+  (assert-eql 'foo
+      (restart-case
+          (invoke-restart (find-restart 'foo) 'foo)
+        (foo (x) x)))
+  (assert-eql :restarted
+      (restart-case
+          (progn
+            (invoke-restart (find-restart 'foo))
+            :normal-return)
+        (foo () :restarted))))
+
+
+
+
+
+;;; tests/condition-restart.lt ends here.
