@@ -571,8 +571,9 @@ INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
   INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
   がキャンセルするとエラー quit が通知されます。
 </description>
-<seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
 <link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
 <section>エラー</section>
@@ -606,8 +607,10 @@ IDENTIFIER で指定される再起動を起動します。
   指定された再起動が見つからなかった場合は restart-not-found エラーを投
   げます。
 </description>
-<seealso>find-restart</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart-interactively</seealso>
 <link>[CLHS: Function invoke-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_1.htm#invoke-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
