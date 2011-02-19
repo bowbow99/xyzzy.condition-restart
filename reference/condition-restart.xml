@@ -64,7 +64,10 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
                      (error 'ed:select-restart-interactively))
         (loop
           (with-simple-restart (continue "無視して続ける")
-            (message "=> ~S" (eval (read-sexp ">>> "))))))
+            (let* ((prompt (format nil "~A&gt; " (package-name *package*)))
+                   (form   (read-sexp prompt))
+                   (value  (eval form)))
+              (message "=&gt; ~S" value)))))
     (abort () :report "やめる" (values)))
 </description>
 <seealso></seealso>
@@ -143,9 +146,9 @@ TEST-FORM が non-nil に評価されることを確実にします。
   ; Available Restarts:
   ;   0 [continue  ] 値を変更してやり直す。(x)
   ;   1 [abort     ] 評価を中止する。
-  ; > 0
+  ; &gt; 0
   ; `x' の値: 2
-  => 2
+  =&gt; 2
 </description>
 <seealso>check-type</seealso>
 <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
@@ -189,9 +192,9 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
   ; Available Restarts
   ;   0 [store-value] `x' の値を変更してやり直す。
   ;   1 [abort     ] 評価を中止する。
-  ; > 0
+  ; &gt; 0
   ; `x' の値: 3
-  => 3
+  =&gt; 3
 </description>
 <seealso>assert</seealso>
 <seealso>typep</seealso>
@@ -232,15 +235,15 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
                    (use-value (new-x)
                      :report "他の文字列を使う"
                      :interactive (lambda ()
-                                    (list (prompt-for 'string "string> ")))
+                                    (list (prompt-for 'string "string&gt; ")))
                      (ensure-string new-x))))))
       (apply #'concat (mapcar #'ensure-string strings))))
-  => my-concat
+  =&gt; my-concat
   
   ;; ハンドラなしだとエラーで終了。（condition-restart-support とか使って
   ;; ると再起動を選んで起動できたりします。）
   (my-concat "foo" 'bar "baz")
-  >> 不正なデータ型です: bar: string
+  &gt;&gt; 不正なデータ型です: bar: string
   
   ;; ハンドラから、不正な引数は無視させる
   (handler-bind
@@ -248,7 +251,7 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
                      (let ((r (find-restart 'ignore err)))
                        (when r (invoke-restart r))))))
     (my-concat "foo" 'bar "baz"))
-  => "foobaz"
+  =&gt; "foobaz"
   
   ;; ハンドラから、不正な引数は princ 出力の文字列に変換させる
   (handler-bind
@@ -259,7 +262,7 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
                                  (princ-to-string (type-error-datum err))))
                            (invoke-restart r replacement)))))))
     (my-concat "foo" 'bar "baz"))
-  => "foobarbaz"
+  =&gt; "foobarbaz"
 
 捕捉:
   handler-case のハンドラは、エラーを捕まえた時点でそれまで実行した結果
