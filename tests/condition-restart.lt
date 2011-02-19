@@ -109,6 +109,7 @@ the values that body of restart returned."
 ;;;; * Restart visibility (TEST-FUNCTION)
 
 (define-test restart-visibility-by-test-function
+  "If TEST-FUNCTION returns nil, the restart can not be found."
   (assert-type condition-restart::restart
                (restart-case
                    (find-restart 'foo)
