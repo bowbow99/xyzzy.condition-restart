@@ -105,8 +105,32 @@ the values that body of restart returned."
             :normal-return)
         (foo () :restarted))))
 
+;;;;
+;;;; * Restart visibility (TEST-FUNCTION)
 
-
+(define-test restart-visibility-by-test-function
+  (assert-type condition-restart::restart
+               (restart-case
+                   (find-restart 'foo)
+                 (foo ()
+                   :test (lambda (condition) t))))
+  (assert-type null
+               (restart-case
+                   (find-restart 'foo)
+                 (foo ()
+                   :test (lambda (condition) nil))))
+  (assert-type condition-restart::restart
+               (let ((w (make-condition 'simple-warning)))
+                 (restart-case
+                     (find-restart 'foo w)
+                   (foo ()
+                     :test (lambda (condition) (eql condition w))))))
+  (assert-type null
+               (let ((w (make-condition 'simple-warning)))
+                 (restart-case
+                     (find-restart 'foo)
+                   (foo ()
+                     :test (lambda (condition) (eql condition w)))))))
 
 
 ;;; tests/condition-restart.lt ends here.
