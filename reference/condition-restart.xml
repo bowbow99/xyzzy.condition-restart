@@ -240,8 +240,8 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
       (apply #'concat (mapcar #'ensure-string strings))))
   =&gt; my-concat
   
-  ;; ハンドラなしだとエラーで終了。（condition-restart-support とか使って
-  ;; ると再起動を選んで起動できたりします。）
+  ;; ハンドラなしだとエラーで終了。（condition-restart-support とか使っ
+  ;; てると再起動を選んで起動できたりします。）
   (my-concat "foo" 'bar "baz")
   &gt;&gt; 不正なデータ型です: bar: string
   
@@ -289,14 +289,14 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
 use-value 再起動を起動して、そのときだけ VALUE を使って処理を続行します。
 
   VALUE     : その時だけ使う値
-  CONDITION : コンディションを指定すると、そのコンディションに対して
-              有効な use-value 再起動を探して起動します。（省略可）
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な use-value 再起動を探して起動します。（省略可）
 
 もし有効な use-value 再起動が見つからなければ nil を返します。
 
 use-value 再起動について:
-  変数の値がおかしかったりした場合に、そのときだけ代わりの値を使って処
-  理を続行するような再起動です。
+  変数の値がおかしかったりした場合に、そのときだけ代わりの値を使って処理
+  を続行するような再起動です。
   ※変数などの値を変更する場合は store-value 再起動を使います。
 </description>
 <seealso>store-value</seealso>
@@ -316,8 +316,8 @@ store-value 再起動を起動して、変数などの値を NEW-VALUE に変更
 処理を続行します。
 
   NEW-VALUE : 変数などの新しい値
-  CONDITION : コンディションを指定すると、そのコンディションに対して有
-              効な store-value 再起動を探して起動します。（省略可）
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な store-value 再起動を探して起動します。（省略可）
 
 もし有効な store-value 再起動が見つからなければ nil を返します。
 
@@ -341,14 +341,15 @@ store-value 再起動について:
 <description>
 continue 再起動を起動して、処理を続行します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対して有
-              効な continue 再起動を探して起動します。（省略可）
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な continue 再起動を探して起動します。（省略可）
 
 もし有効な continue 再起動が見つからなければ nil を返します。
 
 continue 再起動について:
   単純に処理を続行するような再起動です。
-  ※警告（warning コンディション）を無視する場合は muffle-warning 再起動を使います。
+  ※警告（warning コンディション）を無視する場合は muffle-warning 再起動
+  を使います。
 </description>
 <seealso>restart-case</seealso>
 <seealso>abort</seealso>
@@ -370,15 +371,15 @@ continue 再起動について:
 <description>
 abort 再起動を起動して、処理を中止します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対して有
-              効な abort 再起動を探して起動します。（省略可）
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な abort 再起動を探して起動します。（省略可）
 
-もし有効な abort 再起動が見つからなければ、エラー quit を投げて処理を
-中止します。
+もし有効な abort 再起動が見つからなければ、エラー quit を投げて処理を中
+止します。
 
 注意:
   abort 再起動が見つからなかった場合の挙動は Common Lisp とは違います。
-  （Common Lisp の関数 abort は、abort 再起動が見つからなかった場合は
+  （Common Lisp の関数 abort は、abort 再起動が見つからなかった場合は、
   エラー program-error を投げることになっています。）
 
 abort 再起動について:
