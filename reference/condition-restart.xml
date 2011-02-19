@@ -70,7 +70,9 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
               (message "=&gt; ~S" value)))))
     (abort () :report "やめる" (values)))
 </description>
-<seealso></seealso>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart-interactively</seealso>
+<seealso>再起動ってなに</seealso>
 <link></link>
 <section>エラー</section>
 <file>condition-restart-support.l</file>
@@ -270,9 +272,8 @@ PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して
   場合は handler-bind を使います。
 </description>
 <seealso>restart-case</seealso>
-<seealso>restart-bind</seealso>
-<seealso>invoke-restart</seealso>
 <seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
 <seealso>handler-bind</seealso>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -299,7 +300,10 @@ use-value 再起動について:
   を続行するような再起動です。
   ※変数などの値を変更する場合は store-value 再起動を使います。
 </description>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
 <seealso>store-value</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#use-value</link>
 <link>[CLHS: Restart use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_use_va.htm</link>
 <section>エラー</section>
@@ -325,8 +329,10 @@ store-value 再起動について:
   変数などの値を変更して処理を続行するような再起動です。
   ※一時的に他の値を使う場合は use-value 再起動を使います。
 </description>
+<seealso>restart-case</seealso>
 <seealso>use-value</seealso>
-<seealso>check-type</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#store-value</link>
 <link>[CLHS: Restart store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_store_.htm</link>
 <section>エラー</section>
@@ -352,11 +358,10 @@ continue 再起動について:
   を使います。
 </description>
 <seealso>restart-case</seealso>
+<seealso>cerror</seealso>
 <seealso>abort</seealso>
-<seealso>muffle-warning</seealso>
-<seealso>store-value</seealso>
-<seealso>use-value</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#continue</link>
 <link>[CLHS: Restart continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_contin.htm</link>
 <section>エラー</section>
@@ -388,6 +393,7 @@ abort 再起動について:
 <seealso>quit</seealso>
 <seealso>restart-case</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
 <link>[CLHS: Restart abort] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_abort.htm</link>
 <section>エラー</section>
@@ -411,7 +417,9 @@ muffle-warning 再起動を起動して、警告を無視します。
 muffle-warning 再起動について:
   警告を無視する再起動です。warn 関数を参照してください。
 </description>
-<seealso></seealso>
+<seealso>warn</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#muffle-warning</link>
 <link>[CLHS: Restart muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_muffle.htm</link>
 <section>エラー</section>
@@ -444,7 +452,6 @@ warn 関数は、警告を投げるときに再起動 muffle-warning を用意�
 処理を中止したりはせず、warn 式からは nil が返ります。
 </description>
 <seealso>error</seealso>
-<seealso>signal</seealso>
 <seealso>muffle-warning</seealso>
 <link>[CLHS: Function warn] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_warn.htm</link>
 <section>エラー</section>
@@ -473,6 +480,8 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 </description>
 <seealso>signal</seealso>
 <seealso>error</seealso>
+<seealso>continue</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function cerror] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_cerror.htm#cerror</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -498,6 +507,7 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <seealso>with-condition-restarts</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
@@ -545,6 +555,7 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <seealso>with-condition-restarts</seealso>
 <seealso>compute-restarts</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function find-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_find_r.htm#find-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
@@ -575,6 +586,7 @@ INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
 <seealso>with-simple-restart</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -611,6 +623,7 @@ IDENTIFIER で指定される再起動を起動します。
 <seealso>with-simple-restart</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart-interactively</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function invoke-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_1.htm#invoke-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
@@ -675,6 +688,7 @@ IDENTIFIER で指定される再起動を起動します。
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
 <seealso>compute-restarts</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -707,6 +721,7 @@ FMT-CONTROL と FMT-ARGUMENT* は再起動の概要を出力するのに使用�
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
 <file>condition-restart.l</file>
 </chapter>
@@ -799,6 +814,7 @@ restart-case で用意された再起動が起動されると、与えられた�
 <seealso>with-simple-restart</seealso>
 <seealso>restart-bind</seealso>
 <seealso>with-condition-restarts</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function restart-case] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_ca.htm</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -842,6 +858,7 @@ INTERACTIVE-FUNCTION, REPORT-FUNCTION, TEST-FUNCTION の各関数については
 <seealso>find-restart</seealso>
 <seealso>compute-restarts</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Macro restart-bind] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_bi.htm</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
