@@ -133,5 +133,27 @@ the values that body of restart returned."
                    (foo ()
                      :test (lambda (condition) (eql condition w)))))))
 
+;;;;
+;;;; * Restart visibility (Active or not)
+
+(define-test restart-visibility-by-active-or-not
+  "If restart is not active, it can not be found.
+In other words, restart can be found only in the form that estalbish the restart."
+  (assert-eql nil
+      (progn
+        (restart-case t
+          (foo ()))
+        (find-restart 'foo)))
+  (assert-eql nil
+      (prog1
+          (find-restart 'foo)
+        (restart-case t
+          (foo ()))))
+  (assert-eql nil
+      (let ((restart (restart-case
+                         (find-restart 'foo)
+                       (foo ()))))
+        (find-restart restart))))
+
 
 ;;; tests/condition-restart.lt ends here.
