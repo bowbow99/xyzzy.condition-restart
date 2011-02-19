@@ -559,12 +559,15 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <description>
 再起動を対話的に起動します。
 
-  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
+  IDENTIFIER : 再起動オブジェクトか再起動の名前（シンボル）
 
 再起動を invoke-restart-interactively によって起動すると、その再起動の 
 INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
 
 例外:
+  指定された再起動が見つからなかった場合は restart-not-found エラーを投
+  げます。
+
   INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
   がキャンセルするとエラー quit が通知されます。
 </description>
@@ -588,9 +591,6 @@ IDENTIFIER で指定される再起動を起動します。
   IDENTIFIER : 再起動オブジェクトか再起動の名前（シンボル）
   ARGUMENTS  : 再起動に渡す引数があれば。
 
-指定された再起動が見つからなかった場合は restart-not-found エラーを投げ
-ます。
-
 通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動する
 と制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値
 を返した）場合、invoke-restart は再起動が返した値をそのまま返します。
@@ -601,6 +601,10 @@ IDENTIFIER で指定される再起動を起動します。
   う場合があります。
   コンディションを全く考慮する必要がない場合を除いて、関数 find-restart 
   で取得した再起動を使った方が良いかと思います。
+
+例外:
+  指定された再起動が見つからなかった場合は restart-not-found エラーを投
+  げます。
 </description>
 <seealso>find-restart</seealso>
 <seealso>restart-case</seealso>
