@@ -429,16 +429,19 @@ muffle-warning 再起動について:
 ※これは condition-restart.l で上書きされた warn の説明です。
 警告（warning コンディション）を投げます。
 
-warn 関数は、警告を投げるときに muffle-warning 再起動を用意しておきます。
-この muffle-warning 再起動を起動すると警告を無視することができます。
+warn 関数は、警告を投げるときに再起動 muffle-warning を用意しておきま
+す。この再起動 muffle-warning を起動すると警告を無視することができます。
 
-  DATUM, ARGS : 投げる警告を指定します。error 関数を参照してください。
+  DATUM, ARGS : 投げる警告を指定します。
+                指定方法は関数 error と同様ですが、指定されるコンディ
+                ションは warning コンディション（あるいはそのサブタイ
+                プ）でなければなりません。
                 DATUM にフォーマット文字列を指定した場合は、simple-warning
                 を投げます。
 
-投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy は
-警告音を鳴らしたりします（共通設定-&gt;いろいろ で設定できます）が、処理
-を中止したりはせず、warn 式からは nil が返ります。
+投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy 
+は警告音を鳴らしたりします（共通設定-&gt;いろいろ で設定できます）が、
+処理を中止したりはせず、warn 式からは nil が返ります。
 </description>
 <seealso>error</seealso>
 <seealso>signal</seealso>
