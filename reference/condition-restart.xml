@@ -823,34 +823,11 @@ RESTART-FUNCTION を呼び出すだけで、どこかへ制御を移したりは
 要があります。
 
 INTERACTIVE-FUNCTION, REPORT-FUNCTION, TEST-FUNCTION の各関数については、
-指定方法が違うだけで使われ方は restart-case と同じなので、そちらを参照し
-てください。
+指定方法が違うだけで使われ方は restart-case と同じです。
 
 捕捉:
   restart-bind は再起動の基本的な仕組みを提供するだけのマクロなので、た
   いていの場合は restart-case の方が便利かと思います。
-
-参考:
-  restart-case は restart-bind を使って実装されています。
-
-      (restart-case
-          任意の式
-        (名前 (仮引数)
-          <オプション>
-          本処理..))
-
-  という restart-case 式は、だいたい以下に展開されます。
-
-      (block #1=#:restart-case
-        (let ((#2=#:args nil))
-          (tagbody
-            (restart-bind ((名前 (lambda (&rest temp)
-                                   (setq #2# temp)
-                                   (go #3=#:restart))
-                             <整形したオプション>))
-              (return-from #1# FORM))
-            #3# (return-from #1#
-                  (apply #'(lambda (仮引数) 本処理..) #2#)))))
 </description>
 <seealso>with-simple-restart</seealso>
 <seealso>restart-case</seealso>
