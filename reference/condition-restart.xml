@@ -685,13 +685,28 @@ IDENTIFIER で指定される再起動を起動します。
 <chapter>
 <title>with-simple-restart</title>
 <type>Macro</type>
-<arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
+<arguments>with-simple-restart (NAME FMT-CONTROL FMT-ARGUMENTS*) FORM*</arguments>
 <package>lisp</package>
 <description>
-NAME という名前の再起動を用意した環境で FORMS を評価します。
-この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
-て終了します。
+NAME という名前の再起動を用意して FORM* を評価します。
+
+FORM* の評価が何事もなく終了すればその値を返します。
+もし FORM* の評価中に（エラーが発生して、それを捕らえたハンドラなどから）
+with-simple-restart の用意した再起動が起動されると、with-simple-restart 
+式から多値で nil と t を返します。
+
+引数:
+  NAME         : 再起動の名前（シンボル）
+  FMT-CONTROL  : 再起動の概要を作るフォーマット文字列
+  FMT-ARGUMENT : FMT-CONTROL への引数
+  FORM         : 任意の式
+
+FMT-CONTROL と FMT-ARGUMENT* は再起動の概要を出力するのに使用されます。
+（出力する度に評価されます。）
 </description>
+<seealso>restart-case</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
 <link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
 <file>condition-restart.l</file>
 </chapter>
