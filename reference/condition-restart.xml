@@ -829,8 +829,10 @@ INTERACTIVE-FUNCTION, REPORT-FUNCTION, TEST-FUNCTION の各関数については
   restart-bind は再起動の基本的な仕組みを提供するだけのマクロなので、た
   いていの場合は restart-case の方が便利かと思います。
 </description>
-<seealso>with-simple-restart</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>compute-restarts</seealso>
 <seealso>invoke-restart</seealso>
 <link>[CLHS: Macro restart-bind] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_bi.htm</link>
 <section>エラー</section>
