@@ -24,7 +24,7 @@
 
 
 ;;;;
-;;;; * restart-bind: Establish, Find, and Invoke Restart
+;;;; * restart-case
 
 (define-test restart-case-establish-findable-restarts
   "Macro restart-case establish restarts, and those can be found via
@@ -104,6 +104,35 @@ the values that body of restart returned."
             (invoke-restart (find-restart 'foo))
             :normal-return)
         (foo () :restarted))))
+
+
+;;;;
+;;;; * Restart-bind:
+
+(define-test restart-bind-return-what-forms-returned
+  (assert-eql 3 (restart-bind () (+ 1 2)))
+  (assert-eql :foo (restart-bind () :foo))
+  (assert-eql nil (restart-bind ()))
+  (assert-eql nil (restart-bind () nil)))
+
+(define-test restart-bind-doesnt-stop-error
+  (assert-error 'type-error (restart-bind () (error 'type-error :datum 3 :expected-type 'string)))
+  (assert-error 'division-by-zero (restart-bind () (/ 1 0))))
+
+(define-test restart-bind-establish-findable-restarts
+  (let ((restart (restart-bind ((foo (lambda () :foo)))
+                   (find-restart 'foo))))
+    (assert-type condition-restart::restart restart)
+    (assert-eql 'foo (restart-name restart)))
+  (let ((restarts (restart-bind ((foo (lambda () :foo))
+                                 (bar (lambda () :bar))
+                                 (baz (lambda () :baz)))
+                    (compute-restarts))))
+    (assert-type (list-of condition-restart::restart) restarts)
+    (assert-true (find 'foo restarts :key 'restart-name))
+    (assert-true (find 'bar restarts :key 'restart-name))
+    (assert-true (find 'baz restarts :key 'restart-name))))
+
 
 ;;;;
 ;;;; * Restart visibility (TEST-FUNCTION)
