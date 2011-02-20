@@ -41,7 +41,7 @@ find-restart and compute-restarts."
                     (foo ())
                     (bar ())
                     (baz ()))))
-    (assert-type (list-of condition-restart::restart) restarts)
+    (assert-type (list-of restart) restarts)
     (assert-true (>= (length restarts) 3))
     (assert-true (find 'foo restarts :key 'restart-name))
     (assert-true (find 'bar restarts :key 'restart-name))
@@ -52,7 +52,7 @@ find-restart and compute-restarts."
   "Restarts are visible from error handlers established in somewhere in
 `upper'."
   (assert-type
-   condition-restart::restart
+   restart
    (block test
      (handler-bind ((simple-error (lambda (e)
                                     (return-from test
@@ -60,7 +60,7 @@ find-restart and compute-restarts."
        (restart-case
            (error "error")
          (foo ())))))
-  (assert-type (list-of condition-restart::restart)
+  (assert-type (list-of restart)
    (block test
      (handler-bind ((simple-error (lambda (e)
                                     (return-from test
@@ -122,13 +122,13 @@ the values that body of restart returned."
 (define-test restart-bind-establish-findable-restarts
   (let ((restart (restart-bind ((foo (lambda () :foo)))
                    (find-restart 'foo))))
-    (assert-type condition-restart::restart restart)
+    (assert-type restart restart)
     (assert-eql 'foo (restart-name restart)))
   (let ((restarts (restart-bind ((foo (lambda () :foo))
                                  (bar (lambda () :bar))
                                  (baz (lambda () :baz)))
                     (compute-restarts))))
-    (assert-type (list-of condition-restart::restart) restarts)
+    (assert-type (list-of restart) restarts)
     (assert-true (find 'foo restarts :key 'restart-name))
     (assert-true (find 'bar restarts :key 'restart-name))
     (assert-true (find 'baz restarts :key 'restart-name))))
@@ -153,7 +153,7 @@ the values that body of restart returned."
 
 (define-test restart-visibility-by-test-function
   "If TEST-FUNCTION returns nil, the restart can not be found."
-  (assert-type condition-restart::restart
+  (assert-type restart
                (restart-case
                    (find-restart 'foo)
                  (foo ()
@@ -163,7 +163,7 @@ the values that body of restart returned."
                    (find-restart 'foo)
                  (foo ()
                    :test (lambda (condition) nil))))
-  (assert-type condition-restart::restart
+  (assert-type restart
                (let ((w (make-condition 'simple-warning)))
                  (restart-case
                      (find-restart 'foo w)
@@ -210,17 +210,17 @@ for conditions those aren't associated with the restart."
         (with-condition-restarts c1 (list (find-restart 'foo))
           (with-condition-restarts c2 (list (find-restart 'bar))
             ;; for no condition
-            (assert-type condition-restart::restart (find-restart 'foo))
-            (assert-type condition-restart::restart (find-restart 'bar))
-            (assert-type condition-restart::restart (find-restart 'baz))
+            (assert-type restart (find-restart 'foo))
+            (assert-type restart (find-restart 'bar))
+            (assert-type restart (find-restart 'baz))
             ;; for c1
-            (assert-type condition-restart::restart (find-restart 'foo c1))
+            (assert-type restart (find-restart 'foo c1))
             (assert-eql  nil (find-restart 'bar c1))
-            (assert-type condition-restart::restart (find-restart 'baz))
+            (assert-type restart (find-restart 'baz))
             ;; for c2
             (assert-eql nil (find-restart 'foo c2))
-            (assert-type condition-restart::restart (find-restart 'bar c2))
-            (assert-type condition-restart::restart (find-restart 'baz))))
+            (assert-type restart (find-restart 'bar c2))
+            (assert-type restart (find-restart 'baz))))
       (foo ())
       (bar ())
       (baz ()))))
@@ -241,12 +241,12 @@ to the condition to be signalled."
                           (error ,error)
                         (foo ()))))))
       ;; signal `c1` == not visible for `c2`
-      (assert-type condition-restart::restart (find-restart-foo c1))
-      (assert-type condition-restart::restart (find-restart-foo c1 c1))
+      (assert-type restart (find-restart-foo c1))
+      (assert-type restart (find-restart-foo c1 c1))
       (assert-eql nil (find-restart-foo c1 c2))
       ;; signal `c2` == not visible for `c1`
-      (assert-type condition-restart::restart (find-restart-foo c2))
+      (assert-type restart (find-restart-foo c2))
       (assert-eql nil (find-restart-foo c2 c1))
-      (assert-type condition-restart::restart (find-restart-foo c2 c2)))))
+      (assert-type restart (find-restart-foo c2 c2)))))
 
 ;;; tests/condition-restart.lt ends here.
