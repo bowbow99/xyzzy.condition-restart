@@ -281,4 +281,57 @@ to the condition to be signalled."
   (assert-error 'simple-warning
       (warn "Hey")))
 
+;;;;
+;;;; * Restart Invoking Functions: abort
+
+(define-test abort-invokes-restart-abort
+  (assert-eql :aborted
+      (restart-case
+          (abort)
+        (abort () :aborted)))
+  (assert-eql :inner-abort
+      (restart-case
+          (restart-case
+              (abort)
+            (abort () :inner-abort))
+        (abort () :outer-abort))))
+
+;; FIXME: this test finds and invokes restart `abort` that established outside
+;; of the test itself (typically, the one established by read-eval-print-loop).
+;; As a result, entire execution of test(s) will be aborted.
+;(define-test abort-signals-quit-if-no-restart-abort
+;  (assert-error 'quit (abort)))
+
+(define-test abort-uses-condition-to-find-restart-abort
+  (with-condition-restarts
+      ;; NOTE: To prevent restart `abort` that established outside of this test
+      ;; be found and invoked, associate them with one-time condition so they
+      ;; never be visible for other conditions.
+      (make-condition 'simple-error)
+      (remove 'abort (compute-restarts nil) :test-not 'eql :key 'restart-name)
+    (let ((c1 (make-condition 'simple-error))
+          (c2 (make-condition 'simple-error)))
+      ;; Restart abort is associated with c1, and not with c2
+      (assert-eql :aborted
+          (restart-case
+              (with-condition-restarts c1 (list (find-restart 'abort))
+                (abort c1))
+            (abort () :aborted)))
+      (assert-error 'quit
+          (restart-case
+              (with-condition-restarts c1 (list (find-restart 'abort))
+                (abort c2))
+            (abort () :aborted)))
+      ;; Restart abort is associated with c2, and not with c1
+      (assert-error 'quit
+          (restart-case
+              (with-condition-restarts c2 (list (find-restart 'abort))
+                (abort c1))
+            (abort () :aborted)))
+      (assert-eql :aborted
+          (restart-case
+              (with-condition-restarts c2 (list (find-restart 'abort))
+                (abort c2))
+            (abort () :aborted))))))
+
 ;;; tests/condition-restart.lt ends here.
