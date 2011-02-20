@@ -155,5 +155,32 @@ In other words, restart can be found only in the form that estalbish the restart
                        (foo ()))))
         (find-restart restart))))
 
+;;;;
+;;;; * Restart visibility (Association)
+
+(define-test restart-visibility-by-association
+  "If restart is associated with one or more conditions, they can not be found
+for conditions those aren't associated with the restart."
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (restart-case
+        (with-condition-restarts c1 (list (find-restart 'foo))
+          (with-condition-restarts c2 (list (find-restart 'bar))
+            ;; for no condition
+            (assert-type condition-restart::restart (find-restart 'foo))
+            (assert-type condition-restart::restart (find-restart 'bar))
+            (assert-type condition-restart::restart (find-restart 'baz))
+            ;; for c1
+            (assert-type condition-restart::restart (find-restart 'foo c1))
+            (assert-eql  nil (find-restart 'bar c1))
+            (assert-type condition-restart::restart (find-restart 'baz))
+            ;; for c2
+            (assert-eql nil (find-restart 'foo c2))
+            (assert-type condition-restart::restart (find-restart 'bar c2))
+            (assert-type condition-restart::restart (find-restart 'baz))))
+      (foo ())
+      (bar ())
+      (baz ()))))
+
 
 ;;; tests/condition-restart.lt ends here.
