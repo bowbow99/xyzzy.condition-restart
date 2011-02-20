@@ -1,3 +1,8 @@
+2011-02-21  bowbow99  <bowbow99@gmail.com>
+
+	* シンボル `restart` を typespec として使えるように、パッケージ lisp
+	から export しておいた。
+
 2011-02-17  bowbow99  <bowbow99@gmail.com>
 
 	* `ed:read-value` 復活。`ed:prompt-for` を削除。
