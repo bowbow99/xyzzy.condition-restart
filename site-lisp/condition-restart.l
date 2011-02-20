@@ -40,6 +40,8 @@
               #:muffle-warning
               #:use-value
               #:store-value
+              ;; as a typespec
+              #:restart
               ))
           :lisp)
 
