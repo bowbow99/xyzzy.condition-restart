@@ -133,6 +133,20 @@ the values that body of restart returned."
     (assert-true (find 'bar restarts :key 'restart-name))
     (assert-true (find 'baz restarts :key 'restart-name))))
 
+(define-test restart-via-restart-bind-does-not-transfer-control
+  (assert-eql :normal-return
+      (restart-bind ((foo (lambda () :restart-return)))
+        (invoke-restart (find-restart 'foo))
+        :normal-return))
+  (let ((executed-p nil))
+    (assert-eql :normal-return
+        (restart-bind ((foo (lambda ()
+                              (setf executed-p t)
+                              :restart-return)))
+          (invoke-restart (find-restart 'foo))
+          :normal-return))
+    (assert-true executed-p)))
+
 
 ;;;;
 ;;;; * Restart visibility (TEST-FUNCTION)
