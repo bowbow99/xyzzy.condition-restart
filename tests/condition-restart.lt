@@ -248,4 +248,17 @@ to the condition to be signalled."
       (assert-eql nil (find-restart-foo c2 c1))
       (assert-type restart (find-restart-foo c2 c2)))))
 
+
+;;;;
+;;;; * Function warn
+
+(define-test warn-establish-muffle-warning-restart
+  (assert-type restart
+      (block test
+        (handler-bind
+            ((warning (lambda (w)
+                        (return-from test
+                          (find-restart 'muffle-warning w)))))
+          (warn "Hey")))))
+
 ;;; tests/condition-restart.lt ends here.
