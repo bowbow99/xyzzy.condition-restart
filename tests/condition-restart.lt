@@ -261,4 +261,24 @@ to the condition to be signalled."
                           (find-restart 'muffle-warning w)))))
           (warn "Hey")))))
 
+(define-test warn-accept-only-warning-condition
+  "Otherwise, it signals `type-error`."
+  ;; condition-object
+  (assert-error 'type-error
+      (warn (make-condition 'simple-error :format-string "Hey")))
+  (assert-error 'type-error
+      (warn (make-condition 'simple-condition :format-string "Hey")))
+  (assert-error 'simple-warning
+      (warn (make-condition 'simple-warning :format-string "Hey")))
+  ;; condition type and arguments
+  (assert-error 'type-error
+      (warn 'simple-error :format-string "Hey"))
+  (assert-error 'simple-warning
+      (warn 'simple-warning :format-string "Hey"))
+  (assert-error 'type-error
+      (warn 'simple-condition :format-string "Hey"))
+  ;; string == simple-warning
+  (assert-error 'simple-warning
+      (warn "Hey")))
+
 ;;; tests/condition-restart.lt ends here.
