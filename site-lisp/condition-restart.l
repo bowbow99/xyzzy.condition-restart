@@ -45,7 +45,7 @@
               ))
           :lisp)
 
-  ;; NOTE: Export `prompt-for` from editor package to be visible from
+  ;; NOTE: Export `read-value` from editor package to be visible from
   ;; most of user code.
   (export (mapcar (lambda (name) (intern (string name) :editor))
             '(#:read-value
