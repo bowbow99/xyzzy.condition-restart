@@ -51,25 +51,24 @@ find-restart and compute-restarts."
 (define-test restart-is-visible-in-upper-handlers
   "Restarts are visible from error handlers established in somewhere in
 `upper'."
-  (assert-type
-   restart
-   (block test
-     (handler-bind ((simple-error (lambda (e)
-                                    (return-from test
-                                      (find-restart 'foo)))))
-       (restart-case
-           (error "error")
-         (foo ())))))
+  (assert-type restart
+      (block test
+        (handler-bind ((simple-error (lambda (e)
+                                       (return-from test
+                                         (find-restart 'foo)))))
+          (restart-case
+              (error "error")
+            (foo ())))))
   (assert-type (list-of restart)
-   (block test
-     (handler-bind ((simple-error (lambda (e)
-                                    (return-from test
-                                      (compute-restarts)))))
-       (restart-case
-           (error "error")
-         (foo ())
-         (bar ())
-         (baz ()))))))
+      (block test
+        (handler-bind ((simple-error (lambda (e)
+                                       (return-from test
+                                         (compute-restarts)))))
+          (restart-case
+              (error "error")
+            (foo ())
+            (bar ())
+            (baz ()))))))
 
 
 (define-test restart-case-returns-value-from-form
@@ -154,27 +153,27 @@ the values that body of restart returned."
 (define-test restart-visibility-by-test-function
   "If TEST-FUNCTION returns nil, the restart can not be found."
   (assert-type restart
-               (restart-case
-                   (find-restart 'foo)
-                 (foo ()
-                   :test (lambda (condition) t))))
+      (restart-case
+          (find-restart 'foo)
+        (foo ()
+          :test (lambda (condition) t))))
   (assert-type null
-               (restart-case
-                   (find-restart 'foo)
-                 (foo ()
-                   :test (lambda (condition) nil))))
+      (restart-case
+          (find-restart 'foo)
+        (foo ()
+          :test (lambda (condition) nil))))
   (assert-type restart
-               (let ((w (make-condition 'simple-warning)))
-                 (restart-case
-                     (find-restart 'foo w)
-                   (foo ()
-                     :test (lambda (condition) (eql condition w))))))
+      (let ((w (make-condition 'simple-warning)))
+        (restart-case
+            (find-restart 'foo w)
+          (foo ()
+            :test (lambda (condition) (eql condition w))))))
   (assert-type null
-               (let ((w (make-condition 'simple-warning)))
-                 (restart-case
-                     (find-restart 'foo)
-                   (foo ()
-                     :test (lambda (condition) (eql condition w)))))))
+      (let ((w (make-condition 'simple-warning)))
+        (restart-case
+            (find-restart 'foo)
+          (foo ()
+            :test (lambda (condition) (eql condition w)))))))
 
 ;;;;
 ;;;; * Restart visibility (Active or not)
