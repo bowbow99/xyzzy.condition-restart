@@ -351,8 +351,35 @@
 ;;;;
 ;;;; * Signaling Condition with Restarts
 
+(defun ensure-warning-designator (datum args)
+  "Ensure DATUM and ARGS denotes a warning. If not, signal a `type-error`."
+  (let ((warning (get 'warning 'si:structure-definition)))
+    (macrolet ((TYPE-ERROR (actual expected)
+                 `(error 'type-error :datum ,actual :expected-type ',expected)))
+      (cond
+       ;; condition object
+       ((si:*structurep datum)
+        (unless (si:*structure-subtypep
+                 (si:*structure-definition datum)
+                 warning)
+          (TYPE-ERROR datum (or warning warning-type string)))
+        (unless (null args)
+          (TYPE-ERROR args null)))
+       ;; condition type
+       ((symbolp datum)
+        (unless (let ((def (get datum 'si:structure-definition)))
+                  (and def
+                       (si:*structure-subtypep def warning)))
+          (TYPE-ERROR datum (or warning warning-type string))))
+       ;; warning message
+       ((stringp datum) t)
+       ;; other
+       (t (TYPE-ERROR datum (or warning warning-type string)))))))
+
+
 (defun warn (datum &rest args)
   (let ((warning (%make-condition datum args 'simple-warning)))
+    (ensure-warning-designator datum args)
     (restart-case
         (with-condition-restarts warning (list (find-restart 'muffle-warning))
           (si:*throw-error warning))
