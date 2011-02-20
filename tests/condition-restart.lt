@@ -182,5 +182,28 @@ for conditions those aren't associated with the restart."
       (bar ())
       (baz ()))))
 
+(define-test restart-case-associates-restart-if-error
+  "If FORM is to signal a condition, restart-case associates its own restarts
+to the condition to be signalled."
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (macrolet ((find-restart-foo (error &optional condition)
+                 "Find restart `foo` for given CONDITION from handler."
+                 `(block test
+                    (handler-bind
+                        ((simple-error (lambda (e)
+                                         (return-from test
+                                           (find-restart 'foo ,condition)))))
+                      (restart-case
+                          (error ,error)
+                        (foo ()))))))
+      ;; signal `c1` == not visible for `c2`
+      (assert-type condition-restart::restart (find-restart-foo c1))
+      (assert-type condition-restart::restart (find-restart-foo c1 c1))
+      (assert-eql nil (find-restart-foo c1 c2))
+      ;; signal `c2` == not visible for `c1`
+      (assert-type condition-restart::restart (find-restart-foo c2))
+      (assert-eql nil (find-restart-foo c2 c1))
+      (assert-type condition-restart::restart (find-restart-foo c2 c2)))))
 
 ;;; tests/condition-restart.lt ends here.
