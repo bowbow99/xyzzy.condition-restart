@@ -1,5 +1,12 @@
 2011-02-21  bowbow99  <bowbow99@gmail.com>
 
+	* `restart-case` で直に `cerror` 式を置いた場合のバグを修正。
+
+	* `cerror` で DATUM にコンディションを与えた場合、同時に ARGS を与え
+	られなかったバグを修正。
+	`error` とかではエラーでいいのだけど、`cerror` の場合 REPORT-CONTROL
+	の引数としても使うので受け入れないといけない。
+
 	* 関数 `muffle-warning` が受け取ったコンディションを無視して再起動を
 	探してたバグを修正。
 
