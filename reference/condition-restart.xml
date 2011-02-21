@@ -403,6 +403,24 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 </chapter>
 
 <chapter>
+<title>restart-name</title>
+<type>Function</type>
+<pcakage>lisp</package>
+<arguments>restart-name RESTART</title>
+<description>
+再起動の名前を返します。
+
+  RESTART : 再起動
+</description>
+<seealso>restart-case</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
+<link>[CLHS: Function restart-name] http://www.lispworks.com/documentation/HyperSpec/Body/f_rst_na.htm
+<section>エラー</section>
+</chapter>
+
+
+<chapter>
 <title>invoke-restart</title>
 <type>Function</type>
 <arguments>invoke-restart IDENTIFIER &amp;rest ARGUMENTS</arguments>
