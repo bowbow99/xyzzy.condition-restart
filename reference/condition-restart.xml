@@ -44,6 +44,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 -->
 <book>
 
+
 <chapter>
 <title>select-restart-interactively</title>
 <type>Function</type>
@@ -51,17 +52,27 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 <package>editor</package>
 <description>
 対話的に再起動を選んで起動します。
-再起動が用意された環境で select-restart-interactively にコンディション
-を与えて実行すると、ウィンドウを分割して与えられたコンディションと有効
-な再起動を表示し、ミニバッファから再起動を選ぶことができます。
+
+ウィンドウを分割して与えられたコンディションと有効な再起動の一覧を表示
+し、ミニバッファでユーザーから起動する再起動の番号の入力を受け付けます。
+ユーザーが再起動を選択すると、選択された再起動を対話的に起動します。
 
 使用例:
-  ;;; ミニバッファで入力した式を評価して、エラーが投げられたら対話的に
-  ;;; 再起動を選ぶ
-  (handler-bind ((error #'ed::select-restart-interactively))
-    (eval (read-sexp "FORM: ")))
+  ;; 簡易 repl
+  (restart-case
+      (handler-bind ((quit 'abort)
+                     (error 'ed:select-restart-interactively))
+        (loop
+          (with-simple-restart (continue "無視して続ける")
+            (let* ((prompt (format nil "~A&gt; " (package-name *package*)))
+                   (form   (read-sexp prompt))
+                   (value  (eval form)))
+              (message "=&gt; ~S" value)))))
+    (abort () :report "やめる" (values)))
 </description>
-<seealso></seealso>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart-interactively</seealso>
+<seealso>再起動ってなに</seealso>
 <link></link>
 <section>エラー</section>
 <file>condition-restart-support.l</file>
@@ -77,7 +88,7 @@ xy-reference で reference.xml とこの XML ファイルから、info-modoki-mo
 
 引数:
   PROMPT     : プロンプト文字列
-  PREDICATE  : 値をチェックする関数
+  PREDICATE  : 値をチェックする関数（省略可）
 
 PREDICATE を指定すると、入力された値が PREDICATE を満たさない場合にはユ
 ーザーに再入力を求めます。
@@ -85,7 +96,7 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 ます。
 
 例外:
-  ユーザーが入力を途中でキャンセルした場合は、エラー qui を投げて終了し
+  ユーザーが入力を途中でキャンセルした場合は、エラー quit を投げて終了し
   ます。
 </description>
 <seealso>read-sexp</seealso>
@@ -93,31 +104,58 @@ PREDICATE を指定すると、入力された値が PREDICATE を満たさな�
 <section>ミニバッファ</section>
 </chapter>
 
+
+
 <chapter>
 <title>assert</title>
 <type>Macro</type>
-<arguments>assert TEST-FORM {(PLACE*) {DATUM ARGS*}</arguments>
+<arguments>assert TEST-FORM {(PLACE*) {DATUM ARG*}}</arguments>
 <package>lisp</package>
 <description>
-TEST-FORM が true に評価されることを確実にします。
+TEST-FORM が non-nil に評価されることを確実にします。
 
-TEST-FORM が false に評価されると、continue 再起動を用意したうえで DATUM
-と ARGS で指定されたエラーを投げます。
-この continue 再起動を起動すると PLACE* の値をミニバッファで入力した値で
-置き換えてから、assert の最初（TEST-FORM の評価）からやり直します。
+  TEST-FORM    : テストする式
+                 この式を評価して nil を返すとエラーを投げます。
+                 1回以上評価されます。
+  
+  PLACE        : 再起動 continue から変更する汎変数（省略可）
+                 setf 可能な場所を複数指定できます。エラーを投げる度に評価
+                 され、再起動から変更されます。
+                 省略した場合は、再起動 continue を起動しても何も変更せず
+                 に TEST-FORM の評価からやり直します。
+  DATUM, ARG*  : 投げるエラー（省略可）
+                 関数 error に与えるものと同じです。エラーを投げる度に評価
+                 されます。
+                 省略した場合は、simple-error を投げます。
 
-  TEST-FORM   : true を返すはずの任意の式を指定します。
-                1回以上評価されます。
-  PLACE       : continue 再起動を起動したときに置き換える場所（setf 可能
-                な汎変数）を指定します。
-  DATUM, ARGS : 投げるエラーを指定します（error 関数参照）。
-                省略した場合は simple-error が投げられます。
+まず TEST-FORM を評価し、その戻り値が non-nil であれば、assert 式は nil 
+を返して終了します。
 
+もし TEST-FORM が nil を返した場合、DATUM と ARG で指定されたエラー（省
+略した場合は simple-error）を投げます。この時、再起動 continue を用意し
+ておきます。
+再起動 continue が起動されると、各 PLACE の値を与えられた引数（対話的に
+起動された場合は、各 PLACE の新しい値をミニバッファから入力できます。）
+に変更し、TEST-FORM の評価からやり直します。
+
+使用例:
+  (let ((x 1))
+    (assert (and (integerp x) (evenp x)) (x)
+            "偶数でないとダメです: ~S" x)
+    x)
+  ; エラー:  偶数でないとダメです: 1
+  ;
+  ; Available Restarts:
+  ;   0 [continue  ] 値を変更してやり直す。(x)
+  ;   1 [abort     ] 評価を中止する。
+  ; &gt; 0
+  ; `x' の値: 2
+  =&gt; 2
 </description>
 <seealso>check-type</seealso>
 <link>[CLHS: Macro assert] http://www.lispworks.com/documentation/HyperSpec/Body/m_assert.htm</link>
 <section>エラー</section>
-<file>condition-restart.l</file>
+<file>assertions.l</file>
 </chapter>
 
 <chapter>
@@ -128,45 +166,120 @@ TEST-FORM が false に評価されると、continue 再起動を用意したう
 <description>
 PLACE の値が TYPESPEC の型であることを確実にします。
 
-もし PLACE の値が TYPESPEC の型ではなかった場合、store-value 再起動を用
-意した上で si::check-type-error を投げます。この store-value 再起動を起
-動すると、PLACE の値を置き換えて check-type をやり直します。
-PLACE の値が TYPESPEC の型であれば check-type 式は nil を返します。
+  PLACE     : 値を確認する汎変数
+              setf 可能な場所を指定します。一回以上評価され、PLACE の値
+              が TYPESPEC ではなかった場合は再起動から変更されます。
+  TYPESPEC  : PLACE の値の型
+              型指定子をクォートせずに指定します。指定された型指定子を評
+              価せずにそのまま使用します。
+  STRING    : TYPESPEC の概要の文字列（省略可）
+              STRING があれば投げられるエラーのエラーメッセージで TYPESPEC
+              の代わりに使用されます。
 
-  PLACE    : 調べる場所。setf できる式を指定します。
-  TYPESPEC : typep に渡す型指定をクォートせずに指定します。
-  STRING   : TYPESPEC を説明する文字列です。
+PLACE の値が TYPESPEC の型であれば、check-type 式は nil を返して終了しま
+す。
+
+もし PLACE の値が TYPESPEC の型でなければ、si::check-type-error を投げま
+す。この時、再起動 store-value を用意しておきます。
+再起動 store-value が起動されると、PLACE の値を与えられた引数（対話的に
+起動された場合は、ミニバッファから入力できます。）に変更し、check-type 
+の最初からやり直します。
+
+使用例:
+  (let ((x 33))
+    (check-type x (integer 0 10) "0 以上 10 以下の整数")
+    x)
+  ; エラー:  `x'の値`33'は0 以上 10 以下の整数ではありません
+  ;
+  ; Available Restarts
+  ;   0 [store-value] `x' の値を変更してやり直す。
+  ;   1 [abort     ] 評価を中止する。
+  ; &gt; 0
+  ; `x' の値: 3
+  =&gt; 3
 </description>
 <seealso>assert</seealso>
 <seealso>typep</seealso>
 <seealso>deftype</seealso>
 <link>[CLHS: Macro check-type] http://www.lispworks.com/documentation/HyperSpec/Body/m_check_.htm</link>
 <section>データ型</section>
-<file>condition-restart.l</file>
+<file>assertions.l</file>
 </chapter>
+
+
 
 <chapter>
 <title>再起動ってなに</title>
 <type>Tips</type>
 <description>
-エラーやコンディションを投げるときに、投げる側でその状況に対応する方法を
-選択肢として用意しておく仕組みです。
+エラーが発生した時に適当なところから処理を続行できるようにしておく仕組み
+です。
 
-エラーを投げるときに restart-case や restart-bind で再起動を用意しておく
-と、エラーを捕まえたハンドラなどから invoke-restart などで用意された再起
-動を起動することができます。この再起動はエラーを投げた側のローカルな環境
-にアクセスできるので、変数の値を変更したり、適当なところへ制御を移して別
-の値を返したりすることができます。
+通常、エラーが投げられた場合には handler-case（あるいは handler-bind）で
+用意したハンドラで対応しますが、エラーを投げる方（以下、シグナラ）が別の
+関数だったりした場合にはハンドラでできることは限られてしまいます。
+シグナラ側でエラーを投げる時に restart-case（あるいは restart-bind）でエ
+ラーに対応する方法を再起動として用意しておくと、エラーを捕まえたハンドラ
+側で適切な再起動を選んで起動することで、シグナラ側でエラーに対応させるこ
+とができます。
 
+使用例:
+  ;;; シグナラ側
+  (defun my-concat (&rest strings)
+    (labels ((ensure-string (x)
+               (if (typep x 'string)
+                 x
+                 (restart-case
+                     (error 'type-error :datum x :expected-type 'string)
+                   (ignore ()
+                     :report "この引数を無視する"
+                     "") ; 空文字列を concat すると消えて無くなるので
+                   (use-value (new-x)
+                     :report "他の文字列を使う"
+                     :interactive (lambda ()
+                                    (list (prompt-for 'string "string&gt; ")))
+                     (ensure-string new-x))))))
+      (apply #'concat (mapcar #'ensure-string strings))))
+  =&gt; my-concat
+  
+  ;; ハンドラなしだとエラーで終了。（condition-restart-support とか使っ
+  ;; てると再起動を選んで起動できたりします。）
+  (my-concat "foo" 'bar "baz")
+  &gt;&gt; 不正なデータ型です: bar: string
+  
+  ;; ハンドラから、不正な引数は無視させる
+  (handler-bind
+      ((type-error (lambda (err)
+                     (let ((r (find-restart 'ignore err)))
+                       (when r (invoke-restart r))))))
+    (my-concat "foo" 'bar "baz"))
+  =&gt; "foobaz"
+  
+  ;; ハンドラから、不正な引数は princ 出力の文字列に変換させる
+  (handler-bind
+      ((type-error (lambda (err)
+                     (let ((r (find-restart 'use-value err)))
+                       (when r
+                         (let ((replacement
+                                 (princ-to-string (type-error-datum err))))
+                           (invoke-restart r replacement)))))))
+    (my-concat "foo" 'bar "baz"))
+  =&gt; "foobarbaz"
+
+捕捉:
+  handler-case のハンドラは、エラーを捕まえた時点でそれまで実行した結果
+  （用意された再起動も含む）を捨ててしまうので、ハンドラから再起動を使う
+  場合は handler-bind を使います。
 </description>
 <seealso>restart-case</seealso>
-<seealso>restart-bind</seealso>
-<seealso>invoke-restart</seealso>
 <seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
 <seealso>handler-bind</seealso>
 <section>エラー</section>
 <file>condition-restart.l</file>
 </chapter>
+
+
 
 <chapter>
 <title>use-value</title>
@@ -174,15 +287,23 @@ PLACE の値が TYPESPEC の型であれば check-type 式は nil を返しま�
 <arguments>use-value VALUE &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-use-value 再起動を起動して、そのときだけ VALUE を使うようにします。
-もし有効な use-value 再起動が見つからなかった場合は nil を返します。
+use-value 再起動を起動して、そのときだけ VALUE を使って処理を続行します。
+
+  VALUE     : その時だけ使う値
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な use-value 再起動を探して起動します。（省略可）
+
+もし有効な use-value 再起動が見つからなければ nil を返します。
 
 use-value 再起動について:
-  変数の値がおかしかったりしたときに、そのときだけ代わりの値を使うような
-  再起動です。
-  変数の値を変更する場合は store-value 再起動を使います。
+  変数の値がおかしかったりした場合に、そのときだけ代わりの値を使って処理
+  を続行するような再起動です。
+  ※変数などの値を変更する場合は store-value 再起動を使います。
 </description>
+<seealso>restart-case</seealso>
+<seealso>invoke-restart</seealso>
 <seealso>store-value</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#use-value</link>
 <link>[CLHS: Restart use-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_use_va.htm</link>
 <section>エラー</section>
@@ -195,16 +316,23 @@ use-value 再起動について:
 <arguments>store-value NEW-VALUE &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-store-value 再起動を起動して、変数の値を NEW-VALUE に変更します。
-もし有効な store-value 再起動が見つからなかった場合は nil を返します。
+store-value 再起動を起動して、変数などの値を NEW-VALUE に変更した上で
+処理を続行します。
+
+  NEW-VALUE : 変数などの新しい値
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な store-value 再起動を探して起動します。（省略可）
+
+もし有効な store-value 再起動が見つからなければ nil を返します。
 
 store-value 再起動について:
-  変数や汎変数の値を変更して処理を続行するような再起動です
-  store-value 再起動を用意するときは、再起動の概要にどの変数の値を変更
-  するのか書いておきましょう。
+  変数などの値を変更して処理を続行するような再起動です。
+  ※一時的に他の値を使う場合は use-value 再起動を使います。
 </description>
+<seealso>restart-case</seealso>
 <seealso>use-value</seealso>
-<seealso>check-type</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#store-value</link>
 <link>[CLHS: Restart store-value] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_store_.htm</link>
 <section>エラー</section>
@@ -217,22 +345,23 @@ store-value 再起動について:
 <arguments>continue &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-continue 再起動を起動して、そのまま処理を続行します。
-もし有効な continue 再起動が見つからなかった場合は nil を返してます。
+continue 再起動を起動して、処理を続行します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対応した
-              continue 再起動を探して起動します。
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な continue 再起動を探して起動します。（省略可）
+
+もし有効な continue 再起動が見つからなければ nil を返します。
 
 continue 再起動について:
   単純に処理を続行するような再起動です。
-  ※ 警告 (warning) を無視するときは muffle-warning を使います。
+  ※警告（warning コンディション）を無視する場合は muffle-warning 再起動
+  を使います。
 </description>
 <seealso>restart-case</seealso>
+<seealso>cerror</seealso>
 <seealso>abort</seealso>
-<seealso>muffle-warning</seealso>
-<seealso>store-value</seealso>
-<seealso>use-value</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#continue</link>
 <link>[CLHS: Restart continue] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_contin.htm</link>
 <section>エラー</section>
@@ -245,18 +374,18 @@ continue 再起動について:
 <arguments>abort &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-abort 再起動を起動して、処理を中止しようとします。
-もし有効な abort 再起動が見つからなかった場合は、quit を投げることで処理
-を中止します。
+abort 再起動を起動して、処理を中止します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対応した
-              abort 再起動を探して起動します。
+  CONDITION : コンディションを指定すると、そのコンディションに対して有効
+              な abort 再起動を探して起動します。（省略可）
 
-Common Lisp 処理系では常に abort 再起動が用意されているので、abort 関数
-は abort 再起動を起動することで処理を中止しますが、xyzzy ではそんなもの
-無かったりするので quit エラーを投げて中止します。
-結果として abort 関数は、quit 関数の abort 再起動があれば使うバージョン
-のように振る舞います。
+もし有効な abort 再起動が見つからなければ、エラー quit を投げて処理を中
+止します。
+
+注意:
+  abort 再起動が見つからなかった場合の挙動は Common Lisp とは違います。
+  （Common Lisp の関数 abort は、abort 再起動が見つからなかった場合は、
+  エラー program-error を投げることになっています。）
 
 abort 再起動について:
   処理を中止するような再起動です。
@@ -264,6 +393,7 @@ abort 再起動について:
 <seealso>quit</seealso>
 <seealso>restart-case</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function abort] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_abortc.htm</link>
 <link>[CLHS: Restart abort] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_abort.htm</link>
 <section>エラー</section>
@@ -278,18 +408,25 @@ abort 再起動について:
 <description>
 muffle-warning 再起動を起動して、警告を無視します。
 
-  WARNING: 警告を指定すると、その警告に対応した muffle-warning を探して
-           起動します。
+  WARNING : 警告（warning コンディション）を指定すると、その警告に対し
+            て有効な muffle-warning 再起動を探して起動します。（省略可）
+
+もし有効な muffle-warning 再起動が見つからなければ、エラー restart-not-found
+を投げます。
 
 muffle-warning 再起動について:
   警告を無視する再起動です。warn 関数を参照してください。
 </description>
-<seealso></seealso>
+<seealso>warn</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_abortc.htm#muffle-warning</link>
 <link>[CLHS: Restart muffle-warning] http://www.lispworks.com/documentation/lw50/CLHS/Body/r_muffle.htm</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
 </chapter>
+
+
 
 <chapter>
 <title>warn</title>
@@ -300,19 +437,21 @@ muffle-warning 再起動について:
 ※これは condition-restart.l で上書きされた warn の説明です。
 警告（warning コンディション）を投げます。
 
-warn 関数は、警告を投げるときに muffle-warning 再起動を用意しておきます。
-この muffle-warning 再起動を起動すると警告を無視することができます。
+warn 関数は、警告を投げるときに再起動 muffle-warning を用意しておきま
+す。この再起動 muffle-warning を起動すると警告を無視することができます。
 
-  DATUM, ARGS : 投げる警告を指定します。error 関数を参照してください。
+  DATUM, ARGS : 投げる警告を指定します。
+                指定方法は関数 error と同様ですが、指定されるコンディ
+                ションは warning コンディション（あるいはそのサブタイ
+                プ）でなければなりません。
                 DATUM にフォーマット文字列を指定した場合は、simple-warning
                 を投げます。
 
-投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy は
-警告音を鳴らしたりします（共通設定-&gt;いろいろ で設定できます）が、処理
-を中止したりはせず、warn 式からは nil が返ります。
+投げられた警告が無視も処理もされずにトップレベルまで到達すると、xyzzy 
+は警告音を鳴らしたりします（共通設定-&gt;いろいろ で設定できます）が、
+処理を中止したりはせず、warn 式からは nil が返ります。
 </description>
 <seealso>error</seealso>
-<seealso>signal</seealso>
 <seealso>muffle-warning</seealso>
 <link>[CLHS: Function warn] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_warn.htm</link>
 <section>エラー</section>
@@ -327,10 +466,9 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を用意�
 <description>
 回復可能なエラーを投げます。
 
-関数 error 同様に DATUM（及び ARGUMENTSS）で指定されたエラーを投げますが、
-そのときに再起動 continue を用意しておきます。
-この continue 再起動を起動すると cerror 式から nil を返して、その後の処理
-を続行させることができます。
+関数 error 同様に DATUM と ARGS で指定されたエラーを投げますが、その時に
+再起動 continue を用意しておきます。この再起動 continue を起動すると 
+cerror 式から nil が返り、その後の処理を続行させることができます。
 
   REPORT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数と
                    して ARGS が与えられます。
@@ -345,32 +483,39 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 </description>
 <seealso>signal</seealso>
 <seealso>error</seealso>
+<seealso>continue</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function cerror] http://www.lispworks.com/documentation/lw51/CLHS/Body/f_cerror.htm#cerror</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
 </chapter>
 
+
+
 <chapter>
-<title>invoke-restart-interactively</title>
+<title>compute-restarts</title>
 <type>Function</type>
-<arguments>invoke-restart-interactively IDENTIFIER</arguments>
+<arguments>compute-restarts &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-再起動を対話的に起動します。
-invoke-restart-interactively によって起動された再起動は、restart-case の
-:interactive オプションや restart-bind の :interactive-function オプショ
-ンで指定された関数を実行することで、再起動の引数を対話的に取得します。
+現在の環境で有効な再起動のリストを返します。
 
-  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
-
+引数:
+  CONDITION : コンディションか nil（省略可）
+              どの再起動を有効とするかに影響します。関数 find-restart の
+              「有効な再起動とは」を参照してください。
 </description>
-<seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>with-condition-restarts</seealso>
+<seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
-<link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
-<section>エラー</section>
+<seealso>再起動ってなに</seealso>
+<link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
 <file>condition-restart.l</file>
+<section>エラー</section>
 </chapter>
+
 
 <chapter>
 <title>find-restart</title>
@@ -378,29 +523,47 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 <arguments>find-restart IDENTIFIER &amp;optional CONDITION</arguments>
 <package>lisp</package>
 <description>
-指定された再起動を探して返します。見つからなかったら nil を返します。
+現在の環境で有効な再起動の中から、IDENTIFIER で指定された再起動を探して
+見つかればそれを、見つからなければ nil を返します。
 
-  IDENTIFIER : 再起動の名前（シンボル）か再起動オブジェクトを指定します。
-  CONDITION  : コンディションを指定すると、そのコンディションに対して有効
-               な再起動の中から探します。
-               restart-bind の :test-function 参照。
+引数:
+  IDENTIFIER  : 再起動の名前か再起動オブジェクト
+        シンボル : そのシンボルを名前として持つ再起動を探します。
+                   同じ名前の再起動が複数ある場合は、直近で用意された再
+                   起動が優先されます。
+        再起動   : その再起動が有効であれば、そのまま返します。
+  CONDITION   : コンディションか nil（省略可）
+              どの再起動を有効とするかに影響します。「有効な再起動とは」
+              を参照してください。
 
-再起動の有効/無効について:
-  find-restart や compute-restart は restart-bind によって用意された再起動
-  の中から探してきますが、コンディションが指定された場合は以下の条件を満た
-  す再起動のみが有効になります。
-  - TEST-FUNCTION があるなら、TEST-FUNCTION をコンディションを引数に呼び出
-    して true が返る。
-  - 指定されたコンディションに関連付けられているか、どのコンディションにも
-    関連付けられていない。
+
+有効な再起動とは:
+  再起動が有効となるには、以下の3つの条件を全て満たす必要があります。
+
+  - アクティブであること
+    再起動は、その再起動を用意したフォーム（restart-case など）の実行中
+    はアクティブになっており、そのフォームを抜けるとアクティブではなくな
+    ります。
+
+  - その再起動に TEST-FUNCTION があれば、指定されたコンディション（指定
+    されない場合は nil）を引数に呼び出して non-nil を返すこと
+    TEST-FUNCTION が無い場合は（この条件に関しては）常に有効となります。
+
+  - コンディションが指定されていれば、その再起動とコンディションが関連付
+    けられているか、その再起動はどのコンディションにも関連付けられていな
+    いこと
 </description>
-<seealso>restart-bind</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>with-condition-restarts</seealso>
 <seealso>compute-restarts</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function find-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_find_r.htm#find-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
 </chapter>
+
 
 <chapter>
 <title>restart-name</title>
@@ -421,6 +584,37 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 
 
 <chapter>
+<title>invoke-restart-interactively</title>
+<type>Function</type>
+<arguments>invoke-restart-interactively IDENTIFIER</arguments>
+<package>lisp</package>
+<description>
+再起動を対話的に起動します。
+
+  IDENTIFIER : 再起動オブジェクトか再起動の名前（シンボル）
+
+再起動を invoke-restart-interactively によって起動すると、その再起動の 
+INTERACTIVE-FUNCTION を使って本処理への引数を取得します。
+
+例外:
+  指定された再起動が見つからなかった場合は restart-not-found エラーを投
+  げます。
+
+  INTERACTIVE-FUNCTION は通常ユーザーから引数の入力を受け付け、ユーザー
+  がキャンセルするとエラー quit が通知されます。
+</description>
+<seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
+<link>[CLHS: Function invoke-restart-interactively] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_2.htm#invoke-restart-interactively</link>
+<section>エラー</section>
+<file>condition-restart.l</file>
+</chapter>
+
+
+<chapter>
 <title>invoke-restart</title>
 <type>Function</type>
 <arguments>invoke-restart IDENTIFIER &amp;rest ARGUMENTS</arguments>
@@ -428,58 +622,35 @@ invoke-restart-interactively によって起動された再起動は、restart-c
 <description>
 IDENTIFIER で指定される再起動を起動します。
 
-  IDENTIFIER : 起動する再起動の名前（シンボル）か再起動オブジェクトを指
-               定します。
+  IDENTIFIER : 再起動オブジェクトか再起動の名前（シンボル）
   ARGUMENTS  : 再起動に渡す引数があれば。
-
-指定された再起動が見つからなかった場合は restart-not-found エラーを投げ
-ます。
 
 通常、再起動はどこかへ制御を飛ばすので invoke-restart で再起動を起動する
 と制御は戻ってきませんが、起動した再起動が制御を飛ばさなかった（普通に値
 を返した）場合、invoke-restart は再起動が返した値をそのまま返します。
+
+捕捉:
+  IDENTIFIER をシンボルで指定すると、コンディションによる再起動の有効性
+  チェックができないので、関数 find-restart とは違う再起動を見つけてしま
+  う場合があります。
+  コンディションを全く考慮する必要がない場合を除いて、関数 find-restart 
+  で取得した再起動を使った方が良いかと思います。
+
+例外:
+  指定された再起動が見つからなかった場合は restart-not-found エラーを投
+  げます。
 </description>
-<seealso>find-restart</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart-interactively</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function invoke-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_invo_1.htm#invoke-restart</link>
 <file>condition-restart.l</file>
 <section>エラー</section>
 </chapter>
 
-<chapter>
-<title>compute-restarts</title>
-<type>Function</type>
-<arguments>compute-restarts &amp;optional CONDITION</arguments>
-<package>lisp</package>
-<description>
-現在の環境で用意されている再起動のリストを返します。
 
-  CONDITION : コンディションを指定すると、そのコンディションに対して有効
-              な再起動のみのリストを返します。
-</description>
-<seealso>restart-case</seealso>
-<seealso>restart-bind</seealso>
-<seealso>with-simple-restart</seealso>
-<seealso>find-restart</seealso>
-<seealso>invoke-restart</seealso>
-<link>[CLHS: Function compute-restarts] http://www.lispworks.com/documentation/lw50/CLHS/Body/f_comp_1.htm#compute-restarts</link>
-<file>condition-restart.l</file>
-<section>エラー</section>
-</chapter>
-
-<chapter>
-<title>with-simple-restart</title>
-<type>Macro</type>
-<arguments>with-simple-restart (NAME FMT-CONTROL &amp;rest FMT-ARGUMENTS) &amp;body FORMS</arguments>
-<package>lisp</package>
-<description>
-NAME という名前の再起動を用意した環境で FORMS を評価します。
-この再起動が起動されると、with-simple-restart 式は多値で nil と t を返し
-て終了します。
-</description>
-<link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
-<file>condition-restart.l</file>
-</chapter>
 
 <chapter>
 <title>with-condition-restarts</title>
@@ -489,32 +660,90 @@ NAME という名前の再起動を用意した環境で FORMS を評価しま�
 <description>
 再起動とコンディションを関連付けます。
 
-{{関連付けるってなによ}}
+  CONDITION : コンディションオブジェクト（評価されます）
+  RESTARTS  : 再起動のリスト（評価されます）
 
-  CONDITION : 関連付けるコンディションを指定します。
-              コンディションの型ではなくコンディションオブジェクトを指定
-              します。
-  RESTARTS  : 関連付ける再起動のリストを指定します。
+コンディションと関連付けられた再起動は、関連付けられていないコンディショ
+ンを指定して（find-restart や compute-restarts で）再起動を探す場合には
+見えなくなります。
 
+例えば、エラー E1 を投げる時に、エラー E1 に対応する再起動 R1 を用意した
+とします。
+（再起動 R1 がアクティブな状態のまま）全く別のエラー E2 が投げられると、
+エラー E2 を捕まえたハンドラからは再起動 R1 も見えますが、再起動 R1 はエ
+ラー E1 に対応するための再起動なのでエラー E2 には対応できません。
+再起動 R1 とエラー E1 を関連付けておくと、エラー E2 を指定して再起動を探
+したときには再起動 R1 は見えなくなるので、何かの間違いで起動してしまうの
+を防ぐことができます。
 
-find-restart や compute-restarts の引数にコンディションを与えて呼び出すと
-そのコンディションに関連付けられた再起動（とどのコンディションにも関連付け
-られていない再起動）のみを探すことができます。
+注意:
+  どのコンディションにも関連付けられていない再起動は常に見えます。
 
-例えば、いくつか再起動を用意してコンディション FOO が投げられたとします。
-それを捕まえたハンドラが、更にいくつかの再起動を追加で用意して別のコンディ
-ション BAR を投げたとします。
-さらに上位のハンドラがコンディション BAR を捕まえた時点では、上記の全ての
-再起動が有効なままですが、コンディション FOO に関連付けられた再起動は無視
-してコンディション BAR に関連付けられた再起動の中から選んで起動することが
-できたりします。
+捕捉:
+  restart-case で直接エラーやコンディションを投げると、その restart-case 
+  で用意した再起動は自動的に投げるエラーに関連付けられます。
 
+使用例:
+  (block example
+    (handler-bind
+        ((error (lambda (error)
+                  (format t "エラー ~A を捕まえました、以下の再起動が見えます:~%~
+                             ~{  ~A~%~}"
+                    error
+                    (compute-restarts error))
+                  (return-from example nil))))
+      (restart-case
+          (let ((E1 (make-condition 'simple-error :format-string "E1")))
+            (with-condition-restarts E1 (list (find-restart 'R1))
+              (restart-case
+                  (error "E2")
+                (R2 () "R2"))))
+        (R0 () "R0")
+        (R1 () "R1"))))
+  エラー E2 を捕まえました、以下の再起動が見えます:
+    #<restart: R2>
+    #<restart: R0>
+    #<restart: abort>
+  => nil
 </description>
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
 <seealso>compute-restarts</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Macro with-condition-restarts] http://www.lispworks.com/documentation/HyperSpec/Body/m_w_cnd_.htm#with-condition-restarts</link>
 <section>エラー</section>
+<file>condition-restart.l</file>
+</chapter>
+
+
+
+<chapter>
+<title>with-simple-restart</title>
+<type>Macro</type>
+<arguments>with-simple-restart (NAME FMT-CONTROL FMT-ARGUMENTS*) FORM*</arguments>
+<package>lisp</package>
+<description>
+NAME という名前の再起動を用意して FORM* を評価します。
+
+FORM* の評価が何事もなく終了すればその値を返します。
+もし FORM* の評価中に（エラーが発生して、それを捕らえたハンドラなどから）
+with-simple-restart の用意した再起動が起動されると、with-simple-restart 
+式から多値で nil と t を返します。
+
+引数:
+  NAME         : 再起動の名前（シンボル）
+  FMT-CONTROL  : 再起動の概要を作るフォーマット文字列
+  FMT-ARGUMENT : FMT-CONTROL への引数
+  FORM         : 任意の式
+
+FMT-CONTROL と FMT-ARGUMENT* は再起動の概要を出力するのに使用されます。
+（出力する度に評価されます。）
+</description>
+<seealso>restart-case</seealso>
+<seealso>find-restart</seealso>
+<seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
+<link>[CLHS: Macro with-simple-restart] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_w_smp_.htm#with-simple-restart</link>
 <file>condition-restart.l</file>
 </chapter>
 
@@ -526,8 +755,10 @@ find-restart や compute-restarts の引数にコンディションを与えて�
 <description>
 RESTART-CLAUSE で指定された再起動を用意して FORM を評価します。
 
-restart-case で用意された再起動が起動されると、再起動の本体を実行し、
-その結果を restart-case 式の結果として返します。
+FORM の評価が何事もなく終了すればその値を返します。
+もし FORM の評価中に（エラーが発生して、それを捕らえたハンドラなどから）
+restart-case で用意された再起動が起動されると、与えられた引数を受け取っ
+て本処理を実行し、その値を restart-case 式の戻り値として返します。
 
   (restart-case
       FORM
@@ -538,39 +769,73 @@ restart-case で用意された再起動が起動されると、再起動の本�
       BODY...)
     ...)
 
-  NAME             : 再起動の名前をシンボルで指定します。
-  LAMBDA-LIST      : 再起動の仮引数を指定します。lambda とかで使うことの
-                     できる &amp;optional やら &amp;rest やらを使えます。
-  BODY             : 再起動の処理本体です。
-                     LAMBDA-LIST で指定した仮引数が与えられた引数に束縛
-                     された環境で実行され、BODY の結果が restart-case 式
-                     の結果となります。
+  FORM         : 任意の式
 
-  INTERACTIVE-EXPR : 対話的に起動されたときに、実行される関数を、関数名
-                     （シンボルかlambda 式）で指定します。
-                     invoke-restart-interactively によってこの再起動が起
-                     動されると、この関数が引数なしで呼び出され、戻り値
-                     のリストを再起動の処理本体の引数として使用します。
-  REPORT-EXPR      : 再起動の概要を説明する文字列か、概要を出力する関数の
-                     名前を指定します。
-              関数   : 関数名（シンボルか lambda 式）を指定します。
-                       関数は出力先のストリームを受け取り、再起動の概要を
-                       出力しなければなりません。
-              文字列 : 再起動の概要をそのまま文字列で指定します。
-  TEST-EXPR        : あるコンディションに対してその再起動が有効か否かを判
-                     断する関数の名前を指定します。#' はつけないでください。
-                     省略されるとその再起動は全てのコンディションに対して
-                     有効になります。
+  NAME         : 再起動の名前（シンボル）
+  LAMBDA-LIST  : 再起動の引数（lambda や defun と同じ）
+  BODY         : 再起動の本処理
 
-FORM が signal, error, cerror, warn のいずれかで始まる式（か、それに展開
-されマクロ呼び出し）だったら、その restart-case で用意される再起動は勝手
-に投げられるコンディションに関連付けられます。
+  INTERACTIVE-EXPR :
+    対話的に起動された時に、本処理に渡す引数を取得する関数を、関数名で指
+    定します。（省略可）
 
+    invoke-restart-interactively によって再起動が対話的に起動されるとこ
+    の関数が引数なしで呼び出されるので、必要に応じてユーザーから入力を受
+    け付け、本処理に渡す引数のリストを返してください。
+    省略すると、対話的に起動された場合は引数なしになります。
+
+  REPORT-EXPR :
+    再起動の概要を、文字列か、概要を出力する関数の関数名で指定します。
+    （省略可）
+    文字列で指定すると、その文字列をそのまま概要として使います。
+    関数を指定すると、概要を出力するためにその関数に出力先のストリームを
+    与えて呼び出すので、与えられたストリームに概要を出力してください。
+    省略すると、NAME を概要として使用します。
+
+    ※再起動を princ 出力したときにも使用されます。
+
+  TEST-EXPR :
+    find-restart や compute-restarts で再起動を探す際に、この再起動を有
+    効とするか判断する関数を、関数名で指定します。（省略可）
+    再起動を探す時に、この関数を指定されたコンディション（指定されない場
+    合は nil）を引数に呼び出し、nil を返すとその再起動は無効となります。
+    省略すると、（TEST-FUNCTION による判定は）常に有効となります。
+
+    ※再起動が有効かどうかは、他にもいくつかの条件で判断されます。詳しく
+    は関数 find-restart を参照してください。
+
+  ※「関数名」となっているものは、シンボルか lambda 式をで指定します。
+    #' は付けないでください。
+
+使用例:
+  ;; 再起動 use-value を用意してエラーを投げる関数
+  (defun signaller ()
+    (restart-case
+        (error "No good reason.")
+      (use-value (x)
+        x)))
+  => signaller
+  
+  ;; エラーを捕まえて再起動を起動する
+  (handler-bind
+      ((error (lambda (err)
+                (let ((r (find-restart 'use-value err)))
+                  (when r (invoke-restart r :restarted))))))
+    (signaller))
+  => :restarted
+
+
+捕捉:
+  FORM が error, cerror, warn, signal のいずれかの式（あるいは、それに
+  展開されるマクロ呼び出し）だった場合、その restart-case で用意される
+  再起動は自動的に FORM が投げるコンディションに関連付けられます。
+  参考: with-condition-restarts
 </description>
 <seealso>invoke-restart</seealso>
 <seealso>with-simple-restart</seealso>
 <seealso>restart-bind</seealso>
 <seealso>with-condition-restarts</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Function restart-case] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_ca.htm</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
@@ -579,42 +844,42 @@ FORM が signal, error, cerror, warn のいずれかで始まる式（か、そ�
 <chapter>
 <title>restart-bind</title>
 <type>Macro</type>
-<arguments>restart-bind (&amp;rest RESTARTS) &amp;body BODY</arguments>
+<arguments>restart-bind (RESTART*) FORM*</arguments>
 <package>lisp</package>
 <description>
-再起動を用意して BODY を評価します。
+RESTART* で指定された再起動を用意して FORM* を評価します。
+
+FORM* が何事もなく終了すれば、その値を返します。
+もし FORM* の評価中に（エラーが発生して、それを捕らえたハンドラから、な
+ど）再起動が起動されると、起動された再起動の RESTART-FUNCTION を呼び出し
+ます。
 
   (restart-bind ((NAME RESTART-FUNCTION
                    {:interactive-function INTERACTIVE-FUNCTION}
                    {:report-function REPORT-FUNCTION}
                    {:test-function TEST-FUNCTION})
                  ...)
-    BODY...)
+    FORM*)
 
-  NAME                 : 再起動の名前（シンボル）です。
-  RESTART-FUNCTION     : 再起動の処理本体です。関数を指定します。
+restart-bind で用意される再起動は（restart-case と違って）、起動されると 
+RESTART-FUNCTION を呼び出すだけで、どこかへ制御を移したりはしません。必
+要に応じて return-form で block からリターンしたり、tagbody や prog でタ
+グを用意しておいて go でジャンプするなどして、適当なところへ制御を移す必
+要があります。
 
-  INTERACTIVE-FUNCTION : invoke-restart-interactively によって対話的に起
-                         動されたときに、RESTART-FUNCTION に与える引数を
-                         取得する関数です。
-                         この関数は引数なしで実行され、RESTART-FUNCTION
-                         に渡す引数のリストを返さなければなりません。
-  REPORT-FUNCTION      : 再起動の概要を出力する関数です。
-                         引数に出力先のストリームを受け取り、その再起動の
-                         概要を出力します。
-  TEST-FUNCTION        : 通知されたコンディションに対してその再起動が有効
-                         かどうかを判断する関数です。
-                         この関数は引数にコンディションを受け取り、与えら
-                         れたコンディションについてその再起動が有効だった
-                         ら true を返しましょう。
+INTERACTIVE-FUNCTION, REPORT-FUNCTION, TEST-FUNCTION の各関数については、
+指定方法が違うだけで使われ方は restart-case と同じです。
 
-restart-bind は再起動を用意するだけで、それ以上のことをしたい場合は自分で
-やらなければなりません（tagbody と go で制御を移すとか）。
-大抵の場合は restart-case の方が便利だと思います。
+捕捉:
+  restart-bind は再起動の基本的な仕組みを提供するだけのマクロなので、た
+  いていの場合は restart-case の方が便利かと思います。
 </description>
-<seealso>with-simple-restart</seealso>
 <seealso>restart-case</seealso>
+<seealso>with-simple-restart</seealso>
+<seealso>find-restart</seealso>
+<seealso>compute-restarts</seealso>
 <seealso>invoke-restart</seealso>
+<seealso>再起動ってなに</seealso>
 <link>[CLHS: Macro restart-bind] http://www.lispworks.com/documentation/lw50/CLHS/Body/m_rst_bi.htm</link>
 <section>エラー</section>
 <file>condition-restart.l</file>
