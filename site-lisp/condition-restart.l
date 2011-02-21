@@ -197,6 +197,32 @@
               :datum datum
               :expected-type '(or condition symbol string))))))
 
+
+(defun expand-signalling-form (form restart-names)
+  "Expands auto-associating form out of condition signalling form FORM."
+  (labels ((parse-signalling-form (form)
+             "Return    operator     report        datum         args"
+             (case (car form)
+               (cerror
+                (values (first form) (second form) (third form)  (cdddr form)))
+               ((error warn signal)
+                (values (first form) nil           (second form) (cddr form)))
+               (t
+                (error "Invalid signalling form: ~S" form))))
+           (default-type (operator)
+             (case operator
+               ((cerror error) 'simple-error)
+               (warn 'simple-warning)
+               (signal 'simple-condition))))
+    (multiple-value-bind (operator report datum args default-type)
+        (parse-signalling-form form)
+      `(let ((#1=#:condition (%make-condition ,datum (list ,@args)
+                                              ',(default-type operator))))
+         (with-condition-restarts #1# (mapcar #'find-restart '(,@restart-names))
+           ,(if (eql operator 'cerror)
+              `(cerror ,report #1# ,@args)
+              `(,operator #1#)))))))
+
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
   (let ((tags/clauses (mapcar (lambda (clause)
@@ -217,21 +243,7 @@
                ,(let ((form (macroexpand form)))
                   (if (and (consp form)
                            (member (car form) '(signal warn error cerror)))
-                    (let ((operator (car form))
-                          (datum (cadr form))
-                          (args (cddr form)))
-                      `(let ((#4=#:condition
-                               (%make-condition ,datum (list ,@args)
-                                                ',(case operator
-                                                    ((error cerror) 'simple-error)
-                                                    (signal 'simple-condition)
-                                                    (warn 'simple-warning)))))
-                         (with-condition-restarts #4#
-                             (list ,@(mapcar (lambda (tag/clause)
-                                               (%with-tag/clause (tag/clause)
-                                                 `(find-restart ',name)))
-                                       tags/clauses))
-                           (,operator #4#))))
+                    (expand-signalling-form form (mapcar #'car clauses))
                     form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
