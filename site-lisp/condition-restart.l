@@ -337,7 +337,10 @@
       (invoke-restart restart))))
 
 (defun muffle-warning (&optional warning)
-  (invoke-restart 'muffle-warning))
+  (let ((restart (find-restart 'muffle-warning warning)))
+    (if restart
+      (invoke-restart restart)
+      (error 'restart-not-found :designator 'muffle-warning :condition warning))))
 
 (defun use-value (value &optional condition)
   (let ((r (find-restart 'use-value condition)))
