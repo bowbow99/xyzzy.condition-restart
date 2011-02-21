@@ -399,13 +399,18 @@
         nil))))
 
 (defun cerror (fmt-control datum &rest args)
-  (let ((error (%make-condition datum args 'simple-error)))
+  (let ((error (if (and (si:*structurep datum)
+                        (si:*structure-subtypep (si:*structure-definition datum)
+                                                (get 'condition 'si:structure-definition)))
+                 datum
+                 (%make-condition datum args 'simple-error))))
     (restart-case
         (with-condition-restarts error (list (find-restart 'continue))
           (si:*throw-error error))
       (continue ()
         :report (lambda (stream)
                   (apply #'format stream fmt-control args))))))
+
 
 ;;;;
 ;;;; * Function ed:read-value
