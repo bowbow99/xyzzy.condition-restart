@@ -322,7 +322,7 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を用意�
 <chapter>
 <title>cerror</title>
 <type>Function</type>
-<arguments>cerror FMT-CONTROL DATUM &amp;rest ARGS</arguments>
+<arguments>cerror REPORT-CONTROL DATUM &amp;rest ARGS</arguments>
 <package>lisp</package>
 <description>
 回復可能なエラーを投げます。
@@ -332,14 +332,16 @@ warn 関数は、警告を投げるときに muffle-warning 再起動を用意�
 この continue 再起動を起動すると cerror 式から nil を返して、その後の処理
 を続行させることができます。
 
-  FMT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数として
-                ARGS が与えられます。
-  DATUM, ARGS : 投げるエラーを指定します。詳しくは error 関数を参照してく
-                ださい。
+  REPORT-CONTROL : 再起動の概要を出力するフォーマット文字列です。引数と
+                   して ARGS が与えられます。
+  DATUM, ARGS    : 投げるエラーを指定します。詳しくは error 関数を参照し
+                   てください。
+                   cerror では、DATUM にコンディションを指定した場合でも
+                   ARGS を指定できます。（REPORT-CONTROL の引数として使
+                   用されるので。）
 
 ARGS は再起動の概要とエラー指定の両方に使われます。エラー指定に必要だけど
 概要の出力には不要なものは "~*" で無視することができます。
-
 </description>
 <seealso>signal</seealso>
 <seealso>error</seealso>

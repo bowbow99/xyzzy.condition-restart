@@ -71,7 +71,6 @@
      (let ((,car-name (car #1#))
            (,cdr-name (cdr #1#)))
        ,@body)))
-
 #+xyzzy
 (setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
@@ -102,10 +101,9 @@
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-;;;; * Restart Establishing Macros
 
-;;; - Macro restart-bind
-
+;;;;
+;;;; * Macro restart-bind
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
@@ -116,12 +114,12 @@
                              restarts))
                    *active-restarts*)))
      ,@body))
-
 #+xyzzy
 (setf (get 'restart-bind 'ed:lisp-indent-hook) 1
       (get 'restart-bind 'ed::lisp-indent-flet) t)
 
-;;; - Macro with-condition-restarts
+;;;;
+;;;; * Macro with-condition-restarts
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
@@ -129,12 +127,15 @@
            (%add-key/value ,condition ,restarts
                            *condition/restart-association*)))
      ,@body))
-
 #+xyzzy
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
 
-;;; - Macro restart-case
+
+;;;;
+;;;; * Macro restart-case
+
 (eval-when (:load-toplevel :compile-toplevel :execute)
+
   (defun transform-keyword-option-report (form)
     (list :report-function
           (case (type-of form)
@@ -191,19 +192,45 @@
     (symbol
      (apply #'make-condition datum args))
     (t
-     (if (and (typep datum 'condition) (null args))
+     (if (and (si:*structurep datum)
+              (si:*structure-subtypep (si:*structure-definition datum)
+                                      (get 'condition 'si:structure-definition))
+              (null args))
        datum
        (error 'type-error
               :datum datum
               :expected-type '(or condition symbol string))))))
 
+(defun expand-signalling-form (form restart-names)
+  "Expands auto-associating form out of condition signalling form FORM."
+  (labels ((parse-signalling-form (form)
+             "Return    operator     report        datum         args"
+             (case (car form)
+               (cerror
+                (values (first form) (second form) (third form)  (cdddr form)))
+               ((error warn signal)
+                (values (first form) nil           (second form) (cddr form)))
+               (t
+                (error "Invalid signalling form: ~S" form))))
+           (default-type (operator)
+             (case operator
+               ((cerror error) 'simple-error)
+               (warn 'simple-warning)
+               (signal 'simple-condition))))
+    (multiple-value-bind (operator report datum args default-type)
+        (parse-signalling-form form)
+      `(let ((#1=#:condition (%make-condition ,datum (list ,@args)
+                                              ',(default-type operator))))
+         (with-condition-restarts #1# (mapcar #'find-restart '(,@restart-names))
+           ,(if (eql operator 'cerror)
+              `(cerror ,report #1# ,@args)
+              `(,operator #1#)))))))
+
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
-  (let ((tags/clauses (mapcar (lambda (clause)
-                                (cons (gensym) clause))
-                        clauses)))
-    `(block #1=#:restart-case
-       (let ((#2=#:args nil))
+  (let ((tags/clauses (mapcar (lambda (c) (cons (gensym) c)) clauses)))
+    `(block #1=#:restart-case-root
+       (let ((#2=#:restart-args nil))
          (tagbody
            (restart-bind
                (,@(mapcar (lambda (tag/clause)
@@ -217,29 +244,13 @@
                ,(let ((form (macroexpand form)))
                   (if (and (consp form)
                            (member (car form) '(signal warn error cerror)))
-                    (let ((operator (car form))
-                          (datum (cadr form))
-                          (args (cddr form)))
-                      `(let ((#4=#:condition
-                               (%make-condition ,datum (list ,@args)
-                                                ',(case operator
-                                                    ((error cerror) 'simple-error)
-                                                    (signal 'simple-condition)
-                                                    (warn 'simple-warning)))))
-                         (with-condition-restarts #4#
-                             (list ,@(mapcar (lambda (tag/clause)
-                                               (%with-tag/clause (tag/clause)
-                                                 `(find-restart ',name)))
-                                       tags/clauses))
-                           (,operator #4#))))
+                    (expand-signalling-form form (mapcar #'car clauses))
                     form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
                          `(,tag (return-from #1#
-                                  (apply #'(lambda ,args ,@body)
-                                         #2#)))))
+                                  (apply #'(lambda ,args ,@body) #2#)))))
                tags/clauses))))))
-
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
 
@@ -390,14 +401,19 @@
         :report "Ç±ÇÃåxçêÇÕñ≥Ç©Ç¡ÇΩÇ±Ç∆Ç…ÅB"
         nil))))
 
-(defun cerror (fmt-control datum &rest args)
-  (let ((error (%make-condition datum args 'simple-error)))
+(defun cerror (report-control datum &rest args)
+  (let ((error (if (and (si:*structurep datum)
+                        (si:*structure-subtypep (si:*structure-definition datum)
+                                                (get 'condition 'si:structure-definition)))
+                 datum
+                 (%make-condition datum args 'simple-error))))
     (restart-case
         (with-condition-restarts error (list (find-restart 'continue))
           (si:*throw-error error))
       (continue ()
         :report (lambda (stream)
-                  (apply #'format stream fmt-control args))))))
+                  (apply #'format stream report-control args))))))
+
 
 ;;;;
 ;;;; * Function ed:read-value
