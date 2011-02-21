@@ -1,3 +1,7 @@
+2011-02-22  bowbow99  <bowbow99@gmail.com>
+
+	* パッケージ condition-restart からいくつか export しておいた。
+
 2011-02-21  bowbow99  <bowbow99@gmail.com>
 
 	* `restart-case` で直に `cerror` 式を置いた場合のバグを修正。
