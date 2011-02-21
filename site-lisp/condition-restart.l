@@ -62,6 +62,12 @@
 
 (defconstant +version+ "0.01.03")
 
+(export '(+version+
+          ;; Error restart-not-found
+          restart-not-found
+          restart-not-found-designator
+          restart-not-found-condition
+          ))
 
 ;;;;
 ;;;; * Utilities
