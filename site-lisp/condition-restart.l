@@ -401,7 +401,7 @@
         :report "Ç±ÇÃåxçêÇÕñ≥Ç©Ç¡ÇΩÇ±Ç∆Ç…ÅB"
         nil))))
 
-(defun cerror (fmt-control datum &rest args)
+(defun cerror (report-control datum &rest args)
   (let ((error (if (and (si:*structurep datum)
                         (si:*structure-subtypep (si:*structure-definition datum)
                                                 (get 'condition 'si:structure-definition)))
@@ -412,7 +412,7 @@
           (si:*throw-error error))
       (continue ()
         :report (lambda (stream)
-                  (apply #'format stream fmt-control args))))))
+                  (apply #'format stream report-control args))))))
 
 
 ;;;;
