@@ -1,5 +1,10 @@
 2011-02-21  bowbow99  <bowbow99@gmail.com>
 
+	* 関数 `muffle-warning` が受け取ったコンディションを無視して再起動を
+	探してたバグを修正。
+
+	* 関数 `warn` が warning 以外のコンディションを投げれたバグを修正。
+
 	* シンボル `restart` を typespec として使えるように、パッケージ lisp
 	から export しておいた。
 
