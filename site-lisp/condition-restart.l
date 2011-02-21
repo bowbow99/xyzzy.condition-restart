@@ -192,7 +192,10 @@
     (symbol
      (apply #'make-condition datum args))
     (t
-     (if (and (typep datum 'condition) (null args))
+     (if (and (si:*structurep datum)
+              (si:*structure-subtypep (si:*structure-definition datum)
+                                      (get 'condition 'si:structure-definition))
+              (null args))
        datum
        (error 'type-error
               :datum datum
