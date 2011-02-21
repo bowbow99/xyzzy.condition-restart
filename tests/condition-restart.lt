@@ -282,9 +282,9 @@ to the condition to be signalled."
       (warn "Hey")))
 
 ;;;;
-;;;; * Restart Invoking Functions: abort
+;;;; * Restart Invoking Function: abort
 
-(define-test abort-invokes-restart-abort
+(define-test abort-invokes-restart
   (assert-eql :aborted
       (restart-case
           (abort)
@@ -302,7 +302,7 @@ to the condition to be signalled."
 ;(define-test abort-signals-quit-if-no-restart-abort
 ;  (assert-error 'quit (abort)))
 
-(define-test abort-uses-condition-to-find-restart-abort
+(define-test abort-uses-condition-to-find-restart
   (with-condition-restarts
       ;; NOTE: To prevent restart `abort` that established outside of this test
       ;; be found and invoked, associate them with one-time condition so they
@@ -311,27 +311,173 @@ to the condition to be signalled."
       (remove 'abort (compute-restarts nil) :test-not 'eql :key 'restart-name)
     (let ((c1 (make-condition 'simple-error))
           (c2 (make-condition 'simple-error)))
-      ;; Restart abort is associated with c1, and not with c2
-      (assert-eql :aborted
+      (macrolet ((with-abort (condition &body body)
+                   `(restart-case
+                        (with-condition-restarts ,condition (list (find-restart 'abort))
+                          ,@body)
+                      (abort () :aborted))))
+        ;; Restart `abort` is associated with `c1`
+        (assert-eql :aborted (with-abort c1 (abort c1)))
+        (assert-error 'quit  (with-abort c1 (abort c2)))
+        ;; Restart `abort` is associated with `c2`
+        (assert-error 'quit  (with-abort c2 (abort c1)))
+        (assert-eql :aborted (with-abort c2 (abort c2)))
+        ))))
+
+;;;;
+;;;; * Restart Invoking Function: continue
+
+(define-test continue-invokes-restart
+  (assert-eql :continued
+      (restart-case
+          (continue)
+        (continue () :continued)))
+  (assert-eql :continued-inner
+      (restart-case
           (restart-case
-              (with-condition-restarts c1 (list (find-restart 'abort))
-                (abort c1))
-            (abort () :aborted)))
-      (assert-error 'quit
+            (continue)
+            (continue () :continued-inner))
+        (continue () :continued-outer))))
+
+(define-test continue-returns-nil-if-restart-not-found
+  (assert-eql nil (restart-case (continue)
+                    (not-a-continue () :not-continued))))
+
+(define-test continue-uses-condition-to-find-restart
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (macrolet ((with-continue (condition &body body)
+                 `(restart-case
+                      (with-condition-restarts ,condition (list (find-restart 'continue))
+                        ,@body)
+                    (continue () :cont))))
+      ;; Restart `continue` is associated with `c1`
+      (assert-eql :cont (with-continue c1 (continue c1)))
+      (assert-eql nil   (with-continue c1 (continue c2)))
+      ;; Restart `continue` is associated with `c2`
+      (assert-eql nil   (with-continue c2 (continue c1)))
+      (assert-eql :cont (with-continue c2 (continue c2)))
+      )))
+
+;;;;
+;;;; * Restart Invoking Function: muffle-warning
+
+(define-test muffle-warning-invoke-restart
+  (assert-eql :muffled
+      (restart-case
+          (muffle-warning)
+        (muffle-warning () :muffled)))
+  (assert-eql :muffled-by-inner
+      (restart-case
           (restart-case
-              (with-condition-restarts c1 (list (find-restart 'abort))
-                (abort c2))
-            (abort () :aborted)))
-      ;; Restart abort is associated with c2, and not with c1
-      (assert-error 'quit
+            (muffle-warning)
+            (muffle-warning () :muffled-by-inner))
+        (muffle-warning () :muffled-by-outer))))
+
+(define-test muffle-warning-signal-program-error-if-restart-not-found
+  (assert-error 'control-error
+      (muffle-warning))
+  (assert-error 'control-error
+      (restart-case
+          (muffle-warning)
+        (not-a-muffle-warning () :should-not-see-me))))
+
+(define-test muffle-warning-uses-condition-to-find-restart
+  (let ((w1 (make-condition 'simple-warning))
+        (w2 (make-condition 'simple-warning)))
+    (macrolet ((with-muffle-warning (associate &body body)
+                 `(restart-case
+                      (with-condition-restarts ,associate (list (find-restart 'muffle-warning))
+                        ,@body)
+                    (muffle-warning () :muffled))))
+      ;; Restart muffle-warning is associated with w1, and not with w2
+      (assert-eql :muffled
+          (with-muffle-warning w1 (muffle-warning w1)))
+      (assert-error 'control-error
+          (with-muffle-warning w1 (muffle-warning w2)))
+      ;; Restart muffle-warning is associated with w2, and not with w1
+      (assert-error 'control-error
+          (with-muffle-warning w2 (muffle-warning w1)))
+      (assert-eql :muffled
+          (with-muffle-warning w2 (muffle-warning w2))))))
+
+;;;;
+;;;; * Restart Invoking Function: use-value
+
+(define-test use-value-invokes-restart
+  (assert-eql :using-value
+      (restart-case
+          (use-value 3)
+        (use-value (x) :using-value)))
+  (assert-eql 3
+      (restart-case
+          (use-value 3)
+        (use-value (x) x)))
+  (assert-equal :inner-restart
+      (restart-case
           (restart-case
-              (with-condition-restarts c2 (list (find-restart 'abort))
-                (abort c1))
-            (abort () :aborted)))
-      (assert-eql :aborted
+            (use-value 3)
+            (use-value (x) :inner-restart))
+        (use-value (x) :outer-restart))))
+
+(define-test use-value-returns-nil-if-restart-not-found
+  (assert-eql nil (use-value 3))
+  (assert-eql nil (restart-case (use-value 3) (not-a-use-value (x) x))))
+
+(define-test use-value-uses-condition-to-find-restart
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (macrolet ((with-use-value (condition &body body)
+                 `(restart-case
+                      (with-condition-restarts ,condition (list (find-restart 'use-value))
+                        ,@body)
+                    (use-value (x) x))))
+      ;; Restart use-value is associated with c1
+      (assert-eql 3   (with-use-value c1 (use-value 3 c1)))
+      (assert-eql nil (with-use-value c1 (use-value 3 c2)))
+      ;; Restart use-value is associated with c2
+      (assert-eql nil (with-use-value c2 (use-value 3 c1)))
+      (assert-eql 3   (with-use-value c2 (use-value 3 c2)))
+      )))
+
+;;;;
+;;;; * Restart Invoking Function: store-value
+
+(define-test store-value-invokes-restart
+  (assert-eql :invoked
+      (restart-case
+          (store-value 3)
+        (store-value (x) :invoked)))
+  (assert-eql 3
+      (restart-case
+          (store-value 3)
+        (store-value (x) x)))
+  (assert-eql :inner
+      (restart-case
           (restart-case
-              (with-condition-restarts c2 (list (find-restart 'abort))
-                (abort c2))
-            (abort () :aborted))))))
+            (store-value 3)
+            (store-value (x) :inner))
+        (store-value (x) :outer))))
+
+(define-test store-value-returns-nil-if-restart-not-found
+  (assert-eql nil (store-value 3))
+  (assert-eql nil (restart-case (store-value 3) (not-a-store-value (x) x))))
+
+(define-test store-value-uses-condition-to-find-restart
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (macrolet ((with-store-value (condition &body body)
+                 `(restart-case
+                      (with-condition-restarts ,condition (list (find-restart 'store-value))
+                        ,@body)
+                    (store-value (x) x))))
+      ;; Restart store-value is associated with c1
+      (assert-eql 3   (with-store-value c1 (store-value 3 c1)))
+      (assert-eql nil (with-store-value c1 (store-value 3 c2)))
+      ;; Restart store-value is associated with c2
+      (assert-eql nil (with-store-value c2 (store-value 3 c1)))
+      (assert-eql 3   (with-store-value c2 (store-value 3 c2)))
+      )))
+
 
 ;;; tests/condition-restart.lt ends here.
