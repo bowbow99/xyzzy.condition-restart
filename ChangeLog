@@ -1,0 +1,118 @@
+2011-02-22  bowbow99  <bowbow99@gmail.com> -- version 0.01.04
+
+	* パッケージ condition-restart からいくつか export しておいた。
+
+2011-02-21  bowbow99  <bowbow99@gmail.com>
+
+	* `restart-case` で直に `cerror` 式を置いた場合のバグを修正。
+
+	* `cerror` で DATUM にコンディションを与えた場合、同時に ARGS を与え
+	られなかったバグを修正。
+	`error` とかではエラーでいいのだけど、`cerror` の場合 REPORT-CONTROL
+	の引数としても使うので受け入れないといけない。
+
+	* 関数 `muffle-warning` が受け取ったコンディションを無視して再起動を
+	探してたバグを修正。
+
+	* 関数 `warn` が warning 以外のコンディションを投げれたバグを修正。
+
+	* シンボル `restart` を typespec として使えるように、パッケージ lisp
+	から export しておいた。
+
+2011-02-20  bowbow99  <bowbow99@gmail.com>
+
+	* リファレンスをあちこち書き直した。
+
+2011-02-17  bowbow99  <bowbow99@gmail.com>
+
+	* `ed:read-value` 復活。`ed:prompt-for` を削除。
+	CLtL2 にあった `prompt-for` は typespec を利用するので、[typespec+] 
+    や [patch/typespec.l] の有無によって `deftype` で定義された typespec
+    を使えるかどうかが変わってしまう。公開する前提のコードだと、
+    [typespec+] に依存するか、標準の typespec しか使わないか、ということ
+    になってしまってさほど美味しくないので typespec を使うのは却下。
+
+	CLtL2 に書いてある `prompt-for` とは互換性のないインターフェースにな
+    ってしまうので名前も変えておいた。
+
+	  [typespec+]: http://github.com/bowbow99/typespec-plus
+	  [patch/typespec.l]: http://xyzzy.s53.xrea.com/wiki/index.php?patch%2Ftypespec.l
+
+2011-02-13  bowbow99  <bowbow99@gmail.com>
+
+	* `ed:read-value` を `ed:prompt-for` で置き換えた。
+	CLtL2 のサンプルコードに使われてた架空の関数 prompt-for が欲しい
+	ものと一致してたのでそれに合わせた。
+
+	* 関数 `abort` で再起動 `abort` が見つからなければエラー `quit`
+	を投げるようにした。
+	Common Lisp だと常に再起動 `abort` がある前提で関数 `abort` は
+	再起動 `abort` を起動することになってるけど、xyzzy だと用意して
+	なかったら無いので。
+
+2011-02-11  bowbow99  <bowbow99@gmail.com>
+
+	* ちょっとマシになった `ed:read-value` を追加。
+	再起動を用意する時に :interactive でユーザーが入力した値を受け取る
+	のは xyzzy だと `(eval (read-sexp "hoge: "))` とかするのが楽なんだ
+	けど、エラーの処理を毎回書くのがめんどくなったので、同様のことをし
+	つつエラーだったら再入力させる関数を作った。
+	（ユーザーが入力をキャンセルした場合（quit が投げられた場合）だけ、
+	quit をそのまま通知する。）
+
+	`ed:*read-value-sexp-reader*` で入力方法を設定可能。
+	`ed:*read-value-message-printer*` でメッセージ表示方法を設定可能。
+
+	触りやすいように editor から export しておいた。
+
+	* `check-type` が typespec+ を使うようにした。
+
+	* `assert` と `check-type` を別ファイル assertions.l に分離
+	`check-type` が typespec+ に依存するようになったけど、condition-
+	restart だけなら typespec+ なしでも使えるように。
+
+	`assert` を使うには "condition-restart" じゃなくて "assertions" を
+	require する必要あり。
+
+	* `assert` と `check-type` の再起動で `ed:read-value` を使うように
+	した。
+
+2011-02-10  bowbow99  <bowbow99@gmail.com>
+
+	* condition を与えずに `find-restart` や `compute-restart` した時に
+	:test-function が実行されてなかったのを修正。
+
+	* `find-restart` に restart object を渡した場合に :test-function で
+	のチェックも condition との関連付けチェックもしてなかったのを修正。
+
+	* `restart-bind` で再起動の本体関数を評価せずに `function` に渡して
+	たのを修正。
+
+	* :test-function 内で `compute-restart` や `find-restart` した場合に
+	（そいつらが同じ :test-function をまた呼び出すので）無限ループってた
+	のを修正。
+
+	* あちこちコード見直し。
+
+2010-08-06  bowbow99  <bowbow99@gmail.com> -- version 0.01.03
+
+	* assert のメッセージを少しマシにした。
+
+	* 配布物にゴミが混入してたので削除。(thx to @southly)
+
+2010-06-13  bowbow99  <bowbow99@gmail.com> -- version 0.01.02
+
+	* リファレンスの file が間違ってたのを修正した。
+
+	* select-restart-interactively が再帰的に呼ばれたときにウィンドウの
+	サイズがおかしくなってたのを修正したつもり。
+
+	* assert の PLACES が nil のときのメッセージを変更した。
+
+2010-06-10  bowbow99  <bowbow99@gmail.com> -- version 0.01.01
+
+	* 再起動を選択を繰り返したときの画面分割のバグに対処した。
+
+2010-06-10  bowbow99  <bowbow99@gmail.com> -- version 0.01.00
+
+	* 作った。公開なう。

@@ -1,49 +1,27 @@
 ;;; -*- mode: lisp; package: editor -*-
 ;;;
-;;; condition-restart-support.l --- Select and invoke restart interactively.
+;;; condition-restart-support.l --- 対話的に再起動を選択・起動する
 ;;;
-;;; This file is part of xyzzy extension 'condition-restart'.
+;;; このファイルは condition-restart の付属品です。
 ;;;
 ;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; License:   MIT Lisence
-#|
-Copyright (c) 2010 bowbow99
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-|#
+;;; License:   MIT (see COPYING)
 
 ;;; Commentary:
-
 ;; 概要
 ;; ====
 ;; エラーがトップレベルまで飛んでいった時に、再起動を選択して起動できる
 ;; コマンド（lisp 式を評価する eval-*** の類）とかです。
 ;;
-
 ;; 使い方 1: *scratch* とかで
 ;; ==========================
 ;; lisp 書くけどよくわかんない、あるいはとりあえず動かしてみたい人向け。
-#|
-;;; eval-*** でエラーったら再起動を選択する
-(require "condition-restart-support")
-(restart:setup-key-bindings)
-|#
+;;
+;; eval-*** でエラーったら再起動を選択する
+;;
+;;     (require "condition-restart-support")
+;;     (restart:setup-key-bindings)
+;;
 ;; 上記の設定を .xyzzy とかに書いておくと、いくつかのキーバインドを変更
 ;; して、以下のコマンドを使えるようになります。
 ;; どれも同名の標準のコマンドを、エラーったときに再起動を選択できるよう
@@ -55,7 +33,6 @@ THE SOFTWARE.
 ;; - restart:eval-buffer
 ;; - restart:eval-expression       グローバルの ESC ESC
 ;;
-
 ;; 使い方 2: 任意のコマンドで
 ;; ==========================
 ;; 自分用の eval-print-last-sexp みたいなものを定義するような人向け。
@@ -63,25 +40,21 @@ THE SOFTWARE.
 ;; - 全てのコンディションを select-restart-interactively で処理するよう
 ;;   に handler-bind で包みます。
 ;; - 常に abort 再起動が用意されるようにします。
-#|
-    (restart-case
-        (handler-bind ((condition 'select-restart-interactively))
-          <任意の処理>)
-      (abort ()
-        :report "処理をやめる。"
-        ;; 何もしなければ restart-case 式から nil が返る。それじゃマズ
-        ;; い場合は return-from とか go で適当なところへ飛ばす。
-        (values)))
-|#
-
+;;
+;;     (restart-case
+;;         (handler-bind ((condition 'select-restart-interactively))
+;;           <任意の処理>)
+;;       (abort ()
+;;         :report "処理をやめる。"
+;;         ;; 何もしなければ restart-case 式から nil が返る。それじゃマズ
+;;         ;; い場合は return-from とか go で適当なところへ飛ばす。
+;;         (values)))
+;;
 
 ;;; TODO:
-;; - abort が無かったら quit とか。
 ;; - CALL STACK
 
 ;;; Code:
-
-(provide "condition-restart-support")
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (require "condition-restart"))
@@ -287,4 +260,6 @@ THE SOFTWARE.
   (define-key esc-map #\ESC 'restart:eval-expression)
   t)
 
+
+(provide "condition-restart-support")
 ;;; restart-support/select-restart-interactively.l ends here

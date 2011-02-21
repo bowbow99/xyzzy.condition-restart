@@ -1,135 +1,15 @@
 ;;; -*- mode: lisp; package: condition-restart -*-
 ;;;
-;;; condition-restart.l --- Restart system from Common Lisp.
+;;; condition-restart.l --- Common Lisp の再起動（Restart）
 ;;;
-;;; This file is part of xyzzy extension 'condition-restart'.
-;;;
-;;; Author:    bowbow99 <bowbow99@gmail.com>
-;;; Version:   0.01.03
-;;; License:   MIT Lisence
-#|
-Copyright (c) 2010 bowbow99
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-|#
-
-;;; Commentary:
-
-;; 概要
-;; ====
-;; Common Lisp のコンディションシステムにある再起動 (Restart) です。
-;;
-;; 個々の関数やマクロについては、付属のへなちょこリファレンス形式のリフ
-;; ァレンスを参照してください。
-;;
-;;   - File: reference/condition-restart.xml
-;;
-;;   参考リンク:
-;;   - [CLHS: 9.1.4.2 Restarts] http://www.lispworks.com/documentation/HyperSpec/Body/09_adb.htm
-;;
-;; おまけ: 再起動を使える assert と check-type も混ざってます。
-;;
-
-;; インストール
-;; ============
-;; netinstaller でインストールした人はそのままでおｋです。
-;; 手動でインストールする場合は、アーカイブを xyzzy のディレクトリにまる
-;; っと解答すればおｋなはずです。
-;;
-
-;; 設定？
-;; ======
-;; *scratch* とかで評価してエラーったときに再起動を選択して起動する方法に
-;; ついては condition-restart-support.l を参照してください。
-;;
-
-
-;; 使い方 for 開発者
-;; =================
-;; 再起動を使いたい拡張 lisp で require して下さい。必要な関数やマクロは
-;; lisp パッケージから export してあるので、通常はそれだけで使えるように
-;; なります。
-;;
-;;     (require :condition-restart)
-;;
-;; それぞれのマクロや関数についてはリファレンスを参照してください。
-;; - reference/condition-restart.xml
-;;
-
-;; とりあえず試したい人向けサンプル
-;; --------------------------------
-;; lisp-mode の C-x C-e か lisp-interaction-mode の C-j で上から順に評価
-;; してみてください。
-#|
-(require "condition-restart")
-(require "condition-restart-support")
-
-(restart:setup-key-bindings)
-
-(cerror "知るかちょ" "ﾌﾞﾙｧ!!!")
-
-(restart-case
-    (/ 3 2 1 0)
-  (zero () :report "0 を返す。" 0)
-  (one () :report "1 を返す。" 1)
-  (use-value (value)
-    :report "返す値を入力する。"
-    :interactive (lambda ()
-                   (list (eval (read-sexp ">> "))))
-    value))
-
-(let ((name :fred)
-      (age -3))
-  (assert (and (stringp name) (< (length name) 64)) (name)
-          "名前が変です: ~S" name)
-  (assert (and (numberp age) (<= 0 age 120)) (age)
-          "トシが変です: ~S" age)
-  (list name age))
-
-|#
-
-;; 上書き注意報
-;; ============
-;; - 標準の関数 warn を上書きしています。
-;;   再起動を用意するようにした以外は標準のものと同じ挙動にしたつもり
-;;   ですが、おかしくなっているかも知れません。
-;;
-
-;;; ChangeLog:
-#|
-* 2010-08-06 - version 0.01.03
-   - assert のメッセージを少しマシにした。
-   - ゴミが混入してたので削除 (thx to @southly)
-* 2010-06-13 - version 0.01.02
-   - リファレンスの file が間違ってたのを修正した。
-   - select-restart-interactively が再帰的に呼ばれたときにウィンドウの
-     サイズがおかしくなってたのを修正したつもり。
-   - assert の PLACES が nil のときのメッセージを変更した。
-* 2010-06-10 - version 0.01.01
-   - 再起動を選択を繰り返したときの画面分割のバグに対処した。
-* 2010-06-10 - version 0.01.00
-   - 作った。公開なう。
-|#
+;;; Author:     bowbow99 <bowbow99@gmail.com>
+;;; Version:    0.01.04
+;;; Category:   Lisp Libraries
+;;; License:    MIT (see COPYING)
+;;; Commentary: (see README.md)
+;;; ChangeLog:  (see ChangeLog)
 
 ;;; Code:
-
-(provide "condition-restart")
 
 ;;;;
 ;;;; * Package
@@ -137,33 +17,42 @@ THE SOFTWARE.
 (when (find-package :elisp)
   (shadow :abort :elisp))
 
-;;; exporting from lisp package
-(in-package :lisp)
+(eval-when (:load-toplevel :compile-toplevel :execute)
 
-(export '(;; Macros establishes restarts
-          restart-case
-          restart-bind
-          with-simple-restart
-          with-condition-restarts
-          ;; Functions deals with restarts
-          restart-name
-          compute-restarts
-          find-restart
-          invoke-restart
-          invoke-restart-interactively
-          ;; Signallers
-          cerror
-          ;; standard restart interface
-          abort
-          continue
-          muffle-warning
-          use-value
-          store-value
-          ;; assertions
-          assert
-          +check-type-error-symbols+
-          )
-        :lisp)
+  ;; NOTE: CL standard symbols are exported from lisp package.
+  (export (mapcar (lambda (name) (intern (string name) :lisp))
+            '(;; Restart establishing macros
+              #:restart-case
+              #:restart-bind
+              #:with-simple-restart
+              #:with-condition-restarts
+              ;; Restart manipulating functions
+              #:restart-name
+              #:compute-restarts
+              #:find-restart
+              #:invoke-restart
+              #:invoke-restart-interactively
+              ;; Condition signaller
+              #:cerror
+              ;; Standard restart names
+              #:abort
+              #:continue
+              #:muffle-warning
+              #:use-value
+              #:store-value
+              ;; as a typespec
+              #:restart
+              ))
+          :lisp)
+
+  ;; NOTE: Export `read-value` from editor package to be visible from
+  ;; most of user code.
+  (export (mapcar (lambda (name) (intern (string name) :editor))
+            '(#:read-value
+              ))
+          :editor)
+
+  ) ; end of `eval-when`
 
 (defpackage :condition-restart
   (:use :lisp)
@@ -171,7 +60,14 @@ THE SOFTWARE.
 
 (in-package :condition-restart)
 
-(defconstant *version* "0.01.03")
+(defconstant +version+ "0.01.04")
+
+(export '(+version+
+          ;; Error restart-not-found
+          restart-not-found
+          restart-not-found-designator
+          restart-not-found-condition
+          ))
 
 ;;;;
 ;;;; * Utilities
@@ -181,7 +77,6 @@ THE SOFTWARE.
      (let ((,car-name (car #1#))
            (,cdr-name (cdr #1#)))
        ,@body)))
-
 #+xyzzy
 (setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
@@ -195,8 +90,8 @@ THE SOFTWARE.
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (defun print-restart (restart stream #:what?)
     (format stream "#<restart: ~A>"
-            (or (restart-name restart)
-                "(anonymous)"))))
+      (or (restart-name restart)
+          "(anonymous)"))))
 
 (defstruct (restart
             (:print-function print-restart))
@@ -212,49 +107,41 @@ THE SOFTWARE.
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-(defun restart-active-p (restart)
-  (find restart *active-restarts*))
 
-(defun restart-associated-p (restart condition)
-  "Return true if RESTART is associated with CONDITION, or RESTART isn't
- associated with any condition."
-  (or (find restart (cdr (assoc condition *condition/restart-association*)))
-      (notany (lambda (assoc)
-                (member restart (cdr assoc)))
-        *condition/restart-association*)))
-
-;;;; * Restart Establishing Macros
-
-;;; - Macro restart-bind
-
+;;;;
+;;;; * Macro restart-bind
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
-          (append (list ,@(mapcar (lambda (restart)
-                                    `(make-restart :name ',(car restart)
-                                                   :function #',(cadr restart)
-                                                   ,@(cddr restart)))
-                            restarts))
-                  *active-restarts*)))
+           (append (list ,@(mapcar (lambda (restart)
+                                     `(make-restart :name ',(car restart)
+                                                    :function ,(cadr restart)
+                                                    ,@(cddr restart)))
+                             restarts))
+                   *active-restarts*)))
      ,@body))
-
 #+xyzzy
-(setf (get 'restart-bind 'ed:lisp-indent-hook) 1)
+(setf (get 'restart-bind 'ed:lisp-indent-hook) 1
+      (get 'restart-bind 'ed::lisp-indent-flet) t)
 
-;;; - Macro with-condition-restarts
+;;;;
+;;;; * Macro with-condition-restarts
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
   `(let ((*condition/restart-association*
-          (%add-key/value ,condition ,restarts
-                          *condition/restart-association*)))
+           (%add-key/value ,condition ,restarts
+                           *condition/restart-association*)))
      ,@body))
-
 #+xyzzy
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
 
-;;; - Macro restart-case
+
+;;;;
+;;;; * Macro restart-case
+
 (eval-when (:load-toplevel :compile-toplevel :execute)
+
   (defun transform-keyword-option-report (form)
     (list :report-function
           (case (type-of form)
@@ -262,11 +149,11 @@ THE SOFTWARE.
              `(lambda (#1=#:stream) (format #1# ,form)))
             (symbol
              (if form
-                 `',form
+               `',form
                (error "Invalid function for :report option: ~S" form)))
             (cons ; lambda form
              (if (eql 'lambda (car form))
-                 form
+               form
                (error "Invalid function for :report option: ~S" form)))
             (t (error "Invalid function for :report option: ~S" form)))))
 
@@ -311,19 +198,45 @@ THE SOFTWARE.
     (symbol
      (apply #'make-condition datum args))
     (t
-     (if (and (typep datum 'condition) (null args))
-         datum
+     (if (and (si:*structurep datum)
+              (si:*structure-subtypep (si:*structure-definition datum)
+                                      (get 'condition 'si:structure-definition))
+              (null args))
+       datum
        (error 'type-error
               :datum datum
               :expected-type '(or condition symbol string))))))
 
+(defun expand-signalling-form (form restart-names)
+  "Expands auto-associating form out of condition signalling form FORM."
+  (labels ((parse-signalling-form (form)
+             "Return    operator     report        datum         args"
+             (case (car form)
+               (cerror
+                (values (first form) (second form) (third form)  (cdddr form)))
+               ((error warn signal)
+                (values (first form) nil           (second form) (cddr form)))
+               (t
+                (error "Invalid signalling form: ~S" form))))
+           (default-type (operator)
+             (case operator
+               ((cerror error) 'simple-error)
+               (warn 'simple-warning)
+               (signal 'simple-condition))))
+    (multiple-value-bind (operator report datum args default-type)
+        (parse-signalling-form form)
+      `(let ((#1=#:condition (%make-condition ,datum (list ,@args)
+                                              ',(default-type operator))))
+         (with-condition-restarts #1# (mapcar #'find-restart '(,@restart-names))
+           ,(if (eql operator 'cerror)
+              `(cerror ,report #1# ,@args)
+              `(,operator #1#)))))))
+
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
-  (let ((tags/clauses (mapcar (lambda (clause)
-                                (cons (gensym) clause))
-                        clauses)))
-    `(block #1=#:restart-case
-       (let ((#2=#:args nil))
+  (let ((tags/clauses (mapcar (lambda (c) (cons (gensym) c)) clauses)))
+    `(block #1=#:restart-case-root
+       (let ((#2=#:restart-args nil))
          (tagbody
            (restart-bind
                (,@(mapcar (lambda (tag/clause)
@@ -337,29 +250,13 @@ THE SOFTWARE.
                ,(let ((form (macroexpand form)))
                   (if (and (consp form)
                            (member (car form) '(signal warn error cerror)))
-                      (let ((operator (car form))
-                            (datum (cadr form))
-                            (args (cddr form)))
-                        `(let ((#4=#:condition
-                                (%make-condition ,datum (list ,@args)
-                                                 ',(case operator
-                                                     ((error cerror) 'simple-error)
-                                                     (signal 'simple-condition)
-                                                     (warn 'simple-warning)))))
-                           (with-condition-restarts #4#
-                               (list ,@(mapcar (lambda (tag/clause)
-                                                 (%with-tag/clause (tag/clause)
-                                                   `(find-restart ',name)))
-                                         tags/clauses))
-                             (,operator #4#))))
+                    (expand-signalling-form form (mapcar #'car clauses))
                     form))))
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
                          `(,tag (return-from #1#
-                                  (apply #'(lambda ,args ,@body)
-                                         #2#)))))
+                                  (apply #'(lambda ,args ,@body) #2#)))))
                tags/clauses))))))
-
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
 
@@ -376,16 +273,33 @@ THE SOFTWARE.
 ;;;;
 ;;;; * Functions Use Active Restarts
 
-(defun restart-test (restart condition)
-  (or (null condition)
-      (null (restart-test-function restart))
-      (funcall (restart-test-function restart) condition)))
+(defun restart-applicable-p (restart condition)
+  "Return true if restart is visible according to condition."
+  (macrolet
+      ((restart-is-associated-with-condition ()
+         `(find restart (cdr (assoc condition *condition/restart-association*))))
+       (restart-is-not-associated-at-all ()
+         `(notany (lambda (association)
+                    (member restart (cdr association)))
+            *condition/restart-association*)))
+    (and
+     ;; check if its visible according to :test-function
+     ;; NOTE: If test-function calls `compute-restarts` or `find-restarts`,
+     ;; it invokes test-function once more and result in an infinite loop.
+     ;; To prevent it, make the restart invisible while execution of its
+     ;; test-function.
+     (let ((*active-restarts* (remove restart *active-restarts*)))
+       ;; NOTE: :test-function defaults to (constantly t)
+       (funcall (restart-test-function restart) condition))
+     ;; check association
+     (or (null condition)
+         (restart-is-associated-with-condition)
+         (restart-is-not-associated-at-all)))))
 
 (defun compute-restarts (&optional condition)
   "Return a list of restarts which are currently active and applicable."
-  (remove-if-not (lambda (restart)
-                   (and (restart-test restart condition)
-                        (restart-associated-p restart condition)))
+  (remove-if-not #'(lambda (restart)
+                     (restart-applicable-p restart condition))
     *active-restarts*))
 
 (defun find-restart (identifier &optional condition)
@@ -394,12 +308,11 @@ THE SOFTWARE.
    ((symbolp identifier)
     (find-if (lambda (restart)
                (and (eql (restart-name restart) identifier)
-                    (restart-test restart condition)
-                    (restart-associated-p restart condition)))
+                    (restart-applicable-p restart condition)))
       *active-restarts*))
    ((restart-p identifier)
-    (when (and (typep identifier 'restart)
-               (member identifier *active-restarts*))
+    (when (and (member identifier *active-restarts*)
+               (restart-applicable-p identifier condition))
       identifier))
    (t (error "invalid restart designator: ~S" identifier))))
 
@@ -407,8 +320,8 @@ THE SOFTWARE.
   (designator condition)
   (:report (lambda (condition stream)
              (format stream "Could not find active restart ~S~@[ for condition ~S~]"
-                     (restart-not-found-designator condition)
-                     (restart-not-found-condition condition)))))
+               (restart-not-found-designator condition)
+               (restart-not-found-condition condition)))))
 #+xyzzy
 (setf (get 'restart-not-found 'ed::lisp-indent-handler) t)
 
@@ -432,7 +345,8 @@ THE SOFTWARE.
 ;;; - Interface Functions for Standard Restart
 
 (defun abort (&optional condition)
-  (invoke-restart (find-restart 'abort condition)))
+  (let ((r (find-restart 'abort condition)))
+    (if r (invoke-restart r) (quit))))
 
 (defun continue (&optional condition)
   (let ((restart (find-restart 'continue condition)))
@@ -440,7 +354,10 @@ THE SOFTWARE.
       (invoke-restart restart))))
 
 (defun muffle-warning (&optional warning)
-  (invoke-restart 'muffle-warning))
+  (let ((restart (find-restart 'muffle-warning warning)))
+    (if restart
+      (invoke-restart restart)
+      (error 'restart-not-found :designator 'muffle-warning :condition warning))))
 
 (defun use-value (value &optional condition)
   (let ((r (find-restart 'use-value condition)))
@@ -454,8 +371,35 @@ THE SOFTWARE.
 ;;;;
 ;;;; * Signaling Condition with Restarts
 
+(defun ensure-warning-designator (datum args)
+  "Ensure DATUM and ARGS denotes a warning. If not, signal a `type-error`."
+  (let ((warning (get 'warning 'si:structure-definition)))
+    (macrolet ((TYPE-ERROR (actual expected)
+                 `(error 'type-error :datum ,actual :expected-type ',expected)))
+      (cond
+       ;; condition object
+       ((si:*structurep datum)
+        (unless (si:*structure-subtypep
+                 (si:*structure-definition datum)
+                 warning)
+          (TYPE-ERROR datum (or warning warning-type string)))
+        (unless (null args)
+          (TYPE-ERROR args null)))
+       ;; condition type
+       ((symbolp datum)
+        (unless (let ((def (get datum 'si:structure-definition)))
+                  (and def
+                       (si:*structure-subtypep def warning)))
+          (TYPE-ERROR datum (or warning warning-type string))))
+       ;; warning message
+       ((stringp datum) t)
+       ;; other
+       (t (TYPE-ERROR datum (or warning warning-type string)))))))
+
+
 (defun warn (datum &rest args)
   (let ((warning (%make-condition datum args 'simple-warning)))
+    (ensure-warning-designator datum args)
     (restart-case
         (with-condition-restarts warning (list (find-restart 'muffle-warning))
           (si:*throw-error warning))
@@ -463,74 +407,35 @@ THE SOFTWARE.
         :report "この警告は無かったことに。"
         nil))))
 
-(defun cerror (fmt-control datum &rest args)
-  (let ((error (%make-condition datum args 'simple-error)))
+(defun cerror (report-control datum &rest args)
+  (let ((error (if (and (si:*structurep datum)
+                        (si:*structure-subtypep (si:*structure-definition datum)
+                                                (get 'condition 'si:structure-definition)))
+                 datum
+                 (%make-condition datum args 'simple-error))))
     (restart-case
         (with-condition-restarts error (list (find-restart 'continue))
           (si:*throw-error error))
       (continue ()
         :report (lambda (stream)
-                  (apply #'format stream fmt-control args))))))
+                  (apply #'format stream report-control args))))))
+
 
 ;;;;
-;;;; * Assertions
+;;;; * Function ed:read-value
 
-(defconstant +check-type-error-symbols+
-  '(si::check-type-error
-    si::check-type-error-datum
-    si::check-type-error-expected-type
-    si::check-type-error-place
-    si::check-type-error-string
-    ))
+(defun ed:read-value (prompt &optional predicate)
+  (labels ((again (msg &rest args)
+             (apply #'ed:message msg args)
+             (ed:read-value prompt predicate)))
+    (let ((form (ed:read-sexp prompt)))
+      (handler-case
+          (let ((value (eval form)))
+            (if (or (null predicate)
+                    (funcall predicate value))
+              value
+              (again "不正な値です: ~S: ~S" value predicate)))
+        (error (e) (again "エラー: ~A" e))))))
 
-(defun read-value-for (place)
-  (restart-case
-      (eval (ed:read-sexp (format nil "`~S' の値: " place)))
-    (re-enter ()
-      :report (lambda (stream)
-                (format stream "`~S' の値を入力し直す。" place))
-      (read-value-for place))))
-
-(defmacro assert (test-form &optional places
-                  (datum t datum-supplied-p) &rest args)
-  "Ensure TEST-FORM evaluates to non-nil."
-  `(tagbody
-     #1=#:assertion-root
-     (unless ,test-form
-       (restart-case
-           (error ,@(if datum-supplied-p
-                        (list* datum args)
-                      `("assert に失敗しました: ~S" ',test-form)))
-         (continue (&rest new-values)
-           :report (lambda (stream)
-                     (format stream "~:[やり直す。~;~@*値を変更してやり直す。(~{~S~^ ~})~]"
-                             ',places))
-           :interactive (lambda ()
-                          (mapcar #'read-value-for ',places))
-           (setf ,@(let ((i -1))
-                     (mapcan (lambda (place)
-                               `(,place (nth ,(incf i) new-values)))
-                       places)))
-           (go #1#))))))
-
-(defmacro check-type (place typespec &optional string)
-  "Ensure value of PLACE is type of TYPESPEC."
-  `(tagbody
-     #1=#:check-type-root
-     (let ((#2=#:datum ,place))
-       (unless (typep #2# ',typespec)
-         (restart-case
-             (error 'si::check-type-error
-                    :place ',place
-                    :datum #2#
-                    :expected-type ',typespec
-                    :string ,string)
-           (store-value (new-value)
-             :report (lambda (stream)
-                       (format stream "`~S' の値を変更してやり直す。" ',place))
-             :interactive (lambda ()
-                            (list (read-value-for ',place)))
-             (setf ,place new-value)
-             (go #1#)))))))
-
+(provide "condition-restart")
 ;;;; condition-restart.l ends here
