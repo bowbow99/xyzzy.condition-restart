@@ -71,7 +71,6 @@
      (let ((,car-name (car #1#))
            (,cdr-name (cdr #1#)))
        ,@body)))
-
 #+xyzzy
 (setf (get 'with-ca/dr 'ed:lisp-indent-hook) 1)
 
@@ -102,10 +101,9 @@
 (defparameter *condition/restart-association* nil
   "List of condition and associated restarts.")
 
-;;;; * Restart Establishing Macros
 
-;;; - Macro restart-bind
-
+;;;;
+;;;; * Macro restart-bind
 (defmacro restart-bind ((&rest restarts) &body body)
   "Evaluate the BODY in a dynamic environment where RESTARTS are in effect."
   `(let ((*active-restarts*
@@ -116,12 +114,12 @@
                              restarts))
                    *active-restarts*)))
      ,@body))
-
 #+xyzzy
 (setf (get 'restart-bind 'ed:lisp-indent-hook) 1
       (get 'restart-bind 'ed::lisp-indent-flet) t)
 
-;;; - Macro with-condition-restarts
+;;;;
+;;;; * Macro with-condition-restarts
 
 (defmacro with-condition-restarts (condition restarts &body body)
   "Evaluate BODY with associating RESTARTS with CONDITION."
@@ -129,12 +127,15 @@
            (%add-key/value ,condition ,restarts
                            *condition/restart-association*)))
      ,@body))
-
 #+xyzzy
 (setf (get 'with-condition-restarts 'ed:lisp-indent-hook) 2)
 
-;;; - Macro restart-case
+
+;;;;
+;;;; * Macro restart-case
+
 (eval-when (:load-toplevel :compile-toplevel :execute)
+
   (defun transform-keyword-option-report (form)
     (list :report-function
           (case (type-of form)
@@ -197,7 +198,6 @@
               :datum datum
               :expected-type '(or condition symbol string))))))
 
-
 (defun expand-signalling-form (form restart-names)
   "Expands auto-associating form out of condition signalling form FORM."
   (labels ((parse-signalling-form (form)
@@ -225,11 +225,9 @@
 
 (defmacro restart-case (form &rest clauses)
   "Evaluate the FORM in a environment where clauses establishes restarts."
-  (let ((tags/clauses (mapcar (lambda (clause)
-                                (cons (gensym) clause))
-                        clauses)))
-    `(block #1=#:restart-case
-       (let ((#2=#:args nil))
+  (let ((tags/clauses (mapcar (lambda (c) (cons (gensym) c)) clauses)))
+    `(block #1=#:restart-case-root
+       (let ((#2=#:restart-args nil))
          (tagbody
            (restart-bind
                (,@(mapcar (lambda (tag/clause)
@@ -248,10 +246,8 @@
            ,@(mapcan (lambda (tag/clause)
                        (%with-tag/clause (tag/clause)
                          `(,tag (return-from #1#
-                                  (apply #'(lambda ,args ,@body)
-                                         #2#)))))
+                                  (apply #'(lambda ,args ,@body) #2#)))))
                tags/clauses))))))
-
 #+xyzzy
 (setf (get 'restart-case 'ed:lisp-indent-hook) 1)
 
