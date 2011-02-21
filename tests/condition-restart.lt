@@ -85,6 +85,23 @@ from FORM."
             'normal-foo)
         (foo () 'restart-foo))))
 
+(define-test restart-case-propagate-signalled-condition
+  (assert-error 'simple-error
+      (restart-case
+          (error "Hey")
+        (dummy ())))
+  (assert-error 'simple-warning
+      (restart-case
+          (warn "Hey")
+        (dummy ())))
+  (assert-error 'simple-condition
+      (restart-case
+          (signal "Hey")
+        (dummy ())))
+  (assert-error 'simple-error
+      (restart-case
+          (cerror "Just continue" "Hey")
+        (dummy ()))))
 
 (define-test restart-case-returns-value-from-restart-body
   "when restart established by restart-case invoked, restart-case returns
