@@ -3,7 +3,7 @@
 ;;; condition-restart.l --- Common Lisp ‚ÌÄ‹N“®iRestartj
 ;;;
 ;;; Author:     bowbow99 <bowbow99@gmail.com>
-;;; Version:    0.01.03
+;;; Version:    0.01.04
 ;;; Category:   Lisp Libraries
 ;;; License:    MIT (see COPYING)
 ;;; Commentary: (see README.md)
@@ -60,7 +60,7 @@
 
 (in-package :condition-restart)
 
-(defconstant +version+ "0.01.03")
+(defconstant +version+ "0.01.04")
 
 (export '(+version+
           ;; Error restart-not-found
