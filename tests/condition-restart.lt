@@ -259,12 +259,81 @@ to the condition to be signalled."
       ;; signal `c1` == not visible for `c2`
       (assert-type restart (find-restart-foo c1))
       (assert-type restart (find-restart-foo c1 c1))
-      (assert-eql nil (find-restart-foo c1 c2))
+      (assert-eql  nil     (find-restart-foo c1 c2))
       ;; signal `c2` == not visible for `c1`
       (assert-type restart (find-restart-foo c2))
-      (assert-eql nil (find-restart-foo c2 c1))
-      (assert-type restart (find-restart-foo c2 c2)))))
+      (assert-eql  nil     (find-restart-foo c2 c1))
+      (assert-type restart (find-restart-foo c2 c2))
+      )))
 
+(define-test restart-case-associates-restart-if-cerror
+  (let ((c1 (make-condition 'simple-error))
+        (c2 (make-condition 'simple-error)))
+    (macrolet ((find-restart-foo (error &optional condition)
+                 "Find restart `foo` for given CONDITION from handler."
+                 `(block test
+                    (handler-bind
+                        ((simple-error (lambda (e)
+                                         (return-from test
+                                           (find-restart 'foo ,condition)))))
+                      (restart-case
+                          (cerror "Just continue" ,error)
+                        (foo ()))))))
+      ;; signals `c1` == not visible for `c2`
+      (assert-type restart (find-restart-foo c1))
+      (assert-type restart (find-restart-foo c1 c1))
+      (assert-eql  nil     (find-restart-foo c1 c2))
+      ;; signals `c2` == not visible for `c1`
+      (assert-type restart (find-restart-foo c2))
+      (assert-eql  nil     (find-restart-foo c2 c1))
+      (assert-type restart (find-restart-foo c2 c2))
+      )))
+
+(define-test restart-case-associates-restart-if-warn
+  (let ((w1 (make-condition 'simple-warning))
+        (w2 (make-condition 'simple-warning)))
+    (macrolet ((find-restart-foo (warning &optional condition)
+                 "Find restart `foo` for given CONDITION from handler."
+                 `(block test
+                    (handler-bind
+                        ((simple-warning (lambda (w)
+                                           (return-from test
+                                             (find-restart 'foo ,condition)))))
+                      (restart-case
+                          (warn ,warning)
+                        (foo ()))))))
+      ;; warn `w1` == not visible for `w2`
+      (assert-type restart (find-restart-foo w1))
+      (assert-type restart (find-restart-foo w1 w1))
+      (assert-eql  nil     (find-restart-foo w1 w2))
+      ;; warn `w2` == not visible for `w1`
+      (assert-type restart (find-restart-foo w2))
+      (assert-eql  nil     (find-restart-foo w2 w1))
+      (assert-type restart (find-restart-foo w2 w2))
+      )))
+
+(define-test restart-case-associates-restart-if-signal
+  (let ((c1 (make-condition 'simple-condition))
+        (c2 (make-condition 'simple-condition)))
+    (macrolet ((find-restart-foo (to-signal &optional to-look-for)
+                 "Find restart `foo` for given condition TO-LOOK-FOR from handler."
+                 `(block test
+                    (handler-bind
+                        ((simple-condition (lambda (c)
+                                             (return-from test
+                                               (find-restart 'foo ,to-look-for)))))
+                      (restart-case
+                          (signal ,to-signal)
+                        (foo ()))))))
+      ;; signal `c1` == not visible for `c2`
+      (assert-type restart (find-restart-foo c1))
+      (assert-type restart (find-restart-foo c1 c1))
+      (assert-eql  nil     (find-restart-foo c1 c2))
+      ;; signal `c2` == not visible for `c1`
+      (assert-type restart (find-restart-foo c2))
+      (assert-eql  nil     (find-restart-foo c2 c1))
+      (assert-type restart (find-restart-foo c2 c2))
+      )))
 
 ;;;;
 ;;;; * Function warn
