@@ -456,7 +456,7 @@ to the condition to be signalled."
   "When condition object specified"
   (let ((err (make-condition 'example-error :foo 1 :bar 2)))
     ;; signals given condition
-    (assert-eql err
+    (assert-error err
         (cerror "Continue" err))
     ;; there's a restart `continue`
     (assert-type restart
@@ -485,7 +485,7 @@ to the condition to be signalled."
                               (let ((r (find-restart 'continue e)))
                                 (with-output-to-string (s)
                                   (funcall (restart::restart-report-function r) s)))))))
-            (error "Continue: ~S ~S" err 1 2))))))
+            (cerror "Continue: ~S ~S" err 1 2))))))
 
 
 ;;;;
