@@ -375,6 +375,120 @@ to the condition to be signalled."
       (warn "Hey")))
 
 ;;;;
+;;;; * Function cerror
+
+(define-test cerror-with-type-signals-error-with-continue-restart
+  "when condition-type specified"
+  ;; signal a condition which is specified type
+  (assert-error 'example-error
+      (cerror "Continue" 'example-error :foo 1 :bar 2))
+  ;; there's a restart `continue`
+  (assert-type restart
+      (block test
+        (handler-bind ((example-error
+                        (lambda (e)
+                          (return-from test
+                            (find-restart 'continue e)))))
+          (cerror "Continue" 'example-error :foo 1 :bar 2))))
+  ;; uses first argument to produce report
+  (assert-equal "Continue"
+      (block test
+        (handler-bind ((example-error
+                        (lambda (e)
+                          (return-from test
+                            (let ((r (find-restart 'continue e)))
+                              (with-output-to-string (s)
+                                (funcall (restart::restart-report-function r) s)))))))
+          (cerror "Continue" 'example-error :foo 1 :bar 2))))
+  ;; uses args as arguments for report string
+  (assert-equal "Continue: 1 2"
+      (block test
+        (handler-bind ((example-error
+                        (lambda (e)
+                          (return-from test
+                            (let ((r (find-restart 'continue e)))
+                              (with-output-to-string (s)
+                                (funcall (restart::restart-report-function r) s)))))))
+          (cerror "Continue: ~*~S ~*~S" 'example-error :foo 1 :bar 2)))))
+
+
+(define-test cerror-with-string-signals-simple-error-with-continue-restart
+  "When string specified"
+  ;; signalls a `simple-error`
+  (assert-error 'simple-error
+      (cerror "Continue" "Hey"))
+  ;; uses args for error message
+  (assert-equal "Hey: 3"
+      (handler-case
+          (cerror "Continue" "Hey: ~S" 3)
+        (simple-error (e)
+          (princ-to-string e))))
+  ;; there's a restart `continue`
+  (assert-type restart
+      (block test
+        (handler-bind ((simple-error
+                        (lambda (e)
+                          (return-from test
+                            (find-restart 'continue e)))))
+          (cerror "Continue" "Hey"))))
+  ;; uses first argument to produce report
+  (assert-equal "Continue"
+      (block test
+        (handler-bind ((simple-error
+                        (lambda (e)
+                          (return-from test
+                            (let ((r (find-restart 'continue e)))
+                              (with-output-to-string (s)
+                                (funcall (restart::restart-report-function r) s)))))))
+          (cerror "Continue" "Hey"))))
+  ;; uses args as argument for report string
+  (assert-equal "Continue: 3"
+      (block test
+        (handler-bind ((simple-error
+                        (lambda (e)
+                          (return-from test
+                            (let ((r (find-restart 'continue e)))
+                              (with-output-to-string (s)
+                                (funcall (restart::restart-report-function r) s)))))))
+          (cerror "Continue: ~S" "Hey: ~S" 3)))))
+
+(define-test cerror-with-condition-signals-it-with-continue-restart
+  "When condition object specified"
+  (let ((err (make-condition 'example-error :foo 1 :bar 2)))
+    ;; signals given condition
+    (assert-eql err
+        (cerror "Continue" err))
+    ;; there's a restart `continue`
+    (assert-type restart
+        (block test
+          (handler-bind ((example-error
+                          (lambda (e)
+                            (return-from test
+                              (find-restart 'continue e)))))
+            (cerror "Continue" err))))
+    ;; uses first argument to produce report
+    (assert-equal "Continue"
+        (block test
+          (handler-bind ((example-error
+                          (lambda (e)
+                            (return-from test
+                              (let ((r (find-restart 'continue e)))
+                                (with-output-to-string (s)
+                                  (funcall (restart::restart-report-function r) s)))))))
+            (cerror "Continue" err))))
+    ;; uses args as arguments for report string
+    (assert-equal "Continue: 1 2"
+        (block test
+          (handler-bind ((example-error
+                          (lambda (e)
+                            (return-from test
+                              (let ((r (find-restart 'continue e)))
+                                (with-output-to-string (s)
+                                  (funcall (restart::restart-report-function r) s)))))))
+            (error "Continue: ~S ~S" err 1 2))))))
+
+
+;;;;
 ;;;; * Restart Invoking Function: abort
 
 (define-test abort-invokes-restart
