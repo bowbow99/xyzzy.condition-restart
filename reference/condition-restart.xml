@@ -704,7 +704,7 @@ IDENTIFIER で指定される再起動を起動します。
     #<restart: R2>
     #<restart: R0>
     #<restart: abort>
-  => nil
+  =&gt; nil
 </description>
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
@@ -814,7 +814,7 @@ restart-case で用意された再起動が起動されると、与えられた�
         (error "No good reason.")
       (use-value (x)
         x)))
-  => signaller
+  =&gt; signaller
   
   ;; エラーを捕まえて再起動を起動する
   (handler-bind
@@ -822,7 +822,7 @@ restart-case で用意された再起動が起動されると、与えられた�
                 (let ((r (find-restart 'use-value err)))
                   (when r (invoke-restart r :restarted))))))
     (signaller))
-  => :restarted
+  =&gt; :restarted
 
 
 捕捉:
