@@ -578,7 +578,7 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
-<link>[CLHS: Function restart-name] http://www.lispworks.com/documentation/HyperSpec/Body/f_rst_na.htm
+<link>[CLHS: Function restart-name] http://www.lispworks.com/documentation/HyperSpec/Body/f_rst_na.htm</link>
 <section>エラー</section>
 </chapter>
 
