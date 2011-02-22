@@ -1,3 +1,10 @@
+2011-02-22  bowbow99  <bowbow99@gmail.com> -- version 0.01.05
+
+	* restart-name のリファレンスにいろいろ不具合があったので修正
+	- "=>" が残ってた
+	- "#<...>" が残ってた
+	- <link>... が閉じてなかった
+
 2011-02-22  bowbow99  <bowbow99@gmail.com> -- version 0.01.04
 
 	* パッケージ condition-restart からいくつか export しておいた。

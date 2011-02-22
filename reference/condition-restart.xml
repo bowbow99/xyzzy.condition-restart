@@ -578,7 +578,7 @@ ARGS は再起動の概要とエラー指定の両方に使われます。エラ
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
 <seealso>invoke-restart</seealso>
-<link>[CLHS: Function restart-name] http://www.lispworks.com/documentation/HyperSpec/Body/f_rst_na.htm
+<link>[CLHS: Function restart-name] http://www.lispworks.com/documentation/HyperSpec/Body/f_rst_na.htm</link>
 <section>エラー</section>
 </chapter>
 
@@ -701,10 +701,10 @@ IDENTIFIER で指定される再起動を起動します。
         (R0 () "R0")
         (R1 () "R1"))))
   エラー E2 を捕まえました、以下の再起動が見えます:
-    #<restart: R2>
-    #<restart: R0>
-    #<restart: abort>
-  => nil
+    #&lt;restart: R2&gt;
+    #&lt;restart: R0&gt;
+    #&lt;restart: abort&gt;
+  =&gt; nil
 </description>
 <seealso>restart-case</seealso>
 <seealso>find-restart</seealso>
@@ -814,7 +814,7 @@ restart-case で用意された再起動が起動されると、与えられた�
         (error "No good reason.")
       (use-value (x)
         x)))
-  => signaller
+  =&gt; signaller
   
   ;; エラーを捕まえて再起動を起動する
   (handler-bind
@@ -822,7 +822,7 @@ restart-case で用意された再起動が起動されると、与えられた�
                 (let ((r (find-restart 'use-value err)))
                   (when r (invoke-restart r :restarted))))))
     (signaller))
-  => :restarted
+  =&gt; :restarted
 
 
 捕捉:
