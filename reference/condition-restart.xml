@@ -701,9 +701,9 @@ IDENTIFIER で指定される再起動を起動します。
         (R0 () "R0")
         (R1 () "R1"))))
   エラー E2 を捕まえました、以下の再起動が見えます:
-    #<restart: R2>
-    #<restart: R0>
-    #<restart: abort>
+    #&lt;restart: R2&gt;
+    #&lt;restart: R0&gt;
+    #&lt;restart: abort&gt;
   =&gt; nil
 </description>
 <seealso>restart-case</seealso>
