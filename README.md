@@ -1,3 +1,7 @@
+[xyzzy.ansify] に取り込まれました。今後はそっちでメンテされるのでこっちは放置になります。
+
+  [xyzzy.ansify]: http://github.com/bowbow99/xyzzy.ansify
+
 これは何
 ========
 Common Lisp のコンディションシステムにある再起動 (Restart) です。
